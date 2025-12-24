@@ -1,3 +1,4 @@
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Text, View } from 'react-native';
 
 export default function HomeScreen() {
@@ -6,6 +7,7 @@ export default function HomeScreen() {
       <Text className="text-xl font-bold text-blue">
         Welcome to Home!
       </Text>
+      <ImageWithFallback />
     </View>
   );
 }
