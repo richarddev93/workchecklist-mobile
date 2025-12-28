@@ -1,4 +1,5 @@
 const { hairlineWidth } = require('nativewind/theme');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -10,14 +11,26 @@ module.exports = {
   ],
 
   presets: [require("nativewind/preset")],
+
   theme: {
     extend: {
       colors: {
+        /* Base */
+        background: "hsl(var(--background))",
+        surface: "hsl(var(--surface))",
+        foreground: "hsl(var(--text))",
+
+        /* Texto */
+        text: "hsl(var(--text))",
+        muted: "hsl(var(--text-muted))",
+
+        /* Bordas */
         border: "hsl(var(--border))",
+        divider: "hsl(var(--divider))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+
+        /* Ações */
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -26,53 +39,40 @@ module.exports = {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
+
+        /* Estados */
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
+
+        /* Cards */
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+
+        /* Ícones */
+        icon: "hsl(var(--icon))",
+        "icon-muted": "hsl(var(--icon-muted))",
+
+        /* Tabs */
+        "tab-icon-default": "hsl(var(--tab-icon-default))",
+        "tab-icon-selected": "hsl(var(--tab-icon-selected))",
       },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+
       borderWidth: {
         hairline: hairlineWidth(),
       },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
     },
   },
-  future: {
-    hoverOnlyWhenSupported: true,
-  },
+
   plugins: [require("tailwindcss-animate")],
 };
