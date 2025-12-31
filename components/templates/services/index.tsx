@@ -60,7 +60,7 @@ export function ServicesTemplate({
   return (
     <Container>
       <Header title="Servicos" onBackHandler={onBackHandler} noBorder />
-      <View className="flex pb-4 bg-white">
+      <View className="flex pb-4 bg-white border-b border-gray-200">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -105,7 +105,7 @@ export function ServicesTemplate({
         )}
         contentContainerStyle={{
           paddingHorizontal: 4,
-          paddingBottom: tabBarHeight + 60, // ESSENCIAL
+          paddingBottom: tabBarHeight + 60,
         }}
       />
     </Container>
