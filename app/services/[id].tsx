@@ -1,9 +1,14 @@
-import { ServiceListView } from "@/services/views/ServiceList.view";
-import { useRouter } from "expo-router";
+import { ServiceChecklistView } from "@/services/views/ServiceChecklist.view";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
 
-export default function Services() {
+export default function ServoceDetail() {
   const router = useRouter();
+
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  //const service = useServiceById(id); // hook SQLite
+
 
   const backToHome = useCallback(() => {
     router.back();
@@ -63,7 +68,13 @@ export default function Services() {
       },
     },
   ];
-  return (
-    <ServiceListView services={servicesData} onBackHandler={backToHome} />
-  );
+
+  const service = servicesData.find(i=> i.id==id)
+ /* return (
+    <ServiceDetailView service={service as any ?? servicesData[0]} onBackHandler={backToHome}  completedItems={10} totalItems={20} onOpenChecklist={()=> true} onOpenReport={()=> true}/>
+  );*/
+  console.log(id)
+
+  return (    <ServiceChecklistView serviceId={id} onBack={backToHome}/>
+  )
 }

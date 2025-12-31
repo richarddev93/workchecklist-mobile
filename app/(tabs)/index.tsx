@@ -1,4 +1,4 @@
-import DashboardTemplate from "@/components/templates/dashboard";
+import { DashboardServiceView } from "@/services/views/DashboardService.view";
 
 export default function HomeScreen() {
   // const { services, isOffline } = useServices();
@@ -30,5 +30,5 @@ export default function HomeScreen() {
     completedServices
   };
 
-  return <DashboardTemplate services={services} />;
+  return <DashboardServiceView services={services} />;
 }

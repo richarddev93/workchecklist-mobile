@@ -1,32 +1,34 @@
 import Container from "@/components/container";
-import { ServiceCard } from "@/components/service-card";
 import { Header } from "@/components/ui/header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
+import { ServiceCard } from "@/services/components/service-card";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useState } from "react";
+import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import { FlatList, ScrollView, View } from "react-native";
 
-interface ServicesTemplateProps {
+interface ServiceListViewProps {
   services: any[];
   onBackHandler: () => void;
 }
 
-interface ServicesTemplateProps {
+interface ServiceListViewProps {
   services: any[];
   onBackHandler: () => void;
 }
 type TabValue = "all" | "pending" | "in-progress" | "completed";
 
-export function ServicesTemplate({
+export function ServiceListView({
   services,
   onBackHandler,
-}: ServicesTemplateProps) {
+}: ServiceListViewProps) {
   const [value, setValue] = useState("account");
 
   const tabBarHeight = useBottomTabBarHeight();
   const [tab, setTab] = useState<TabValue>("all");
+  const router = useRouter();
 
   const handleTabChange = (value: string) => {
     setTab(value as TabValue);
@@ -35,27 +37,15 @@ export function ServicesTemplate({
   const filteredServices =
     tab === "all" ? services : services.filter((s) => s.status === tab);
 
-  //   return (
-  //     <Container>
-  //       <Header title="Serviços" onBackHandler={onBackHandler} />
-
-  //       <View className="flex-1 px-4">
-
-  //         {/* LISTA REAL */}
-  //         <FlatList
-  //           style={{ flex: 1 }}
-  //           data={filteredServices}
-  //           keyExtractor={(item) => item.id}
-  //           renderItem={({ item }) => <ServiceCard service={item} />}
-  //           showsVerticalScrollIndicator={false}
-  //           contentContainerStyle={{
-  //             paddingBottom: tabBarHeight + 16,
-  //           }}
-  //         />
-  //       </View>
-  //     </Container>
-  //   );
-  // }
+const navigationToServiceDetail = useCallback(
+  (serviceId: string) => {
+    router.push({
+      pathname: "/services/[id]",
+      params: { id: serviceId },
+    });
+  },
+  [router]
+);
 
   return (
     <Container>
@@ -74,18 +64,24 @@ export function ServicesTemplate({
                 { value: "in-progress", label: "Em andamento" },
                 { value: "completed", label: "Concluídos" },
               ].map((t) => {
-                const isSelected =  tab === t.value
+                const isSelected = tab === t.value;
                 return (
                   <TabsTrigger
                     key={t.value}
                     value={t.value}
                     className={cn(
                       "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
-                      tab === t.value ? "!bg-primary !border-tab-icon-selected:" : "bg-gray-100"
+                      tab === t.value
+                        ? "!bg-primary !border-tab-icon-selected:"
+                        : "bg-gray-100"
                     )}
                   >
-                    <Text className={cn("text-lg",
-                      isSelected ? "!text-white" : "text-text" )}>
+                    <Text
+                      className={cn(
+                        "text-md",
+                        isSelected ? "!text-white" : "text-text"
+                      )}
+                    >
                       {t.label}
                     </Text>
                   </TabsTrigger>
@@ -101,7 +97,11 @@ export function ServicesTemplate({
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         renderItem={({ item, index }) => (
-          <ServiceCard service={item} firstItem={index == 0} />
+          <ServiceCard
+            service={item}
+            firstItem={index == 0}
+            onPress={() => navigationToServiceDetail(item.id)}
+          />
         )}
         contentContainerStyle={{
           paddingHorizontal: 4,

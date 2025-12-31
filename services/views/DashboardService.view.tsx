@@ -5,9 +5,9 @@ import { Header } from "@/components/ui/header";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Text, View } from "react-native";
-import { DashboardResume } from "./resume.dashboard";
+import { DashboardResume } from "../components/resume-dashboard";
 
-export default function DashboardTemplate({ services }: any) {
+export function DashboardServiceView({ services }: any) {
   const router = useRouter();
 
   const FirstBlockComponent = () => (
