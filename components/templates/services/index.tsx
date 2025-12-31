@@ -64,7 +64,7 @@ export function ServicesTemplate({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 12 }}
+          contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 12 }}
         >
           <Tabs value={tab} onValueChange={handleTabChange}>
             <TabsList className="flex-row gap-2  bg-transparent">
@@ -73,27 +73,30 @@ export function ServicesTemplate({
                 { value: "pending", label: "Pendentes" },
                 { value: "in-progress", label: "Em andamento" },
                 { value: "completed", label: "Concluídos" },
-              ].map((t) => (
-                <TabsTrigger
-                  key={t.value}
-                  value={t.value}
-                  className={cn(
-                    "flex rounded-full px-4 py-2 border border-border bg-gray-100",
-                    "data-[state=active]:bg-primary",
-                    "data-[state=active]:border-primary"
-                  )}
-                >
-                  <Text className="data-[state=active]:text-primary-foreground">
-                    {t.label}
-                  </Text>
-                </TabsTrigger>
-              ))}
+              ].map((t) => {
+                const isSelected =  tab === t.value
+                return (
+                  <TabsTrigger
+                    key={t.value}
+                    value={t.value}
+                    className={cn(
+                      "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
+                      tab === t.value ? "!bg-primary !border-tab-icon-selected:" : "bg-gray-100"
+                    )}
+                  >
+                    <Text className={cn("text-lg",
+                      isSelected ? "!text-white" : "text-text" )}>
+                      {t.label}
+                    </Text>
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
           </Tabs>
         </ScrollView>
       </View>
       <FlatList
-      className=" px-4 "
+        className=" px-4 "
         data={filteredServices}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
