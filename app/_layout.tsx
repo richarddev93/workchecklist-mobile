@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import "../global.css";
 
+import { ConfigProvider } from "@/context/ConfigContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { ServiceProvider } from "@/services/context/ServiceContext";
 
@@ -19,24 +20,26 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={DefaultTheme}>
-      <ServiceProvider>
-        <View className={"flex-1"}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="modal"
-              options={{ presentation: "modal", title: "Modal" }}
-            />
-          </Stack>
+      <ConfigProvider>
+        <ServiceProvider>
+          <View className={"flex-1"}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="modal"
+                options={{ presentation: "modal", title: "Modal" }}
+              />
+            </Stack>
 
-          <PortalHost />
-          <StatusBar style="auto" />
-        </View>
-      </ServiceProvider>
+            <PortalHost />
+            <StatusBar style="auto" />
+          </View>
+        </ServiceProvider>
+      </ConfigProvider>
     </ThemeProvider>
   );
 }

@@ -87,7 +87,8 @@ export function ServiceChecklistView({
       border: Colors.light.success,
     },
   };
-  const statusStyle = statusStyles[service.status];
+  const statusStyle =
+    statusStyles[service.status as ServiceStatus] ?? statusStyles.pending;
 
   return (
     <View className="flex-1 bg-background px-4">

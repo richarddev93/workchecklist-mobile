@@ -72,7 +72,7 @@ const navigationToServiceDetail = useCallback(
                     className={cn(
                       "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
                       tab === t.value
-                        ? "!bg-primary !border-tab-icon-selected:"
+                        ? "!bg-primary !border-tab-icon-selected"
                         : "bg-gray-100"
                     )}
                   >
