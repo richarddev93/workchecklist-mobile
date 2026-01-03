@@ -1,4 +1,4 @@
-import { ServiceListView } from "@/services/views/ServiceList.view";
+import { ServiceListView } from "@/core/services/views/ServiceList.view";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 

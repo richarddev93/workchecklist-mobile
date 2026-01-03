@@ -1,4 +1,4 @@
-import { DashboardServiceView } from "@/services/views/DashboardService.view";
+import { DashboardServiceView } from "@/core/services/views/DashboardService.view";
 
 export default function HomeScreen() {
   // const { services, isOffline } = useServices();

@@ -1,5 +1,5 @@
-import { useServices } from "@/services/context/ServiceContext";
-import { ReportsView } from "@/services/views/Reports.view";
+import { useServices } from "@/core/services/context/ServiceContext";
+import { ReportsView } from "@/core/services/views/Reports.view";
 import { router } from "expo-router";
 import { useCallback } from "react";
 

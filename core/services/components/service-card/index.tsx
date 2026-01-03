@@ -9,9 +9,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
-import { Progress } from "../../../components/ui/progress";
-import { Separator } from "../../../components/ui/separator";
+} from "../../../../components/ui/card";
+import { Progress } from "../../../../components/ui/progress";
+import { Separator } from "../../../../components/ui/separator";
 
 export type ServiceStatus = "pending" | "in-progress" | "completed";
 
@@ -25,7 +25,7 @@ export interface ServiceItem {
   clientName: string;
   serviceType: string;
   status: ServiceStatus;
-  statusLabel: string;
+  statusLabel: string;p
   date: string;
   address: string;
   progress: ServiceProgress;

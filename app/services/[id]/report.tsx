@@ -1,4 +1,4 @@
-import { ServiceReport } from "@/services/views/ServiceReport.view";
+import { ServiceReport } from "@/core/services/views/ServiceReport.view";
 import { useLocalSearchParams, useRouter } from "expo-router/build/hooks";
 
 export default function Report(){

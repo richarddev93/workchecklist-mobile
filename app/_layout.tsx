@@ -6,8 +6,8 @@ import { View } from "react-native";
 import "../global.css";
 
 import { ConfigProvider } from "@/context/ConfigContext";
+import { ServiceProvider } from "@/core/services/context/ServiceContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { ServiceProvider } from "@/services/context/ServiceContext";
 
 export const unstable_settings = {
   anchor: "(tabs)",

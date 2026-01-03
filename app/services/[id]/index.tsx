@@ -1,4 +1,4 @@
-import { ServiceChecklistView } from "@/services/views/ServiceChecklist.view";
+import { ServiceChecklistView } from "@/core/services/views/ServiceChecklist.view";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
 

@@ -1,4 +1,4 @@
-import { useServices } from '@/services/context/ServiceContext';
+import { useServices } from '@/core/services/context/ServiceContext';
 
 export function useServiceChecklistViewModel(serviceId: string) {
   const { getServiceById, updateService } = useServices();
