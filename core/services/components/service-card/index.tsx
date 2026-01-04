@@ -25,7 +25,7 @@ export interface ServiceItem {
   clientName: string;
   serviceType: string;
   status: ServiceStatus;
-  statusLabel: string;p
+  statusLabel: string;
   date: string;
   address: string;
   progress: ServiceProgress;

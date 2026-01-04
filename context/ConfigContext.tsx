@@ -1,22 +1,17 @@
+import { CompanyRepository, createCompanyRepository } from "@/core/config/repository/companyRepository";
+import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
 import { randomUUID } from "expo-crypto";
 import React, {
   createContext,
   ReactNode,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from "react";
 
-/* =======================
-   TYPES
-======================= */
-
-export interface CompanyInfo {
-  name: string;
-  logo?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-}
+import { DatabaseAdapter } from "@/core/config/storage/database";
+import { CompanyInfo } from "@/types";
 
 export interface Template {
   id: string;
@@ -45,22 +40,48 @@ interface ConfigContextData {
   addServiceType: (data: Omit<ServiceType, "id">) => void;
   updateServiceType: (id: string, data: Partial<ServiceType>) => void;
   deleteServiceType: (id: string) => void;
+  saveCompany:( data: Partial<CompanyInfo>)=> void
 }
 
 const ConfigContext = createContext<ConfigContextData | undefined>(undefined);
 
-/* =======================
-   PROVIDER
-======================= */
 
 export function ConfigProvider({ children }: { children: ReactNode }) {
-  /* ---------- Company ---------- */
+
+const [db, setDb] = useState<DatabaseAdapter | null>(null);
+const repositoryRef = useRef<CompanyRepository | null>(null);
+
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: "WorkChecklist",
     phone: "(11) 99999-9999",
     email: "contato@empresa.com",
-    address: "São Paulo - SP",
+    address: "São Paulo - SC",
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const init = async () => {
+      const dbInstance = await createExpoDbAdapter();
+      repositoryRef.current = createCompanyRepository(dbInstance);
+      const company = await  repositoryRef.current?.getCompany();
+
+      if (mounted) {
+        setDb(dbInstance);
+        console.log("ConigProvider Mounted:", company)
+        if(company) setCompanyInfo(company);
+        setLoading(false);
+      }
+    }
+
+    init();
+
+    return () => {
+      console.log("desmontando configContext ")
+      mounted = false;
+    };
+  }, []);
 
   function updateCompanyInfo(data: Partial<CompanyInfo>) {
     setCompanyInfo((prev) => ({ ...prev, ...data }));
@@ -115,6 +136,10 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
   function deleteServiceType(id: string) {
     setServiceTypes((prev) => prev.filter((t) => t.id !== id));
   }
+   const saveCompany = async (data: Partial<CompanyInfo>) => {
+    await repositoryRef.current?.saveCompany(data);
+    updateCompanyInfo(data); // 🔥 aqui propaga
+  }
 
   return (
     <ConfigContext.Provider
@@ -129,16 +154,13 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
         addServiceType,
         updateServiceType,
         deleteServiceType,
+        saveCompany
       }}
     >
       {children}
     </ConfigContext.Provider>
   );
 }
-
-/* =======================
-   HOOK
-======================= */
 
 export function useConfig() {
   const context = useContext(ConfigContext);

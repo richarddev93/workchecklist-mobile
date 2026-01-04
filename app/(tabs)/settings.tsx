@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
-import { useConfig } from "@/context/ConfigContext";
+import { useConfigViewModel } from "@/core/config/viewmodels/useConfigVM";
 import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -17,7 +17,8 @@ export default function SettingsView() {
     deleteTemplate,
     deleteServiceType,
     updateCompanyInfo,
-  } = useConfig();
+    saveCompany
+  } = useConfigViewModel();
 
   const [tab, setTab] = useState<SettingsTab>("templates");
 
@@ -28,12 +29,21 @@ export default function SettingsView() {
       base64: true,
     });
 
-    if (!result.canceled && result.assets[0].base64) {
-      updateCompanyInfo({
-        logo: `data:image/png;base64,${result.assets[0].base64}`,
-      });
-    }
+    // if (!result.canceled && result.assets[0].base64) {
+    //   updateCompanyInfo({
+    //     logo: `data:image/png;base64,${result.assets[0].base64}`,
+    //   });
+    // }
+
+    saveCompany({
+      name:"TESTE",
+      phone: "1199999999",
+      email:"meuemai",
+      address:"teste 2",
+    })
   }
+
+  console.log("companyInfo")
 
   return (
     <View className="flex-1 gap-2 bg-background">
