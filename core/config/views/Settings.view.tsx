@@ -93,6 +93,7 @@ export default function SettingsView() {
           <ScrollView
             className="flex-1 gap-4"
             keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
             {tab === "company" && (
               <>
