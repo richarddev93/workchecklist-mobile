@@ -11,6 +11,7 @@ import { initDatabase } from "@/core/config/storage/database-config";
 import { ServiceProvider } from "@/core/services/context/ServiceContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useEffect, useState } from "react";
+import ToastManager from "toastify-react-native";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -57,6 +58,7 @@ export default function RootLayout() {
           </View>
         </ServiceProvider>
       </ConfigProvider>
+      <ToastManager />
     </ThemeProvider>
   );
 }
