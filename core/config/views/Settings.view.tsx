@@ -110,7 +110,7 @@ export default function SettingsView() {
         {tab === "company" && (
           <View className="bg-white border-t border-border px-4 pt-4">
             <TouchableOpacity
-              style={{ marginBottom: tabBarHeight + 20 }}
+              style={{ marginBottom: tabBarHeight }}
               className="bg-primary py-4 rounded-xl items-center"
               onPress={() => saveCompany(companyInfo)}
             >
