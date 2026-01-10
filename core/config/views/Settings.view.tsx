@@ -7,7 +7,12 @@ import { cn } from "@/lib/utils";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
-import { ScrollView, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import {
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { CompanyInfoForm } from "../components/company-info-form";
 import { ReportHeaderPreview } from "../components/report-header-preview";
 import { UpgradeCard } from "../components/upgrade-card";
@@ -27,7 +32,7 @@ export default function SettingsView() {
 
   const [tab, setTab] = useState<SettingsTab>("templates");
   const tabBarHeight = useBottomTabBarHeight();
-  const { height} = useWindowDimensions()
+  const { height } = useWindowDimensions();
 
   async function pickLogo() {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -46,7 +51,7 @@ export default function SettingsView() {
   function cleanLogo() {
     updateCompanyInfo({ logo: undefined });
   }
-   
+
   return (
     <Container>
       <Header noBorder />
@@ -90,32 +95,31 @@ export default function SettingsView() {
             keyboardShouldPersistTaps="handled"
           >
             {tab === "company" && (
-              <CompanyInfoForm
-                data={companyInfo}
-                onChange={updateCompanyInfo}
-                onPickLogo={pickLogo}
-                onCleanLogo={cleanLogo}
-              />
+              <>
+                <CompanyInfoForm
+                  data={companyInfo}
+                  onChange={updateCompanyInfo}
+                  onPickLogo={pickLogo}
+                  onCleanLogo={cleanLogo}
+                />
+                <ReportHeaderPreview companyInfo={companyInfo} />
+              </>
             )}
-            <ReportHeaderPreview companyInfo={companyInfo} />
           </ScrollView>
-
         </View>
-          {tab === "company" && (
-            <View
-            className="bg-white border-t border-border px-4 pt-4"
+        {tab === "company" && (
+          <View className="bg-white border-t border-border px-4 pt-4">
+            <TouchableOpacity
+              style={{ marginBottom: tabBarHeight + 20 }}
+              className="bg-primary py-4 rounded-xl items-center"
+              onPress={() => saveCompany(companyInfo)}
             >
-              <TouchableOpacity
-              style={{ marginBottom: tabBarHeight +20}}
-                className="bg-primary py-4 rounded-xl items-center"
-                onPress={() => saveCompany(companyInfo)}
-              >
-                <Text className="text-white font-semibold text-base">
-                  Salvar informações
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+              <Text className="text-white font-semibold text-base">
+                Salvar informações
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </Container>
   );
