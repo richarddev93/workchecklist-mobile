@@ -12,7 +12,7 @@ type Props = {
 
 export function ReportHeaderPreview({ companyInfo }: Props) {
   return (
-    <View className="bg-white rounded-lg border border-gray-200 p-4">
+    <View className="bg-white rounded-lg border border-gray-200 mt-4 p-4">
       <Text className="text-gray-900 mb-3">
         Preview do Cabeçalho do Relatório
       </Text>

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { CompanyInfoForm } from "../components/company-info-form";
 import { ReportHeaderPreview } from "../components/report-header-preview";
 import { UpgradeCard } from "../components/upgrade-card";
@@ -27,6 +27,7 @@ export default function SettingsView() {
 
   const [tab, setTab] = useState<SettingsTab>("templates");
   const tabBarHeight = useBottomTabBarHeight();
+  const { height} = useWindowDimensions()
 
   async function pickLogo() {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -45,9 +46,7 @@ export default function SettingsView() {
   function cleanLogo() {
     updateCompanyInfo({ logo: undefined });
   }
-
-  console.log("companyInfo", tabBarHeight);
-
+   
   return (
     <Container>
       <Header noBorder />
@@ -64,11 +63,10 @@ export default function SettingsView() {
                   key={t.value}
                   value={t.value}
                   className={cn(
-                    "flex flex-1  items-center rounded-lg px-4 py-2 h-12 border border-border",
-
+                    "flex flex-1 items-center justify-center rounded-lg px-3 py-2 min-h-16 border",
                     tab === t.value
                       ? "!bg-primary !border-tab-icon-selected"
-                      : "bg-transparent"
+                      : "bg-secondary"
                   )}
                 >
                   <Text
@@ -88,11 +86,9 @@ export default function SettingsView() {
           <UpgradeCard onHandler={() => console.log()} />
 
           <ScrollView
-            className="flex-1 "
-            contentContainerStyle={{ paddingBottom: 120 }}
+            className="flex-1 gap-4"
             keyboardShouldPersistTaps="handled"
           >
-            {/* EMPRESA */}
             {tab === "company" && (
               <CompanyInfoForm
                 data={companyInfo}
@@ -104,12 +100,13 @@ export default function SettingsView() {
             <ReportHeaderPreview companyInfo={companyInfo} />
           </ScrollView>
 
+        </View>
           {tab === "company" && (
             <View
-              style={{ bottom: tabBarHeight - 24 }}
-              className="absolute left-0 right-0 bg-white border-t border-border p-4"
+            className="bg-white border-t border-border px-4 pt-4"
             >
               <TouchableOpacity
+              style={{ marginBottom: tabBarHeight +20}}
                 className="bg-primary py-4 rounded-xl items-center"
                 onPress={() => saveCompany(companyInfo)}
               >
@@ -119,7 +116,6 @@ export default function SettingsView() {
               </TouchableOpacity>
             </View>
           )}
-        </View>
       </View>
     </Container>
   );

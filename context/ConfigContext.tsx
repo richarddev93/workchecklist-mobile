@@ -69,7 +69,6 @@ const repositoryRef = useRef<CompanyRepository | null>(null);
 
       if (mounted) {
         setDb(dbInstance);
-        console.log("ConigProvider Mounted:", company)
         if(company) setCompanyInfo(company);
         setLoading(false);
       }
@@ -78,7 +77,6 @@ const repositoryRef = useRef<CompanyRepository | null>(null);
     init();
 
     return () => {
-      console.log("desmontando configContext ")
       mounted = false;
     };
   }, []);
