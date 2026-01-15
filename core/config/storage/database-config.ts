@@ -1,4 +1,4 @@
-import { DatabaseAdapter } from "./database";
+import { DatabaseAdapter } from "./database.interface";
 
 type Migration = {
   version: number;
@@ -32,15 +32,31 @@ export const migrations: Migration[] = [
       `);
     },
   },
+    {
+    version: 3,
+    up: async db => {
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS service_type (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          slug TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+    },
+  },
 ];
 
 
 export async function runMigrations(db: DatabaseAdapter) {
+  console.log('run migrations')
   const row = await db.getFirst<{ user_version: number }>(
     'PRAGMA user_version;'
   );
 
   let currentVersion = row?.user_version ?? 0;
+  console.log("current version", currentVersion )
 
   for (const migration of migrations) {
     if (migration.version > currentVersion) {

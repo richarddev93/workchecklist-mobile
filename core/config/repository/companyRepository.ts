@@ -1,6 +1,5 @@
 import { CompanyInfo } from "@/types";
-import { DatabaseAdapter } from "../storage/database";
-// repositories/companyRepository.types.ts
+import { DatabaseAdapter } from "../storage/database.interface";
 
 export type CompanyRepository = {
   getCompany(): Promise<CompanyInfo | null>;

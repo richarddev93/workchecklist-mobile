@@ -38,6 +38,7 @@ export interface ChecklistTemplate {
 export interface ServiceType {
   id: string;
   name: string;
+  slug?:string;
 }
 
 export interface ConfigContextData {

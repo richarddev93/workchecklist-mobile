@@ -1,4 +1,7 @@
-import { CompanyRepository, createCompanyRepository } from "@/core/config/repository/companyRepository";
+import {
+  CompanyRepository,
+  createCompanyRepository,
+} from "@/core/config/repository/companyRepository";
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
 import { randomUUID } from "expo-crypto";
 import React, {
@@ -10,7 +13,11 @@ import React, {
   useState,
 } from "react";
 
-import { DatabaseAdapter } from "@/core/config/storage/database";
+import {
+  createServiceTypeRepository,
+  ServiceTypeRepository,
+} from "@/core/config/repository/serviceTypeRepository";
+import { DatabaseAdapter } from "@/core/config/storage/database.interface";
 import { CompanyInfo } from "@/types";
 
 export interface Template {
@@ -40,16 +47,15 @@ interface ConfigContextData {
   addServiceType: (data: Omit<ServiceType, "id">) => void;
   updateServiceType: (id: string, data: Partial<ServiceType>) => void;
   deleteServiceType: (id: string) => void;
-  saveCompany:( data: Partial<CompanyInfo>)=> void
+  saveCompany: (data: Partial<CompanyInfo>) => void;
 }
 
 const ConfigContext = createContext<ConfigContextData | undefined>(undefined);
 
-
 export function ConfigProvider({ children }: { children: ReactNode }) {
-
-const [db, setDb] = useState<DatabaseAdapter | null>(null);
-const repositoryRef = useRef<CompanyRepository | null>(null);
+  const [db, setDb] = useState<DatabaseAdapter | null>(null);
+  const repositoryRef = useRef<CompanyRepository | null>(null);
+  const serviceTypeRepositoryRef = useRef<ServiceTypeRepository | null>(null);
 
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: "WorkChecklist",
@@ -65,14 +71,17 @@ const repositoryRef = useRef<CompanyRepository | null>(null);
     const init = async () => {
       const dbInstance = await createExpoDbAdapter();
       repositoryRef.current = createCompanyRepository(dbInstance);
-      const company = await  repositoryRef.current?.getCompany();
+      serviceTypeRepositoryRef.current =
+        createServiceTypeRepository(dbInstance);
+      const company = await repositoryRef.current?.getCompany();
+      getAllServiceType();
 
       if (mounted) {
         setDb(dbInstance);
-        if(company) setCompanyInfo(company);
+        if (company) setCompanyInfo(company);
         setLoading(false);
       }
-    }
+    };
 
     init();
 
@@ -121,8 +130,9 @@ const repositoryRef = useRef<CompanyRepository | null>(null);
     { id: randomUUID(), name: "Reparo" },
   ]);
 
-  function addServiceType(data: Omit<ServiceType, "id">) {
-    setServiceTypes((prev) => [...prev, { id: randomUUID(), ...data }]);
+  async function addServiceType(data: Omit<ServiceType, "id">) {
+    await serviceTypeRepositoryRef.current?.save(data);
+    getAllServiceType();
   }
 
   function updateServiceType(id: string, data: Partial<ServiceType>) {
@@ -131,13 +141,20 @@ const repositoryRef = useRef<CompanyRepository | null>(null);
     );
   }
 
+  async function getAllServiceType() {
+    const serviceTypesRes = await serviceTypeRepositoryRef.current?.getAll();
+    console.log(serviceTypesRes);
+    setServiceTypes(serviceTypesRes ?? []);
+  }
+
   function deleteServiceType(id: string) {
     setServiceTypes((prev) => prev.filter((t) => t.id !== id));
   }
-   const saveCompany = async (data: Partial<CompanyInfo>) => {
+  const saveCompany = async (data: Partial<CompanyInfo>) => {
     await repositoryRef.current?.saveCompany(data);
-    updateCompanyInfo(data); // 🔥 aqui propaga
-  }
+    updateCompanyInfo(data);
+  };
+
 
   return (
     <ConfigContext.Provider
@@ -152,7 +169,7 @@ const repositoryRef = useRef<CompanyRepository | null>(null);
         addServiceType,
         updateServiceType,
         deleteServiceType,
-        saveCompany
+        saveCompany,
       }}
     >
       {children}

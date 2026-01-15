@@ -17,6 +17,7 @@ type Props = {
   onChange: (data: Partial<CompanyInfo>) => void;
   onPickLogo: () => void;
   onCleanLogo: () => void;
+  onEdit?: () => void;
 };
 
 export function CompanyInfoForm({
@@ -24,6 +25,7 @@ export function CompanyInfoForm({
   onChange,
   onPickLogo,
   onCleanLogo,
+  onEdit,
 }: Props) {
   const InputForm = ({
     label,
@@ -36,6 +38,11 @@ export function CompanyInfoForm({
       <Input {...props} />
     </View>
   );
+
+  const SetIsEditing = () => {
+    onEdit && onEdit();
+  };
+
   return (
     <View>
       {/* INFO */}
@@ -50,12 +57,16 @@ export function CompanyInfoForm({
         <InputForm
           label={"Empresa"}
           value={data.name}
-          onChangeText={(v) => onChange({ name: v })}
+          onChangeText={(v) => {
+            SetIsEditing();
+            onChange({ name: v });
+          }}
         />
         <InputForm
           label={"Telefone"}
           value={data.phone}
           onChangeText={(v) => {
+            SetIsEditing();
             onChange({ phone: v });
           }}
           keyboardType="phone-pad"
@@ -64,7 +75,10 @@ export function CompanyInfoForm({
         <InputForm
           label={"E-mail"}
           value={data.email}
-          onChangeText={(v) => onChange({ email: v })}
+          onChangeText={(v) => {
+            SetIsEditing();
+            onChange({ email: v });
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -72,7 +86,10 @@ export function CompanyInfoForm({
         <InputForm
           label={"Endereço"}
           value={data.address}
-          onChangeText={(v) => onChange({ address: v })}
+          onChangeText={(v) => {
+            SetIsEditing();
+            onChange({ address: v });
+          }}
         />
 
         <CompanyLogoSection
