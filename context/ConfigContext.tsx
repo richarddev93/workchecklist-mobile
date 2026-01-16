@@ -29,6 +29,7 @@ export interface Template {
 export interface ServiceType {
   id: string;
   name: string;
+  slug?: string;
 }
 
 interface ConfigContextData {
@@ -45,14 +46,14 @@ interface ConfigContextData {
   // Service Types
   serviceTypes: ServiceType[];
   addServiceType: (data: Omit<ServiceType, "id">) => void;
-  updateServiceType: (id: string, data: Partial<ServiceType>) => void;
+  updateServiceType: (data: Partial<ServiceType>) => void;
   deleteServiceType: (id: string) => void;
   saveCompany: (data: Partial<CompanyInfo>) => void;
 }
 
 const ConfigContext = createContext<ConfigContextData | undefined>(undefined);
 
-export function ConfigProvider({ children }: { children: ReactNode }) {
+export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   const [db, setDb] = useState<DatabaseAdapter | null>(null);
   const repositoryRef = useRef<CompanyRepository | null>(null);
   const serviceTypeRepositoryRef = useRef<ServiceTypeRepository | null>(null);
@@ -64,6 +65,25 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
     address: "São Paulo - SC",
   });
   const [loading, setLoading] = useState(true);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
+    { id: randomUUID(), name: "Manutenção preventiva" },
+    { id: randomUUID(), name: "Instalação" },
+    { id: randomUUID(), name: "Reparo" },
+  ]);
+
+  const [templates, setTemplates] = useState<Template[]>([
+    {
+      id: randomUUID(),
+      name: "Manutenção Preventiva",
+      items: [
+        "Verificação inicial do equipamento",
+        "Teste de funcionamento",
+        "Limpeza e manutenção",
+        "Verificação de segurança",
+        "Testes finais",
+      ],
+    },
+  ]);
 
   useEffect(() => {
     let mounted = true;
@@ -90,71 +110,51 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  function updateCompanyInfo(data: Partial<CompanyInfo>) {
-    setCompanyInfo((prev) => ({ ...prev, ...data }));
-  }
-
-  /* ---------- Templates ---------- */
-  const [templates, setTemplates] = useState<Template[]>([
-    {
-      id: randomUUID(),
-      name: "Manutenção Preventiva",
-      items: [
-        "Verificação inicial do equipamento",
-        "Teste de funcionamento",
-        "Limpeza e manutenção",
-        "Verificação de segurança",
-        "Testes finais",
-      ],
-    },
-  ]);
-
-  function addTemplate(data: Omit<Template, "id">) {
-    setTemplates((prev) => [...prev, { id: randomUUID(), ...data }]);
-  }
-
-  function updateTemplate(id: string, data: Partial<Template>) {
-    setTemplates((prev) =>
-      prev.map((tpl) => (tpl.id === id ? { ...tpl, ...data } : tpl))
-    );
-  }
-
-  function deleteTemplate(id: string) {
-    setTemplates((prev) => prev.filter((tpl) => tpl.id !== id));
-  }
-
-  /* ---------- Service Types ---------- */
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
-    { id: randomUUID(), name: "Manutenção preventiva" },
-    { id: randomUUID(), name: "Instalação" },
-    { id: randomUUID(), name: "Reparo" },
-  ]);
-
-  async function addServiceType(data: Omit<ServiceType, "id">) {
-    await serviceTypeRepositoryRef.current?.save(data);
-    getAllServiceType();
-  }
-
-  function updateServiceType(id: string, data: Partial<ServiceType>) {
-    setServiceTypes((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...data } : t))
-    );
-  }
-
-  async function getAllServiceType() {
-    const serviceTypesRes = await serviceTypeRepositoryRef.current?.getAll();
-    console.log(serviceTypesRes);
-    setServiceTypes(serviceTypesRes ?? []);
-  }
-
-  function deleteServiceType(id: string) {
-    setServiceTypes((prev) => prev.filter((t) => t.id !== id));
-  }
   const saveCompany = async (data: Partial<CompanyInfo>) => {
     await repositoryRef.current?.saveCompany(data);
     updateCompanyInfo(data);
   };
 
+  const updateCompanyInfo = (data: Partial<CompanyInfo>) => {
+    setCompanyInfo((prev) => ({ ...prev, ...data }));
+  };
+
+  const addTemplate = (data: Omit<Template, "id">) => {
+    setTemplates((prev) => [...prev, { id: randomUUID(), ...data }]);
+  };
+
+  const updateTemplate = (id: string, data: Partial<Template>) => {
+    setTemplates((prev) =>
+      prev.map((tpl) => (tpl.id === id ? { ...tpl, ...data } : tpl))
+    );
+  };
+
+  const deleteTemplate = (id: string) => {
+    setTemplates((prev) => prev.filter((tpl) => tpl.id !== id));
+  };
+
+  const addServiceType = async (data: Omit<ServiceType, "id">) => {
+    await serviceTypeRepositoryRef.current?.save(data);
+    getAllServiceType();
+  };
+
+  const updateServiceType = async (data: Partial<ServiceType>) => {
+    const res = await serviceTypeRepositoryRef.current?.edit(data);
+    console.log(res)
+    getAllServiceType();
+    return res
+  };
+
+  const getAllServiceType = async () => {
+    const serviceTypesRes = await serviceTypeRepositoryRef.current?.getAll();
+    console.log(serviceTypesRes);
+    setServiceTypes(serviceTypesRes ?? []);
+  };
+
+  const deleteServiceType = async (id: string) => {
+    const serviceTypeRes = await serviceTypeRepositoryRef.current?.delete(id);
+    getAllServiceType();
+  };
 
   return (
     <ConfigContext.Provider
@@ -175,12 +175,12 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
       {children}
     </ConfigContext.Provider>
   );
-}
+};
 
-export function useConfig() {
+export const useConfig = () => {
   const context = useContext(ConfigContext);
   if (!context) {
     throw new Error("useConfig must be used within ConfigProvider");
   }
   return context;
-}
+};

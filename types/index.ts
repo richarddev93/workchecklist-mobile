@@ -59,3 +59,11 @@ export interface ConfigContextData {
   deleteServiceType: (id: string) => void;
 }
 
+export type SettingsTab = "templates" | "types" | "company";
+
+export type TemplateTemplate = {
+  id: string;
+  name: string;
+  items: string[];
+};
+

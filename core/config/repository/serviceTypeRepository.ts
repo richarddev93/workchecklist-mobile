@@ -28,7 +28,7 @@ export const createServiceTypeRepository = (
     return await db.run(
       `UPDATE service_type SET 
           name = ?,
-          slug= ?,
+          slug= ? 
           WHERE id = ?`,
       [data.name, data.slug ?? "", data.id]
     );

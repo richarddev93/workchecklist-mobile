@@ -4,29 +4,17 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { useConfigViewModel } from "@/core/config/viewmodels/useConfigVM";
 import { cn } from "@/lib/utils";
+import { SettingsTab } from "@/types";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-  ScrollView,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { CompanyInfoForm } from "../components/company-info-form";
 import { ReportHeaderPreview } from "../components/report-header-preview";
 import { ServicesTypes } from "../components/services-types";
 import { Templates } from "../components/templates";
 import { UpgradeCard } from "../components/upgrade-card";
 
-type SettingsTab = "templates" | "types" | "company";
-
-type TemplateTemplate = {
-  id: string;
-  name: string;
-  items: string[];
-};
 export default function SettingsView() {
   const {
     templates,
@@ -39,104 +27,27 @@ export default function SettingsView() {
     disableSave,
     handleOnEdit,
     saveServiceType,
-    handleDelete,
-    handleUpdate,
+    handleDeleteServiceType,
+    handleUpdateServiceType,
     newType,
     setNewType,
     setEditingType,
     setShowNewType,
     showNewType,
-    editingType
+    editingType,
+    pickLogo,
+    cleanLogo,
+    templatesHandle,
   } = useConfigViewModel();
 
   const [tab, setTab] = useState<SettingsTab>("templates");
   const tabBarHeight = useBottomTabBarHeight();
   const navigation = useRouter();
-  const { height } = useWindowDimensions();
-
-  async function pickLogo() {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-      base64: true,
-    });
-
-    if (!result.canceled && result.assets[0].base64) {
-      updateCompanyInfo({
-        logo: `data:image/png;base64,${result.assets[0].base64}`,
-      });
-    }
-  }
-
-  function cleanLogo() {
-    updateCompanyInfo({ logo: undefined });
-  }
-
-
-
-  const INITIAL_TEMPLATES_TEMPLATE: TemplateTemplate[] = [
-    {
-      id: "1",
-      name: "Manutenção Preventiva",
-      items: ["Verificar níveis de óleo", "Apertar conexões", "Limpeza geral"],
-    },
-    {
-      id: "2",
-      name: "Instalação",
-      items: ["Conferir equipamentos", "Fixação no local", "Teste final"],
-    },
-  ];
-
-  const [templatesTemplate, setTemplatesTemplate] = useState<
-    TemplateTemplate[]
-  >(INITIAL_TEMPLATES_TEMPLATE);
-
-  const [showNewTemplate, setShowNewTemplate] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
-
-  const [newTemplate, setNewTemplate] = useState<{
-    name: string;
-    items: string[];
-  }>({
-    name: "",
-    items: [""],
-  });
-
-  function handleAddTemplate() {
-    if (!newTemplate.name.trim()) return;
-
-    setTemplatesTemplate((prev) => [
-      ...prev,
-      {
-        id: String(Date.now()),
-        name: newTemplate.name.trim(),
-        items: newTemplate.items.filter(Boolean),
-      },
-    ]);
-
-    setNewTemplate({ name: "", items: [""] });
-    setShowNewTemplate(false);
-  }
-
-  function handleUpdateTemplate(id: string, name: string, items: string[]) {
-    setTemplatesTemplate((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, name, items } : t))
-    );
-    setEditingTemplate(null);
-  }
-
-  function handleDeleteTemplate(id: string) {
-    setTemplatesTemplate((prev) => prev.filter((t) => t.id !== id));
-
-    if (editingTemplate === id) {
-      setEditingTemplate(null);
-    }
-  }
 
   return (
     <Container>
       <Header
-        title="Confirguracões"
+        title="Configuracões"
         noBorder
         onBackHandler={() => navigation.back()}
       />
@@ -176,16 +87,16 @@ export default function SettingsView() {
           <UpgradeCard onHandler={() => console.log()} />
           {tab === "templates" && (
             <Templates
-              templates={templatesTemplate}
-              showNewTemplate={showNewTemplate}
-              newTemplate={newTemplate}
-              editingTemplate={editingTemplate}
-              setShowNewTemplate={setShowNewTemplate}
-              setNewTemplate={setNewTemplate}
-              setEditingTemplate={setEditingTemplate}
-              onAdd={handleAddTemplate}
-              onUpdate={handleUpdateTemplate}
-              onDelete={handleDeleteTemplate}
+              templates={templates}
+              showNewTemplate={templatesHandle.showNewTemplate}
+              newTemplate={templatesHandle.newTemplate}
+              editingTemplate={templatesHandle.editingTemplate}
+              setShowNewTemplate={templatesHandle.setShowNewTemplate}
+              setNewTemplate={templatesHandle.setNewTemplate}
+              setEditingTemplate={templatesHandle.setEditingTemplate}
+              onAdd={templatesHandle.handleAddTemplate}
+              onUpdate={templatesHandle.handleUpdateTemplate}
+              onDelete={templatesHandle.handleDeleteTemplate}
             />
           )}
           {tab === "company" && (
@@ -214,8 +125,8 @@ export default function SettingsView() {
               setNewType={setNewType}
               setEditingType={setEditingType}
               onAdd={saveServiceType}
-              onUpdate={handleUpdate}
-              onDelete={handleDelete}
+              onUpdate={handleUpdateServiceType}
+              onDelete={handleDeleteServiceType}
             />
           )}
         </View>
