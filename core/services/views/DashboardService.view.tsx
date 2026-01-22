@@ -51,7 +51,7 @@ export function DashboardServiceView({ services }: any) {
   const CreateServiceButton = () => (
     <Button
       onPress={() => router.navigate("/add-service")}
-      className="bg-secondary rounded-lg items-center h-16 justify-center"
+      className="bg-primary rounded-lg items-center h-16 justify-center"
     >
       <FontAwesome5 name="plus" size={20} color={"white"} />
       <Text className="text-xl text-white">Criar um novo serviço</Text>
