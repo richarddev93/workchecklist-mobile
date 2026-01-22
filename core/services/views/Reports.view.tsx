@@ -49,11 +49,15 @@ export function ReportsView({
                     {service.client_name || "Cliente não informado"}
                   </Text>
 
-                  <Text className="text-gray-600">{service.service_type || "Tipo não informado"}</Text>
+                  <Text className="text-gray-600">
+                    {service.service_type || "Tipo não informado"}
+                  </Text>
 
                   {service.service_date && (
                     <Text className="text-gray-500 mt-2">
-                      {new Date(service.service_date).toLocaleDateString("pt-BR")}
+                      {new Date(service.service_date).toLocaleDateString(
+                        "pt-BR",
+                      )}
                     </Text>
                   )}
 

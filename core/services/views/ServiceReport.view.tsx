@@ -1,16 +1,16 @@
-import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import {
-  Alert,
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+    Alert,
+    Image,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
-import { useConfig } from '@/context/ConfigContext';
-import { useServices } from '../context/ServiceContext';
+import { useConfig } from "@/context/ConfigContext";
+import { useServices } from "../context/ServiceContext";
 
 interface ServiceReportProps {
   serviceId: string;
@@ -34,21 +34,21 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
   // Map database fields (snake_case) to component fields
   const service = {
     id: dbService.id,
-    clientName: dbService.client_name || 'Sem informação',
-    serviceType: dbService.service_type || 'Sem informação',
+    clientName: dbService.client_name || "Sem informação",
+    serviceType: dbService.service_type || "Sem informação",
     date: dbService.service_date || new Date().toISOString(),
-    address: dbService.location || 'Sem informação',
-    checklist: dbService.checklist_data 
-      ? JSON.parse(dbService.checklist_data) 
+    address: dbService.location || "Sem informação",
+    checklist: dbService.checklist_data
+      ? JSON.parse(dbService.checklist_data)
       : [],
   };
 
   const handleShare = () => {
-    Alert.alert('Compartilhar', 'Funcionalidade será implementada');
+    Alert.alert("Compartilhar", "Funcionalidade será implementada");
   };
 
   const handleDownload = () => {
-    Alert.alert('Download', 'Funcionalidade será implementada');
+    Alert.alert("Download", "Funcionalidade será implementada");
   };
 
   return (
@@ -93,9 +93,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
                 {companyInfo.name}
               </Text>
               {companyInfo.address && (
-                <Text className="text-gray-600">
-                  {companyInfo.address}
-                </Text>
+                <Text className="text-gray-600">{companyInfo.address}</Text>
               )}
               <View className="flex-row flex-wrap gap-3 mt-1">
                 {companyInfo.phone && (
@@ -116,7 +114,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Data de emissão</Text>
               <Text className="text-gray-900">
-                {new Date().toLocaleDateString('pt-BR')}
+                {new Date().toLocaleDateString("pt-BR")}
               </Text>
             </View>
 
@@ -147,7 +145,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
             <View>
               <Text className="text-gray-600">Data</Text>
               <Text className="text-gray-900">
-                {new Date(service.date).toLocaleDateString('pt-BR')}
+                {new Date(service.date).toLocaleDateString("pt-BR")}
               </Text>
             </View>
 
@@ -166,7 +164,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
             Checklist executado
           </Text>
 
-          {service.checklist.map(item => {
+          {service.checklist.map((item) => {
             const photos = item.photos ?? [];
             const hasPhotos = photos.length > 0;
 
@@ -177,21 +175,15 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
               >
                 <View className="flex-row gap-3">
                   <Ionicons
-                    name={
-                      item.completed
-                        ? 'checkmark-circle'
-                        : 'close-circle'
-                    }
+                    name={item.completed ? "checkmark-circle" : "close-circle"}
                     size={20}
-                    color={item.completed ? '#10b981' : '#d1d5db'}
+                    color={item.completed ? "#10b981" : "#d1d5db"}
                   />
 
                   <View className="flex-1">
                     <Text
                       className={
-                        item.completed
-                          ? 'text-gray-900'
-                          : 'text-gray-400'
+                        item.completed ? "text-gray-900" : "text-gray-400"
                       }
                     >
                       {item.title}
@@ -249,21 +241,17 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
 
         {/* RESUMO */}
         <View className="bg-white rounded-lg p-4 border border-gray-200">
-          <Text className="text-gray-900 font-semibold mb-2">
-            Resumo
-          </Text>
+          <Text className="text-gray-900 font-semibold mb-2">Resumo</Text>
 
           <View className="flex-row justify-between">
             <Text className="text-gray-600">Status</Text>
-            <Text className="text-emerald-600 font-medium">
-              Concluído
-            </Text>
+            <Text className="text-emerald-600 font-medium">Concluído</Text>
           </View>
 
           <View className="flex-row justify-between mt-1">
             <Text className="text-gray-600">Itens concluídos</Text>
             <Text className="text-gray-900">
-              {service.checklist.filter(i => i.completed).length}/
+              {service.checklist.filter((i) => i.completed).length}/
               {service.checklist.length}
             </Text>
           </View>
