@@ -1,39 +1,64 @@
 import { Colors } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { MaterialIcons } from "@expo/vector-icons";
+import { ChevronLeft } from "lucide-react-native";
+import type { ComponentProps } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface HeaderProps {
   title?: string;
   onBackHandler?: () => void;
   noBorder?: boolean;
+  actionIcon?: ComponentProps<typeof MaterialIcons>["name"];
+  onActionPress?: () => void;
+  actionLabel?: string;
+  subtitle?: string;
 }
 
 export function Header({
   title = "WorkChecklist",
   onBackHandler,
   noBorder = false,
+  actionIcon = "more-vert",
+  onActionPress,
+  actionLabel,
+  subtitle,
 }: HeaderProps) {
   return (
     <View
       className={cn(
-        "flex flex-row bg-white items-center px-4 py-4",
+        "flex flex-row bg-white items-center px-4 py-4 justify-between",
         !noBorder && "border-b border-gray-200"
       )}
     >
-      {onBackHandler && (
-        <TouchableOpacity onPress={onBackHandler} className="mr-2">
+      <View className="flex flex-row items-center gap-2 flex-1">
+        {onBackHandler && (
+          <TouchableOpacity onPress={onBackHandler} className="mr-1">
+            <ChevronLeft color={Colors.light.icon} size={28} strokeWidth={2.5} />
+          </TouchableOpacity>
+        )}
+
+        <View className="flex-1">
+          <Text className="text-gray-900 text-2xl font-bold" numberOfLines={1}>{title}</Text>
+          {subtitle ? (
+            <Text className="text-gray-500 text-sm" numberOfLines={1}>{subtitle}</Text>
+          ) : null}
+        </View>
+      </View>
+
+      {onActionPress && (
+        <TouchableOpacity
+          onPress={onActionPress}
+          accessibilityLabel={actionLabel ?? "Abrir ações"}
+          className="ml-3"
+        >
           <MaterialIcons
-            name="arrow-left"
+            name={actionIcon}
             color={Colors.light.icon}
-            size={36}
+            size={28}
           />
         </TouchableOpacity>
       )}
-
-      <View className="flex justify-between">
-        <Text className="text-gray-900 text-3xl font-bold">{title}</Text>
-      </View>
     </View>
   );
 }

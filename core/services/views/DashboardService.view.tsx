@@ -50,7 +50,7 @@ export function DashboardServiceView({ services }: any) {
 
   const CreateServiceButton = () => (
     <Button
-      onPress={() => router.navigate("/services")}
+      onPress={() => router.navigate("/add-service")}
       className="bg-secondary rounded-lg items-center h-16 justify-center"
     >
       <FontAwesome5 name="plus" size={20} color={"white"} />
@@ -61,7 +61,7 @@ export function DashboardServiceView({ services }: any) {
   return (
     <Container>
       <View className="min-h-screen bg-surface pb-20">
-        <Header />
+        <Header title="Dashboard" subtitle="Visão geral dos serviços" />
         <View className="p-4 gap-2">
           <FirstBlockComponent />
           <CreateServiceButton />

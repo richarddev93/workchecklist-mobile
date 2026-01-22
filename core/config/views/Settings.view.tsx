@@ -43,6 +43,7 @@ export default function SettingsView() {
     cleanLogo,
     templatesHandle,
     updateCompanyInfo,
+    resetAllData,
   } = useConfigViewModel();
 
   const [tab, setTab] = useState<SettingsTab>("templates");
@@ -191,6 +192,16 @@ export default function SettingsView() {
                 >
                   <Text className="text-white font-semibold text-base">
                     Salvar informações
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="py-4 rounded-xl items-center mt-3 bg-red-500"
+                  onPress={resetAllData}
+                  activeOpacity={0.85}
+                >
+                  <Text className="text-white font-semibold text-base">
+                    Resetar dados (serviços, tipos, templates)
                   </Text>
                 </TouchableOpacity>
               </View>

@@ -68,6 +68,49 @@ export const migrations: Migration[] = [
       `);
     },
   },
+  {
+    version: 6,
+    up: async (db) => {
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS service (
+          id TEXT PRIMARY KEY,
+          client_name TEXT NOT NULL,
+          service_type TEXT NOT NULL,
+          service_date TEXT NOT NULL,
+          location TEXT DEFAULT '',
+          observations TEXT DEFAULT '',
+          template_id TEXT,
+          status TEXT DEFAULT 'in-progress',
+          progress INTEGER DEFAULT 0,
+          checklist_data TEXT DEFAULT '',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+    },
+  },
+  {
+    version: 7,
+    up: async (db) => {
+      // Verify service table exists, recreate if needed
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS service (
+          id TEXT PRIMARY KEY,
+          client_name TEXT NOT NULL,
+          service_type TEXT NOT NULL,
+          service_date TEXT NOT NULL,
+          location TEXT DEFAULT '',
+          observations TEXT DEFAULT '',
+          template_id TEXT,
+          status TEXT DEFAULT 'in-progress',
+          progress INTEGER DEFAULT 0,
+          checklist_data TEXT DEFAULT '',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+    },
+  },
 ];
 
 export async function runMigrations(db: DatabaseAdapter) {

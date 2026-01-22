@@ -53,7 +53,11 @@ export function ServiceCard({ service, firstItem, onPress }: ServiceCardProps) {
       text: Colors.light.success,
       border: Colors.light.success,
     },
-  }[service.status];
+  }[service.status as ServiceStatus] ?? {
+    bg: Colors.light.secondary + "20",
+    text: Colors.light.secondaryForeground,
+    border: Colors.light.secondaryForeground,
+  };
 
   const progressPercent =
     service.progress.total > 0

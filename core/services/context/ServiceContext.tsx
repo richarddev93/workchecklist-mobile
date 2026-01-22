@@ -1,139 +1,100 @@
 import { Service } from "@/types";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import {
+  createServiceRepository,
+  ServiceRepository,
+} from "@/core/services/repository/serviceRepository";
+import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
+import { DatabaseAdapter } from "@/core/config/storage/database.interface";
+import { randomUUID } from "expo-crypto";
 
 interface ServiceContextData {
   services: Service[];
+  addService: (data: Omit<Service, "id" | "created_at" | "updated_at">) => Promise<void>;
+  updateService: (id: string, data: Partial<Service>) => Promise<void>;
+  deleteService: (id: string) => Promise<void>;
   getServiceById: (id: string) => Service | undefined;
-  updateService: (id: string, partial: Partial<Service>) => void;
+  loading: boolean;
 }
 
-const ServiceContext = createContext<ServiceContextData>(
-  {} as ServiceContextData,
-);
+const ServiceContext = createContext<ServiceContextData | undefined>(undefined);
 
 export function ServiceProvider({ children }: { children: React.ReactNode }) {
-  const servicesData: Service[] = [
-    {
-      id: "1",
-      clientName: "João Silva",
-      serviceType: "Manutenção preventiva",
-      status: "in-progress",
-      date: "2024-12-23",
-      address: "Rua das Flores, 123",
-      checklist: [
-        {
-          id: "1-1",
-          title: "Verificar filtros",
-          completed: true,
-        },
-        {
-          id: "1-2",
-          title: "Lubrificar componentes",
-          completed: true,
-        },
-        {
-          id: "1-3",
-          title: "Testar funcionamento",
-          completed: false,
-        },
-        {
-          id: "1-4",
-          title: "Registrar fotos",
-          completed: false,
-        },
-        {
-          id: "1-5",
-          title: "Relatório final",
-          completed: false,
-        },
-      ],
-    },
+  const [db, setDb] = useState<DatabaseAdapter | null>(null);
+  const serviceRepositoryRef = useRef<ServiceRepository | null>(null);
 
-    {
-      id: "2",
-      clientName: "Maria Oliveira",
-      serviceType: "Instalação elétrica",
-      status: "pending",
-      date: "2024-12-22",
-      address: "Av. Paulista, 987",
-      checklist: [
-        {
-          id: "2-1",
-          title: "Desligar energia",
-          completed: false,
-        },
-        {
-          id: "2-2",
-          title: "Instalar disjuntores",
-          completed: false,
-        },
-        {
-          id: "2-3",
-          title: "Passar fiação",
-          completed: false,
-        },
-        {
-          id: "2-4",
-          title: "Testar circuito",
-          completed: false,
-        },
-      ],
-    },
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    {
-      id: "3",
-      clientName: "Carlos Pereira",
-      serviceType: "Reparo hidráulico",
-      status: "completed",
-      date: "2024-12-21",
-      address: "Rua das Acácias, 45",
-      checklist: [
-        {
-          id: "3-1",
-          title: "Identificar vazamento",
-          completed: true,
-        },
-        {
-          id: "3-2",
-          title: "Trocar tubulação",
-          completed: true,
-        },
-        {
-          id: "3-3",
-          title: "Testar pressão",
-          completed: true,
-        },
-      ],
-    },
+  useEffect(() => {
+    let mounted = true;
 
-    {
-      id: "4",
-      clientName: "Ana Souza",
-      serviceType: "Vistoria técnica",
-      status: "in-progress",
-      date: "2024-12-20",
-      address: "Rua Central, 456",
-      checklist: [],
-    },
-  ];
+    const init = async () => {
+      const dbInstance = await createExpoDbAdapter();
+      serviceRepositoryRef.current = createServiceRepository(dbInstance);
 
-  const [services, setServices] = useState<Service[]>(servicesData);
+      if (mounted) {
+        setDb(dbInstance);
+        await getAllServices();
+        setLoading(false);
+      }
+    };
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const getAllServices = async () => {
+    const servicesRes = await serviceRepositoryRef.current?.getAll();
+    setServices(servicesRes ?? []);
+  };
+
+  const addService = async (data: Omit<Service, "id" | "created_at" | "updated_at">) => {
+    try {
+      if (!serviceRepositoryRef.current) {
+        throw new Error("Service repository not initialized");
+      }
+      const id = randomUUID();
+      console.log("Adding service with data:", { id, ...data });
+      await serviceRepositoryRef.current.save(data, id);
+      console.log("Service saved successfully");
+      await getAllServices();
+    } catch (error) {
+      console.error("Error adding service:", error);
+      throw error;
+    }
+  };
+
+  const updateService = async (id: string, data: Partial<Service>) => {
+    try {
+      await serviceRepositoryRef.current?.update(id, data);
+      await getAllServices();
+    } catch (error) {
+      console.error("Error updating service:", error);
+      throw error;
+    }
+  };
+
+  const deleteService = async (id: string) => {
+    try {
+      await serviceRepositoryRef.current?.delete(id);
+      await getAllServices();
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      throw error;
+    }
+  };
 
   function getServiceById(id: string) {
     return services.find((s) => s.id === id);
   }
 
-  function updateService(id: string, partial: Partial<Service>) {
-    setServices((prev) =>
-      prev.map((service) =>
-        service.id === id ? { ...service, ...partial } : service,
-      ),
-    );
-  }
-
   return (
     <ServiceContext.Provider
-      value={{ services, getServiceById, updateService }}
+      value={{ services, addService, updateService, deleteService, getServiceById, loading }}
     >
       {children}
     </ServiceContext.Provider>
@@ -141,5 +102,9 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useServices() {
-  return useContext(ServiceContext);
+  const context = useContext(ServiceContext);
+  if (!context) {
+    throw new Error("useServices must be used within ServiceProvider");
+  }
+  return context;
 }

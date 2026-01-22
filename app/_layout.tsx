@@ -53,7 +53,7 @@ export default function RootLayout() {
             </Stack>
 
             <PortalHost />
-            <StatusBar style="auto" />
+            <StatusBar style="dark" backgroundColor="#ffffff" />
           </View>
         </ServiceProvider>
       </ConfigProvider>

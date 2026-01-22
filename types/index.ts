@@ -10,14 +10,17 @@ export type ServiceStatus = "pending" | "in-progress" | "completed";
 
 export interface Service {
   id: string;
-  clientName: string;
-  serviceType: string;
-  status: ServiceStatus | any;
-  statusLabel?: string;
-  date: string;
-  address: string;
-  progress?: any;
-  checklist: ChecklistItem[];
+  client_name: string;
+  service_type: string;
+  service_date: string;
+  location?: string;
+  observations?: string;
+  template_id?: string;
+  status: ServiceStatus;
+  progress?: number;
+  checklist_data?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CompanyInfo {

@@ -37,6 +37,95 @@ export interface ServiceType {
   slug?: string;
 }
 
+const defaultServiceTypes: ServiceType[] = [
+  { id: "type-1", name: "Manutenção preventiva", slug: "manutencao-preventiva" },
+  { id: "type-2", name: "Manutenção de área verde", slug: "manutencao-area-verde" },
+  { id: "type-3", name: "Elétrica", slug: "eletrica" },
+  { id: "type-4", name: "Hidráulica", slug: "hidraulica" },
+  { id: "type-5", name: "Suporte técnico", slug: "suporte-tecnico" },
+];
+
+const defaultServiceTemplates: ServiceTemplateWithStringItems[] = [
+  {
+    id: "tmpl-1",
+    name: "Manutenção de Ar-Condicionado (Residencial)",
+    service_type: "Manutenção preventiva",
+    items: [
+      "Desligamento do equipamento",
+      "Inspeção visual geral",
+      "Limpeza dos filtros",
+      "Higienização da evaporadora",
+      "Verificação de dreno",
+      "Conferência de conexões elétricas",
+      "Teste de funcionamento",
+      "Verificação de ruídos anormais",
+      "Orientações ao cliente",
+    ],
+  },
+  {
+    id: "tmpl-2",
+    name: "Jardinagem / Manutenção de Jardim",
+    service_type: "Manutenção de área verde",
+    items: [
+      "Corte de grama",
+      "Poda de plantas e arbustos",
+      "Remoção de folhas secas",
+      "Limpeza do terreno",
+      "Verificação de pragas visíveis",
+      "Organização do espaço",
+      "Recolhimento de resíduos",
+      "Orientações ao cliente",
+    ],
+  },
+  {
+    id: "tmpl-3",
+    name: "Instalação Elétrica Residencial",
+    service_type: "Elétrica",
+    items: [
+      "Desligamento da rede elétrica",
+      "Verificação do ponto de instalação",
+      "Conferência de cabos e conexões",
+      "Instalação / substituição do componente",
+      "Fixação adequada",
+      "Teste de funcionamento",
+      "Verificação de segurança",
+      "Liberação da rede elétrica",
+      "Orientações ao cliente",
+    ],
+  },
+  {
+    id: "tmpl-4",
+    name: "Manutenção Hidráulica Residencial",
+    service_type: "Hidráulica",
+    items: [
+      "Fechamento do registro de água",
+      "Inspeção do local",
+      "Identificação do problema",
+      "Substituição ou reparo necessário",
+      "Vedação adequada",
+      "Teste de vazamentos",
+      "Limpeza do local",
+      "Abertura do registro",
+      "Orientações ao cliente",
+    ],
+  },
+  {
+    id: "tmpl-5",
+    name: "Suporte Técnico / TI Básico",
+    service_type: "Suporte técnico",
+    items: [
+      "Identificação do problema",
+      "Verificação de conexões físicas",
+      "Análise de software / sistema",
+      "Aplicação de correções necessárias",
+      "Teste de funcionamento",
+      "Verificação de performance básica",
+      "Atualizações aplicáveis",
+      "Orientações ao usuário",
+    ],
+  },
+];
+
 type ServiceTemplateWithStringItems = Omit<ServiceTemplate, "items"> & {
   items: string[];
 };
@@ -62,6 +151,14 @@ interface ConfigContextData {
 
 const ConfigContext = createContext<ConfigContextData | undefined>(undefined);
 
+const slugifyLocal = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   const [db, setDb] = useState<DatabaseAdapter | null>(null);
   const repositoryRef = useRef<CompanyRepository | null>(null);
@@ -78,24 +175,11 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   });
   const [loading, setLoading] = useState(true);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
-    { id: randomUUID(), name: "Manutenção preventiva" },
-    { id: randomUUID(), name: "Instalação" },
-    { id: randomUUID(), name: "Reparo" },
+    ...defaultServiceTypes,
   ]);
 
   const [templates, setTemplates] = useState<ServiceTemplateWithStringItems[]>([
-    {
-      id: randomUUID(),
-      name: "Manutenção Preventiva",
-      service_type: "Manutenção",
-      items: [
-        "Verificação inicial do equipamento",
-        "Teste de funcionamento",
-        "Limpeza e manutenção",
-        "Verificação de segurança",
-        "Testes finais",
-      ],
-    },
+    ...defaultServiceTemplates,
   ]);
 
   useEffect(() => {
@@ -109,13 +193,15 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
       serviceTemplateRepositoryRef.current =
         createServiceTemplateRepository(dbInstance);
       const company = await repositoryRef.current?.getCompany();
-      getAllServiceType();
 
-      getAllServiceTemplate();
+      // Seed defaults if empty
+      await ensureDefaults();
 
       if (mounted) {
         setDb(dbInstance);
         if (company) setCompanyInfo(company);
+        await getAllServiceType();
+        await getAllServiceTemplate();
         setLoading(false);
       }
     };
@@ -130,6 +216,43 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   const saveCompany = async (data: Partial<CompanyInfo>) => {
     await repositoryRef.current?.saveCompany(data);
     updateCompanyInfo(data);
+  };
+
+  const ensureDefaults = async () => {
+    // Seed service types if empty
+    const types = await serviceTypeRepositoryRef.current?.getAll();
+    if (!types || types.length === 0) {
+      for (const t of defaultServiceTypes) {
+        await serviceTypeRepositoryRef.current?.save({
+          name: t.name,
+          slug: slugifyLocal(t.name),
+        });
+      }
+    }
+
+    // Seed templates if empty
+    const templatesDb = await serviceTemplateRepositoryRef.current?.getAll();
+    if (!templatesDb || templatesDb.length === 0) {
+      for (const tmpl of defaultServiceTemplates) {
+        await serviceTemplateRepositoryRef.current?.save({
+          name: tmpl.name,
+          service_type: tmpl.service_type,
+          items: JSON.stringify(tmpl.items, null, 2),
+        });
+      }
+    }
+  };
+
+  const resetAllData = async () => {
+    if (!db) return;
+
+    await db.exec("DELETE FROM service;");
+    await db.exec("DELETE FROM service_template;");
+    await db.exec("DELETE FROM service_type;");
+
+    await ensureDefaults();
+    await getAllServiceType();
+    await getAllServiceTemplate();
   };
 
   const updateCompanyInfo = (data: Partial<CompanyInfo>) => {
@@ -155,7 +278,10 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateTemplate = async (id: string, data: Partial<ServiceTemplate>) => {
-    const res = await serviceTemplateRepositoryRef.current?.edit({ id, ...data });
+    const res = await serviceTemplateRepositoryRef.current?.edit({
+      id,
+      ...data,
+    });
     getAllServiceTemplate();
     return res;
   };
@@ -201,6 +327,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
         updateServiceType,
         deleteServiceType,
         saveCompany,
+        resetAllData,
       }}
     >
       {children}

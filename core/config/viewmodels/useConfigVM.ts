@@ -18,6 +18,7 @@ export const useConfigViewModel = () => {
     addServiceType,
     updateServiceType,
     updateTemplate,
+    resetAllData,
   } = useConfig();
 
   const [onEdit, setOnEdit] = useState(true);
@@ -211,5 +212,6 @@ export const useConfigViewModel = () => {
     cleanLogo,
     saveServiceType,
     templatesHandle,
+    resetAllData,
   };
 };

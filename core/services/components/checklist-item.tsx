@@ -13,6 +13,7 @@ interface ChecklistItemComponentProps {
   onToggle: () => void;
   onNoteChange: (note: string) => void;
   onPhotosChange: (photos: string[]) => void;
+  disabledToggle?: boolean;
 }
 
 export function ChecklistItemComponent({
@@ -20,6 +21,7 @@ export function ChecklistItemComponent({
   onToggle,
   onNoteChange,
   onPhotosChange,
+  disabledToggle = false,
 }: ChecklistItemComponentProps) {
   const [note, setNote] = useState(item.note ?? "");
 
@@ -35,11 +37,14 @@ export function ChecklistItemComponent({
       `}
     >
       {/* Header */}
-      <Pressable onPress={onToggle} className="flex-row items-center gap-3">
+      <Pressable
+        onPress={disabledToggle ? undefined : onToggle}
+        className="flex-row items-center gap-3"
+      >
         <MaterialIcons
           name={item.completed ? "check-circle" : "radio-button-unchecked"}
           size={26}
-          color={item.completed ? "#10b981" : "#9ca3af"}
+          color={disabledToggle ? "#d1d5db" : item.completed ? "#10b981" : "#9ca3af"}
         />
 
         <Text
@@ -48,7 +53,7 @@ export function ChecklistItemComponent({
             ${item.completed ? "text-green-800 line-through" : "text-gray-900"}
           `}
         >
-          {item.title}
+          {item.title || "Item sem descrição"}
         </Text>
       </Pressable>
 

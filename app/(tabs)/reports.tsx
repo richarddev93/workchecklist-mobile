@@ -20,6 +20,10 @@ export default function Reports() {
     [router]
   );
   return (
-    <ReportsView  completedServices={completedServices} onBack={()=> console.log} onNavigate={navigationToServiceReport}/>
+    <ReportsView
+      completedServices={completedServices}
+      onBack={() => router.back()}
+      onNavigate={navigationToServiceReport}
+    />
   );
 }

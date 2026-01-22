@@ -1,3 +1,5 @@
+import Container from "@/components/container";
+import { Header } from "@/components/ui/header";
 import { Service } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -15,19 +17,9 @@ export function ReportsView({
   onBack,
 }: ReportsProps) {
   return (
-    <View className="flex-1 bg-background pb-20">
+    <Container>
       {/* Header */}
-      <View className="bg-white border-b border-gray-200 px-4 py-4">
-        <View className="flex-row items-center gap-3">
-          <TouchableOpacity onPress={onBack}>
-            <Ionicons name="arrow-back" size={24} color="#374151" />
-          </TouchableOpacity>
-
-          <Text className="text-lg font-semibold text-gray-900">
-            Relatórios
-          </Text>
-        </View>
-      </View>
+      <Header title="Relatórios" subtitle="Serviços concluídos" onBackHandler={onBack} />
 
       {/* Content */}
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
@@ -70,6 +62,6 @@ export function ReportsView({
           ))
         )}
       </ScrollView>
-    </View>
+    </Container>
   );
 }

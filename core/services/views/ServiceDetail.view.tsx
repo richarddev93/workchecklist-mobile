@@ -55,7 +55,7 @@ export function ServiceDetailView({
   }[service.status];
   return (
       <Container>
-          <Header title="Detalhes" onBackHandler={onBackHandler} noBorder />
+        <Header title="Detalhes" subtitle="Resumo do serviço" onBackHandler={onBackHandler} noBorder />
     <View className="gap-4 p-4">
       {/* Informações do serviço */}
       <Card>
@@ -142,6 +142,6 @@ export function ServiceDetailView({
         </Pressable>
       )}
     </View>
-    </Container>
-  );
-}
+    <Container>
+        <Header title="Detalhes" subtitle="Resumo do serviço" onBackHandler={onBackHandler} noBorder />
+      <View className="gap-4 p-4">

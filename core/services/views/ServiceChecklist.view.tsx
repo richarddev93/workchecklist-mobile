@@ -1,29 +1,28 @@
-import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
+import Container from "@/components/container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/ui/header";
 import { Progress } from "@/components/ui/progress";
 import { Colors } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 import { ServiceStatus } from "@/types";
 import { ChecklistItemComponent } from "../components/checklist-item";
 import { useServiceChecklistViewModel } from "../viewmodels/useServiceChecklistVM";
+import { useServiceViewModel } from "../viewmodels/useServiceVM";
 
 interface ServiceChecklistProps {
   serviceId: string;
   onBack: () => void;
 }
 
-export function ServiceChecklistView({
-  serviceId,
-  onBack,
-}: ServiceChecklistProps) {
+export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProps) {
   const {
     service,
+    checklist,
     completedItems,
     totalItems,
-    hasAnyCompleted,
     allCompleted,
     toggleItem,
     updateNote,
@@ -32,7 +31,8 @@ export function ServiceChecklistView({
     completeService,
   } = useServiceChecklistViewModel(serviceId);
 
-  const [showFeedback, setShowFeedback] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const { deleteService } = useServiceViewModel();
 
   if (!service) {
     return (
@@ -43,26 +43,8 @@ export function ServiceChecklistView({
   }
 
   const progress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+  const isInProgress = service.status === "in-progress";
 
-  function handleToggle(itemId: string) {
-    toggleItem(itemId);
-    setShowFeedback(true);
-    setTimeout(() => setShowFeedback(false), 300);
-  }
-
-  function handleComplete() {
-    const success = completeService();
-
-    if (!success) {
-      Alert.alert(
-        "Checklist incompleto",
-        "Complete todos os itens antes de finalizar o serviço."
-      );
-      return;
-    }
-
-    onBack();
-  }
   const statusStyles: Record<
     ServiceStatus,
     {
@@ -87,133 +69,193 @@ export function ServiceChecklistView({
       border: Colors.light.success,
     },
   };
-  const statusStyle =
-    statusStyles[service.status as ServiceStatus] ?? statusStyles.pending;
+
+  const normalizedStatus = (service.status as ServiceStatus) || "pending";
+  const statusStyle = statusStyles[normalizedStatus] ?? statusStyles.pending;
+
+  const displayClientName = (service as any).client_name ?? service.clientName ?? "Serviço sem nome";
+  const displayServiceType = (service as any).service_type ?? service.serviceType ?? "Tipo não definido";
+  const displayDate = (service as any).service_date ?? service.date ?? "";
+  const displayAddress = (service as any).location ?? service.address ?? "";
+  const displayStatusLabel = normalizedStatus === "in-progress"
+    ? "Em andamento"
+    : normalizedStatus === "completed"
+      ? "Concluído"
+      : "Pendente";
+
+  async function handleToggle(itemId: string) {
+    if (!isInProgress) {
+      Alert.alert("Inicie o serviço", "Para concluir itens, primeiro inicie o serviço.");
+      return;
+    }
+
+    try {
+      await toggleItem(itemId);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível atualizar o item.");
+    }
+  }
+
+  async function handleComplete() {
+    const success = await completeService();
+
+    if (!success) {
+      Alert.alert("Checklist incompleto", "Complete todos os itens antes de finalizar o serviço.");
+      return;
+    }
+
+    onBack();
+  }
+
+  function handleDelete() {
+    if (!service || deleting) return;
+
+    Alert.alert(
+      "Excluir serviço",
+      "Tem certeza que deseja excluir este serviço? Essa ação não pode ser desfeita.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await deleteService(String(serviceId));
+              onBack();
+            } catch (error) {
+              Alert.alert("Erro", "Não foi possível excluir o serviço.");
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  }
 
   return (
-    <View className="flex-1 bg-background px-4">
-      {/* Header */}
-      <View className="bg-white border-b border-gray-200 px-4 py-4">
-        <View className="flex-row items-center gap-3 mb-4">
-          <TouchableOpacity onPress={onBack}>
-            <Ionicons name="arrow-back" size={24} color="#374151" />
-          </TouchableOpacity>
+    <Container>
+      <View className="flex-1 bg-background px-4">
+        <Header
+          title="Checklist do Serviço"
+          subtitle="Gerencie os itens do checklist"
+          onBackHandler={onBack}
+          onActionPress={handleDelete}
+          actionIcon="delete-outline"
+          actionLabel="Excluir serviço"
+        />
 
-          <Text className="text-lg font-semibold text-gray-900">
-            Checklist do Serviços
-          </Text>
+        <View className="bg-white border-b border-gray-200 px-4 py-4 gap-4">
+          <Card>
+            <CardHeader className="flex-row items-start justify-between gap-2">
+              <View className="flex-1 gap-1">
+                <CardTitle className="text-xl font-bold">
+                  {displayClientName}
+                </CardTitle>
+                <Text className="text-muted text-base">{displayServiceType}</Text>
+              </View>
+
+              <View
+                style={{ backgroundColor: statusStyle.bg, borderColor: statusStyle.border }}
+                className={cn("px-3 py-1 rounded-full border")}
+              >
+                <Text style={{ color: statusStyle.text }} className={cn("text-xs font-medium")}>
+                  {displayStatusLabel}
+                </Text>
+              </View>
+            </CardHeader>
+
+            <CardContent className="gap-3">
+              {displayDate ? (
+                <View>
+                  <Text className="text-muted text-xs">Data</Text>
+                  <Text className="text-base font-medium">
+                    {(() => {
+                      try {
+                        return new Date(displayDate).toLocaleDateString("pt-BR");
+                      } catch {
+                        return displayDate;
+                      }
+                    })()}
+                  </Text>
+                </View>
+              ) : null}
+
+              {displayAddress ? (
+                <View>
+                  <Text className="text-muted text-xs">Local</Text>
+                  <Text className="text-base font-medium">{displayAddress}</Text>
+                </View>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="gap-4">
+              <Text className="font-semibold text-lg">Progresso do Checklist</Text>
+
+              <View className="flex-row justify-between items-center">
+                <Text className="text-muted text-sm">Itens concluídos</Text>
+                <Text className="text-sm font-bold text-primary">
+                  {completedItems}/{totalItems}
+                </Text>
+              </View>
+
+              <Progress value={progress} />
+            </CardContent>
+          </Card>
         </View>
 
-        <Card>
-          <CardHeader className="flex-row items-start justify-between">
-            <View className="flex-1 gap-1">
-              <CardTitle>{service.clientName}</CardTitle>
-              <Text className="text-muted">{service.serviceType}</Text>
+        <ScrollView className="flex-1 px-4 py-4" showsVerticalScrollIndicator={false}>
+          {checklist.length === 0 ? (
+            <View className="flex-1 justify-center">
+              <Text className="text-center text-gray-500 py-12">Carregando checklist...</Text>
             </View>
+          ) : (
+            checklist.map((item) => (
+              <ChecklistItemComponent
+                key={item.id}
+                item={item}
+                onToggle={() => handleToggle(item.id)}
+                onNoteChange={(note) => updateNote(item.id, note)}
+                onPhotosChange={(photos) => updatePhotos(item.id, photos)}
+                disabledToggle={!isInProgress}
+              />
+            ))
+          )}
+        </ScrollView>
 
-            <View
-              style={{
-                backgroundColor: statusStyle.bg,
-                borderColor: statusStyle.border,
+        <View className="border-t border-gray-200 bg-white p-4">
+          {normalizedStatus === "pending" && (
+            <TouchableOpacity
+              onPress={() => {
+                try {
+                  markInProgress();
+                } catch (error) {
+                  Alert.alert("Erro", "Não foi possível iniciar o serviço.");
+                }
               }}
-              className={cn("px-3 py-1 rounded-full border")}
+              className="rounded-lg py-3 items-center bg-orange-500"
             >
-              <Text
-                style={{ color: statusStyle.text }}
-                className={cn("text-xs font-medium")}
-              >
-                {service.statusLabel}
+              <Text className="font-medium text-white">Iniciar serviço</Text>
+            </TouchableOpacity>
+          )}
+
+          {normalizedStatus === "in-progress" && (
+            <TouchableOpacity
+              disabled={!allCompleted}
+              onPress={handleComplete}
+              className={`rounded-lg py-3 items-center ${allCompleted ? "bg-emerald-500" : "bg-gray-100"}`}
+            >
+              <Text className={`font-medium ${allCompleted ? "text-white" : "text-gray-400"}`}>
+                Finalizar serviço
               </Text>
-            </View>
-          </CardHeader>
-
-          <CardContent className="gap-3">
-            <View>
-              <Text className="text-muted text-xs">Data</Text>
-              <Text>{new Date(service.date).toLocaleDateString("pt-BR")}</Text>
-            </View>
-
-            {service.address && (
-              <View>
-                <Text className="text-muted text-xs">Local</Text>
-                <Text>{service.address}</Text>
-              </View>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="gap-4">
-            <Text className="font-medium">Progresso do Checklist</Text>
-
-            <View className="flex-row justify-between">
-              <Text className="text-muted text-sm">Itens concluídos</Text>
-              <Text className="text-sm font-medium">
-                {completedItems}/{totalItems}
-              </Text>
-            </View>
-
-            <Progress value={progress} />
-          </CardContent>
-        </Card>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-
-      {/* Checklist */}
-      <ScrollView className="flex-1 px-4 py-4">
-        {service.checklist.length === 0 ? (
-          <Text className="text-center text-gray-500 py-12">
-            Nenhum item no checklist
-          </Text>
-        ) : (
-          service.checklist.map((item) => (
-            <ChecklistItemComponent
-              key={item.id}
-              item={item}
-              onToggle={() => handleToggle(item.id)}
-              onNoteChange={(note) => updateNote(item.id, note)}
-              onPhotosChange={(photos) => updatePhotos(item.id, photos)}
-            />
-          ))
-        )}
-      </ScrollView>
-
-      {/* Footer */}
-      <View className="border-t border-gray-200 bg-white p-4">
-        {service.status === "pending" && (
-          <TouchableOpacity
-            disabled={!hasAnyCompleted}
-            onPress={markInProgress}
-            className={`rounded-lg py-3 items-center ${
-              hasAnyCompleted ? "bg-orange-500" : "bg-gray-100"
-            }`}
-          >
-            <Text
-              className={`font-medium ${
-                hasAnyCompleted ? "text-white" : "text-gray-400"
-              }`}
-            >
-              Iniciar serviço
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {service.status === "in-progress" && (
-          <TouchableOpacity
-            disabled={!allCompleted}
-            onPress={handleComplete}
-            className={`rounded-lg py-3 items-center ${
-              allCompleted ? "bg-emerald-500" : "bg-gray-100"
-            }`}
-          >
-            <Text
-              className={`font-medium ${
-                allCompleted ? "text-white" : "text-gray-400"
-              }`}
-            >
-              Finalizar serviço
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
+    </Container>
   );
 }
+

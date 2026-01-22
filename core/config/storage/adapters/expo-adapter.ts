@@ -5,10 +5,22 @@ export async function createExpoDbAdapter(): Promise<DatabaseAdapter> {
   const sqlite = await SQLite.openDatabaseAsync("workchecklist-db");
 
   return {
-    exec: (sql) => sqlite.execAsync(sql),
-    getFirst: (sql) => sqlite.getFirstAsync(sql),
+    exec: (sql) => {
+      console.log("Executing SQL:", sql);
+      return sqlite.execAsync(sql);
+    },
+    getFirst: (sql) => {
+      console.log("Getting first with SQL:", sql);
+      return sqlite.getFirstAsync(sql);
+    },
     transaction: (fn) => sqlite.withExclusiveTransactionAsync(fn),
-    getAll: (srcName) => sqlite.getAllAsync(srcName),
-    run: (sql, params) => sqlite.runAsync(sql, params),
+    getAll: (srcName) => {
+      console.log("Getting all with SQL:", srcName);
+      return sqlite.getAllAsync(srcName);
+    },
+    run: (sql, params) => {
+      console.log("Running SQL:", sql, "with params:", params);
+      return sqlite.runAsync(sql, params);
+    },
   };
 }

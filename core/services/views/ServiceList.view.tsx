@@ -7,25 +7,21 @@ import { cn } from "@/lib/utils";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { FlatList, ScrollView, View } from "react-native";
+import { FlatList, ScrollView, View, ActivityIndicator } from "react-native";
 
 interface ServiceListViewProps {
   services: any[];
   onBackHandler: () => void;
+  loading?: boolean;
 }
 
-interface ServiceListViewProps {
-  services: any[];
-  onBackHandler: () => void;
-}
 type TabValue = "all" | "pending" | "in-progress" | "completed";
 
 export function ServiceListView({
   services,
   onBackHandler,
+  loading = false,
 }: ServiceListViewProps) {
-  const [value, setValue] = useState("account");
-
   const tabBarHeight = useBottomTabBarHeight();
   const [tab, setTab] = useState<TabValue>("all");
   const router = useRouter();
@@ -37,19 +33,30 @@ export function ServiceListView({
   const filteredServices =
     tab === "all" ? services : services.filter((s) => s.status === tab);
 
-const navigationToServiceDetail = useCallback(
-  (serviceId: string) => {
-    router.push({
-      pathname: "/services/[id]",
-      params: { id: serviceId },
-    });
-  },
-  [router]
-);
+  const navigationToServiceDetail = useCallback(
+    (serviceId: string) => {
+      router.push({
+        pathname: "/services/[id]",
+        params: { id: serviceId },
+      });
+    },
+    [router]
+  );
+
+  if (loading) {
+    return (
+      <Container>
+        <Header title="Serviços" subtitle="Acompanhe todos os serviços" onBackHandler={onBackHandler} noBorder />
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#2563eb" />
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Header title="Servicos" onBackHandler={onBackHandler} noBorder />
+      <Header title="Serviços" subtitle="Acompanhe todos os serviços" onBackHandler={onBackHandler} noBorder />
       <View className="flex pb-4 bg-white border-b border-gray-200">
         <ScrollView
           horizontal
@@ -91,23 +98,29 @@ const navigationToServiceDetail = useCallback(
           </Tabs>
         </ScrollView>
       </View>
-      <FlatList
-        className=" px-4 "
-        data={filteredServices}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => (
-          <ServiceCard
-            service={item}
-            firstItem={index == 0}
-            onPress={() => navigationToServiceDetail(item.id)}
-          />
-        )}
-        contentContainerStyle={{
-          paddingHorizontal: 4,
-          paddingBottom: tabBarHeight + 60,
-        }}
-      />
+      {filteredServices.length === 0 ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-500 text-lg">Nenhum serviço encontrado</Text>
+        </View>
+      ) : (
+        <FlatList
+          className=" px-4 "
+          data={filteredServices}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => (
+            <ServiceCard
+              service={item}
+              firstItem={index == 0}
+              onPress={() => navigationToServiceDetail(item.id)}
+            />
+          )}
+          contentContainerStyle={{
+            paddingHorizontal: 4,
+            paddingBottom: tabBarHeight + 60,
+          }}
+        />
+      )}
     </Container>
   );
 }
