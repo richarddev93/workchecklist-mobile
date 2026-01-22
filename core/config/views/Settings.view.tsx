@@ -69,10 +69,7 @@ export default function SettingsView() {
 
   return (
     <Container>
-      <Header
-        title="Configurações"
-        noBorder
-      />
+      <Header title="Configurações" noBorder />
 
       <View className="flex-1 bg-surface">
         {/* Tabs fixas */}
