@@ -155,7 +155,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateTemplate = async (id: string, data: Partial<ServiceTemplate>) => {
-    const res = await serviceTypeRepositoryRef.current?.edit(data);
+    const res = await serviceTemplateRepositoryRef.current?.edit({ id, ...data });
     getAllServiceTemplate();
     return res;
   };

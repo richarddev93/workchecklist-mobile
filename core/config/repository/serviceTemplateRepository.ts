@@ -16,21 +16,22 @@ export const createServiceTemplateRepository = (
     return await db.getAll<ServiceTemplate>("SELECT * FROM service_template");
   },
 
-  async save(data: ServiceTemplate) {
+  async save(data: Partial<ServiceTemplate>) {
     await db.run(
       `INSERT OR REPLACE INTO service_template (
    name, service_type, items
   ) VALUES (?, ?, ?)`,
-      [data.name, data.service_type, data.items ?? ""],
+      [data.name, data.service_type ?? "", data.items ?? ""],
     );
   },
-  async edit(data: ServiceTemplate) {
+  async edit(data: Partial<ServiceTemplate>) {
     return await db.run(
       `UPDATE service_template SET 
           name = ?,
-          slug= ? 
+          items = ?,
+          service_type = ?
           WHERE id = ?`,
-      [data.name, data.items ?? "", data.id],
+      [data.name, data.items ?? "", data.service_type ?? "", data.id],
     );
   },
   async delete(id) {

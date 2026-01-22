@@ -64,8 +64,7 @@ export default function SettingsView() {
     };
   }, []);
 
-  const hideUpgradeCard =
-    (tab === "company" || tab === "templates") && keyboardOpen;
+  const hideUpgradeCard = keyboardOpen;
 
   return (
     <Container>

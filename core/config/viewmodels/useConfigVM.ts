@@ -17,6 +17,7 @@ export const useConfigViewModel = () => {
     saveCompany,
     addServiceType,
     updateServiceType,
+    updateTemplate,
   } = useConfig();
 
   const [onEdit, setOnEdit] = useState(true);
@@ -142,10 +143,19 @@ export const useConfigViewModel = () => {
   };
 
   const handleUpdateTemplate = (id: string, name: string, items: string[]) => {
-    // setTemplatesTemplate((prev) =>
-    //   prev.map((t) => (t.id === id ? { ...t, name, items } : t))
-    // );
-    setEditingTemplate(null);
+    try {
+      const current = templates.find((t) => t.id === id);
+      updateTemplate(id, {
+        name,
+        items: JSON.stringify(items, null, 2),
+        service_type: current?.service_type ?? "",
+      });
+    } catch (error) {
+      console.error("Error updating template", error);
+      ShowError("Erro ao atualizar o template! Tente Novamente");
+    } finally {
+      setEditingTemplate(null);
+    }
   };
 
   const handleDeleteTemplate = (id: string) => {
