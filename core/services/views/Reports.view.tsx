@@ -22,7 +22,6 @@ export function ReportsView({
       <Header
         title="Relatórios"
         subtitle="Serviços concluídos"
-        onBackHandler={onBack}
       />
 
       {/* Content */}

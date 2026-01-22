@@ -42,11 +42,11 @@ export default function RootLayout() {
       mounted = false;
     };
   }, []);
-  
+
   if (!ready) {
     return null; // Return null until database is ready
   }
-  
+
   return (
     <ThemeProvider value={DefaultTheme}>
       <ConfigProvider>

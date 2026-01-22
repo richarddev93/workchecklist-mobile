@@ -49,7 +49,6 @@ export function ServiceListView({
         <Header
           title="Serviços"
           subtitle="Acompanhe todos os serviços"
-          onBackHandler={onBackHandler}
           noBorder
         />
         <View className="flex-1 justify-center items-center">
@@ -64,7 +63,6 @@ export function ServiceListView({
       <Header
         title="Serviços"
         subtitle="Acompanhe todos os serviços"
-        onBackHandler={onBackHandler}
         noBorder
       />
       <View className="flex pb-4 bg-white border-b border-gray-200">

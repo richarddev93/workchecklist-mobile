@@ -72,7 +72,6 @@ export default function SettingsView() {
       <Header
         title="Configurações"
         noBorder
-        onBackHandler={() => navigation.back()}
       />
 
       <View className="flex-1 bg-surface">
