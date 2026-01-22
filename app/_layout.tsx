@@ -23,9 +23,16 @@ export default function RootLayout() {
   //caso seja necessario criar o thema dark
   // adicionar no view className={colorScheme !== "dark" ? "dark flex-1" : "flex-1"}
   const startDatabase = async (isMounted: () => boolean) => {
-    const db = await createExpoDbAdapter();
-    await initDatabase(db);
-    if (isMounted()) setReady(true);
+    try {
+      const db = await createExpoDbAdapter();
+      console.log("Database adapter created, initializing...");
+      await initDatabase(db);
+      console.log("Database initialized");
+      if (isMounted()) setReady(true);
+    } catch (error) {
+      console.error("Error initializing database:", error);
+      if (isMounted()) setReady(true); // Set ready anyway to avoid blocking the app
+    }
   };
   useEffect(() => {
     let mounted = true;
@@ -35,6 +42,11 @@ export default function RootLayout() {
       mounted = false;
     };
   }, []);
+  
+  if (!ready) {
+    return null; // Return null until database is ready
+  }
+  
   return (
     <ThemeProvider value={DefaultTheme}>
       <ConfigProvider>

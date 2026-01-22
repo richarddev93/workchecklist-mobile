@@ -56,8 +56,15 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const getAllServices = async () => {
-    const servicesRes = await serviceRepositoryRef.current?.getAll();
-    setServices(servicesRes ?? []);
+    try {
+      console.log("Getting all services...");
+      const servicesRes = await serviceRepositoryRef.current?.getAll();
+      console.log("Services retrieved:", servicesRes);
+      setServices(servicesRes ?? []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      setServices([]);
+    }
   };
 
   const addService = async (
