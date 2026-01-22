@@ -21,15 +21,27 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
   const { getServiceById } = useServices();
   const { companyInfo } = useConfig();
 
-  const service = getServiceById(serviceId);
+  const dbService = getServiceById(serviceId);
 
-  if (!service) {
+  if (!dbService) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
         <Text className="text-gray-500">Serviço não encontrado</Text>
       </View>
     );
   }
+
+  // Map database fields (snake_case) to component fields
+  const service = {
+    id: dbService.id,
+    clientName: dbService.client_name || 'Sem informação',
+    serviceType: dbService.service_type || 'Sem informação',
+    date: dbService.service_date || new Date().toISOString(),
+    address: dbService.location || 'Sem informação',
+    checklist: dbService.checklist_data 
+      ? JSON.parse(dbService.checklist_data) 
+      : [],
+  };
 
   const handleShare = () => {
     Alert.alert('Compartilhar', 'Funcionalidade será implementada');

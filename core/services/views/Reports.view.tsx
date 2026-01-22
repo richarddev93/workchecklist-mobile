@@ -46,14 +46,22 @@ export function ReportsView({
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
                   <Text className="text-gray-900 font-medium mb-1">
-                    {service.clientName}
+                    {service.client_name || "Cliente não informado"}
                   </Text>
 
-                  <Text className="text-gray-600">{service.serviceType}</Text>
+                  <Text className="text-gray-600">{service.service_type || "Tipo não informado"}</Text>
 
-                  <Text className="text-gray-500 mt-2">
-                    {new Date(service.date).toLocaleDateString("pt-BR")}
-                  </Text>
+                  {service.service_date && (
+                    <Text className="text-gray-500 mt-2">
+                      {new Date(service.service_date).toLocaleDateString("pt-BR")}
+                    </Text>
+                  )}
+
+                  {service.location && (
+                    <Text className="text-gray-400 text-sm mt-1">
+                      {service.location}
+                    </Text>
+                  )}
                 </View>
 
                 <Ionicons name="document-text" size={22} color="#2563eb" />
