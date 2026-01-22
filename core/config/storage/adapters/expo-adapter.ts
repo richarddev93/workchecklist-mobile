@@ -21,13 +21,19 @@ export async function createExpoDbAdapter(): Promise<DatabaseAdapter> {
     run: (sql, params) => {
       console.log("Expo Adapter - Running SQL:", sql);
       console.log("Expo Adapter - Params count:", params?.length);
-      console.log("Expo Adapter - Params types:", params?.map(p => typeof p));
-      console.log("Expo Adapter - Params values preview:", params?.map((p, i) => 
-        typeof p === 'string' && p.length > 100 
-          ? `[${i}]: string(${p.length} chars)` 
-          : `[${i}]: ${JSON.stringify(p)}`
-      ));
-      
+      console.log(
+        "Expo Adapter - Params types:",
+        params?.map((p) => typeof p),
+      );
+      console.log(
+        "Expo Adapter - Params values preview:",
+        params?.map((p, i) =>
+          typeof p === "string" && p.length > 100
+            ? `[${i}]: string(${p.length} chars)`
+            : `[${i}]: ${JSON.stringify(p)}`,
+        ),
+      );
+
       try {
         return sqlite.runAsync(sql, params);
       } catch (error) {

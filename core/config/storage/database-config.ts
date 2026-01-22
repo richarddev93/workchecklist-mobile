@@ -98,7 +98,7 @@ export const migrations: Migration[] = [
       } catch (e) {
         console.log("Drop table failed (might not exist):", e);
       }
-      
+
       await db.exec(`
         CREATE TABLE service (
           id TEXT PRIMARY KEY,

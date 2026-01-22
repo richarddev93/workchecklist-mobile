@@ -19,7 +19,7 @@ export function useServiceChecklistViewModel(serviceId: string) {
     console.log("useServiceChecklistViewModel - service found:", !!service);
     console.log("useServiceChecklistViewModel - service data:", service);
     console.log("useServiceChecklistViewModel - templates:", templates.length);
-    
+
     if (!service) return;
 
     // If checklist was already loaded for this service, don't reload it
@@ -94,7 +94,9 @@ export function useServiceChecklistViewModel(serviceId: string) {
   const allCompleted = totalItems > 0 && completedItems === totalItems;
 
   // Debounced update function to avoid multiple simultaneous updates
-  const debouncedUpdateChecklist = async (updatedChecklist: ChecklistItem[]) => {
+  const debouncedUpdateChecklist = async (
+    updatedChecklist: ChecklistItem[],
+  ) => {
     // Clear any pending timeout
     if (updateTimeoutRef.current) {
       clearTimeout(updateTimeoutRef.current);
@@ -117,18 +119,21 @@ export function useServiceChecklistViewModel(serviceId: string) {
         try {
           isUpdatingRef.current = true;
           const dataToUpdate = pendingUpdateRef.current;
-          
+
           if (!dataToUpdate) {
             resolve();
             return;
           }
 
-          console.log("Executing debounced update with data length:", dataToUpdate.length);
-          
+          console.log(
+            "Executing debounced update with data length:",
+            dataToUpdate.length,
+          );
+
           await updateService(serviceId, {
             checklist_data: dataToUpdate,
           });
-          
+
           pendingUpdateRef.current = null;
           console.log("Debounced update successful");
           resolve();
@@ -149,7 +154,7 @@ export function useServiceChecklistViewModel(serviceId: string) {
     }
 
     console.log("toggleItem called with itemId:", itemId);
-    const item = checklist.find(i => i.id === itemId);
+    const item = checklist.find((i) => i.id === itemId);
     console.log("toggleItem - current item state:", item);
 
     const updatedChecklist = checklist.map((item) =>
@@ -181,7 +186,12 @@ export function useServiceChecklistViewModel(serviceId: string) {
       return;
     }
 
-    console.log("updateNote called with itemId:", itemId, "note length:", note.length);
+    console.log(
+      "updateNote called with itemId:",
+      itemId,
+      "note length:",
+      note.length,
+    );
 
     const updatedChecklist = checklist.map((item) =>
       item.id === itemId ? { ...item, note } : item,
@@ -212,7 +222,12 @@ export function useServiceChecklistViewModel(serviceId: string) {
       return;
     }
 
-    console.log("updatePhotos called with itemId:", itemId, "photos count:", photos.length);
+    console.log(
+      "updatePhotos called with itemId:",
+      itemId,
+      "photos count:",
+      photos.length,
+    );
 
     const updatedChecklist = checklist.map((item) =>
       item.id === itemId ? { ...item, photos } : item,
@@ -251,12 +266,12 @@ export function useServiceChecklistViewModel(serviceId: string) {
   async function completeService() {
     console.log("completeService called for serviceId:", serviceId);
     console.log("completeService - allCompleted:", allCompleted);
-    
+
     if (!allCompleted) {
       console.warn("completeService - not all items completed");
       return false;
     }
-    
+
     try {
       await updateService(serviceId, { status: "completed" });
       console.log("completeService - status updated successfully");

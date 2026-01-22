@@ -1,17 +1,17 @@
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
 import {
-    createServiceRepository,
-    ServiceRepository,
+  createServiceRepository,
+  ServiceRepository,
 } from "@/core/services/repository/serviceRepository";
 import { Service } from "@/types";
 import { randomUUID } from "expo-crypto";
 import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
 
 interface ServiceContextData {
@@ -87,13 +87,23 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
   const updateService = async (id: string, data: Partial<Service>) => {
     try {
-      console.log("ServiceContext.updateService called with id:", id, "data:", data);
+      console.log(
+        "ServiceContext.updateService called with id:",
+        id,
+        "data:",
+        data,
+      );
       await serviceRepositoryRef.current?.update(id, data);
-      console.log("ServiceContext.updateService - update successful, refreshing services...");
+      console.log(
+        "ServiceContext.updateService - update successful, refreshing services...",
+      );
       await getAllServices();
       console.log("ServiceContext.updateService - services refreshed");
     } catch (error) {
-      console.error("ServiceContext.updateService - Error updating service:", error);
+      console.error(
+        "ServiceContext.updateService - Error updating service:",
+        error,
+      );
       console.error("ServiceContext.updateService - Error details:", {
         id,
         data,
@@ -108,11 +118,16 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log("ServiceContext.deleteService called with id:", id);
       await serviceRepositoryRef.current?.delete(id);
-      console.log("ServiceContext.deleteService - delete successful, refreshing services...");
+      console.log(
+        "ServiceContext.deleteService - delete successful, refreshing services...",
+      );
       await getAllServices();
       console.log("ServiceContext.deleteService - services refreshed");
     } catch (error) {
-      console.error("ServiceContext.deleteService - Error deleting service:", error);
+      console.error(
+        "ServiceContext.deleteService - Error deleting service:",
+        error,
+      );
       console.error("ServiceContext.deleteService - Error details:", {
         id,
         errorMessage: error instanceof Error ? error.message : String(error),
@@ -124,7 +139,10 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
   function getServiceById(id: string) {
     console.log("getServiceById called with id:", id);
-    console.log("Available services:", services.map(s => ({ id: s.id, clientName: s.client_name })));
+    console.log(
+      "Available services:",
+      services.map((s) => ({ id: s.id, clientName: s.client_name })),
+    );
     const found = services.find((s) => s.id === id);
     console.log("Service found:", !!found);
     return found;

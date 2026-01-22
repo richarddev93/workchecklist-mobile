@@ -23,16 +23,22 @@ export default function Services() {
       // Parse checklist data to count progress
       let completedCount = 0;
       let totalCount = 0;
-      
+
       if (service.checklist_data) {
         try {
           const checklist = JSON.parse(service.checklist_data);
           if (Array.isArray(checklist)) {
             totalCount = checklist.length;
-            completedCount = checklist.filter((item: any) => item.completed).length;
+            completedCount = checklist.filter(
+              (item: any) => item.completed,
+            ).length;
           }
         } catch (e) {
-          console.error("Error parsing checklist_data for service:", service.id, e);
+          console.error(
+            "Error parsing checklist_data for service:",
+            service.id,
+            e,
+          );
         }
       }
 

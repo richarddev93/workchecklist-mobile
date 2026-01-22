@@ -57,12 +57,17 @@ export const createServiceRepository = (
 
   async update(id: string, data) {
     try {
-      console.log("ServiceRepository.update called with id:", id, "data:", data);
-      
+      console.log(
+        "ServiceRepository.update called with id:",
+        id,
+        "data:",
+        data,
+      );
+
       // Build dynamic SET clause with only provided fields
       const fields: string[] = [];
       const values: any[] = [];
-      
+
       if (data.client_name !== undefined) {
         fields.push("client_name = ?");
         values.push(data.client_name || "");
@@ -99,25 +104,28 @@ export const createServiceRepository = (
         fields.push("checklist_data = ?");
         values.push(data.checklist_data || "");
       }
-      
+
       if (fields.length === 0) {
         console.warn("ServiceRepository.update - No fields to update");
         return;
       }
-      
+
       // Always update updated_at
       fields.push("updated_at = CURRENT_TIMESTAMP");
-      
+
       // Add id as the last parameter for WHERE clause
       values.push(id);
-      
+
       const sql = `UPDATE service SET ${fields.join(", ")} WHERE id = ?`;
       console.log("ServiceRepository.update - SQL:", sql);
       console.log("ServiceRepository.update - Values:", values);
-      
+
       const result = await db.run(sql, values);
-      
-      console.log("Service updated successfully, rows affected:", result?.changes);
+
+      console.log(
+        "Service updated successfully, rows affected:",
+        result?.changes,
+      );
       return result;
     } catch (error) {
       console.error("Error in update:", error);
@@ -129,7 +137,10 @@ export const createServiceRepository = (
     try {
       console.log("ServiceRepository.delete called with id:", id);
       const result = await db.run(`DELETE FROM service WHERE id = ?`, [id]);
-      console.log("Service deleted successfully, rows affected:", result?.changes);
+      console.log(
+        "Service deleted successfully, rows affected:",
+        result?.changes,
+      );
       return result;
     } catch (error) {
       console.error("Error in delete:", error);

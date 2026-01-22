@@ -1,34 +1,22 @@
 import { DashboardServiceView } from "@/core/services/views/DashboardService.view";
+import { useServices } from "@/core/services/context/ServiceContext";
+import { useMemo } from "react";
 
 export default function HomeScreen() {
-  // const { services, isOffline } = useServices();
+  const { services } = useServices();
 
-  const servicesData = [
-    {
-      status: "in-progress",
-    },
-    {
-      status: "completed",
-    },
-    {
-      status: "in-progress",
-    },
-  ];
+  const servicesData = useMemo(() => {
+    const total = services?.length || 0;
+    const inProgress = services?.filter(s => s.status === "in-progress").length || 0;
+    const completed = services?.filter(s => s.status === "completed").length || 0;
 
-  const totalServices = servicesData.length;
-  const inProgressServices = servicesData.filter(
-    (s) => s.status === "in-progress"
-  ).length;
-  const completedServices = servicesData.filter(
-    (s) => s.status === "completed"
-  ).length;
+    return {
+      data: services || [],
+      totalServices: total,
+      inProgressServices: inProgress,
+      completedServices: completed,
+    };
+  }, [services]);
 
-  const services = {
-    data: servicesData,
-    totalServices,
-    inProgressServices,
-    completedServices
-  };
-
-  return <DashboardServiceView services={services} />;
+  return <DashboardServiceView services={servicesData} />;
 }
