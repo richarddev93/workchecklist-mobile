@@ -1,13 +1,11 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { LucideIcon } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
-
-type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 
 interface StatCardProps {
   title: string;
   value: number;
-  iconName?: MaterialIconName;
+  icon?: LucideIcon;
   color: string;
   onPress?: () => void;
 }
@@ -15,7 +13,7 @@ interface StatCardProps {
 export default function StatCard({
   title,
   value,
-  iconName,
+  icon: Icon,
   color,
   onPress,
 }: StatCardProps) {
@@ -25,19 +23,19 @@ export default function StatCard({
       disabled={!onPress}
       className="flex-1 active:opacity-80"
     >
-      <Card>
-        <CardContent className="flex flex-row items-center justify-between gap-4">
+      <Card className="h-28">
+        <CardContent className="flex flex-row items-center justify-between gap-4 h-full">
           <View className="flex-1">
-            <CardTitle className="text-muted-foreground">{title}</CardTitle>
+            <CardTitle className="text-muted-foreground text-sm">
+              {title}
+            </CardTitle>
 
             <CardDescription className="text-3xl font-bold text-foreground">
               {value}
             </CardDescription>
           </View>
 
-          {iconName && (
-            <MaterialIcons name={iconName} size={28} color={color} />
-          )}
+          {Icon && <Icon size={32} color={color} strokeWidth={1.5} />}
         </CardContent>
       </Card>
     </Pressable>
