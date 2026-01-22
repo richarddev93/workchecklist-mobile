@@ -87,26 +87,47 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
   const updateService = async (id: string, data: Partial<Service>) => {
     try {
+      console.log("ServiceContext.updateService called with id:", id, "data:", data);
       await serviceRepositoryRef.current?.update(id, data);
+      console.log("ServiceContext.updateService - update successful, refreshing services...");
       await getAllServices();
+      console.log("ServiceContext.updateService - services refreshed");
     } catch (error) {
-      console.error("Error updating service:", error);
+      console.error("ServiceContext.updateService - Error updating service:", error);
+      console.error("ServiceContext.updateService - Error details:", {
+        id,
+        data,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+      });
       throw error;
     }
   };
 
   const deleteService = async (id: string) => {
     try {
+      console.log("ServiceContext.deleteService called with id:", id);
       await serviceRepositoryRef.current?.delete(id);
+      console.log("ServiceContext.deleteService - delete successful, refreshing services...");
       await getAllServices();
+      console.log("ServiceContext.deleteService - services refreshed");
     } catch (error) {
-      console.error("Error deleting service:", error);
+      console.error("ServiceContext.deleteService - Error deleting service:", error);
+      console.error("ServiceContext.deleteService - Error details:", {
+        id,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+      });
       throw error;
     }
   };
 
   function getServiceById(id: string) {
-    return services.find((s) => s.id === id);
+    console.log("getServiceById called with id:", id);
+    console.log("Available services:", services.map(s => ({ id: s.id, clientName: s.client_name })));
+    const found = services.find((s) => s.id === id);
+    console.log("Service found:", !!found);
+    return found;
   }
 
   return (

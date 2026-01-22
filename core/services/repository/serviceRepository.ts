@@ -28,20 +28,24 @@ export const createServiceRepository = (
     try {
       console.log("ServiceRepository.save called with id:", id, "data:", data);
 
+      const params = [
+        id,
+        data.client_name ?? "",
+        data.service_type ?? "",
+        data.service_date ?? "",
+        data.location ?? "",
+        data.observations ?? "",
+        data.template_id ?? "",
+        data.status ?? "in-progress",
+        data.progress ?? 0,
+        data.checklist_data ?? "",
+      ];
+
+      console.log("Insert parameters:", params);
+
       await db.run(
         `INSERT INTO service (id, client_name, service_type, service_date, location, observations, template_id, status, progress, checklist_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          `${id}`,
-          `${data.client_name ?? ""}`,
-          `${data.service_type ?? ""}`,
-          `${data.service_date ?? ""}`,
-          `${data.location ?? ""}`,
-          `${data.observations ?? ""}`,
-          `${data.template_id ?? ""}`,
-          `${data.status ?? "in-progress"}`,
-          `${data.progress ?? 0}`,
-          `${data.checklist_data ?? ""}`,
-        ],
+        params,
       );
       console.log("Service saved successfully");
       return id;
@@ -52,35 +56,84 @@ export const createServiceRepository = (
   },
 
   async update(id: string, data) {
-    return await db.run(
-      `UPDATE service SET 
-        client_name = COALESCE(?, client_name),
-        service_type = COALESCE(?, service_type),
-        service_date = COALESCE(?, service_date),
-        location = COALESCE(?, location),
-        observations = COALESCE(?, observations),
-        template_id = COALESCE(?, template_id),
-        status = COALESCE(?, status),
-        progress = COALESCE(?, progress),
-        checklist_data = COALESCE(?, checklist_data),
-        updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?`,
-      [
-        `${data.client_name ?? ""}`,
-        `${data.service_type ?? ""}`,
-        `${data.service_date ?? ""}`,
-        `${data.location ?? ""}`,
-        `${data.observations ?? ""}`,
-        `${data.template_id ?? ""}`,
-        `${data.status ?? ""}`,
-        `${data.progress ?? ""}`,
-        `${data.checklist_data ?? ""}`,
-        `${id}`,
-      ],
-    );
+    try {
+      console.log("ServiceRepository.update called with id:", id, "data:", data);
+      
+      // Build dynamic SET clause with only provided fields
+      const fields: string[] = [];
+      const values: any[] = [];
+      
+      if (data.client_name !== undefined) {
+        fields.push("client_name = ?");
+        values.push(data.client_name || "");
+      }
+      if (data.service_type !== undefined) {
+        fields.push("service_type = ?");
+        values.push(data.service_type || "");
+      }
+      if (data.service_date !== undefined) {
+        fields.push("service_date = ?");
+        values.push(data.service_date || "");
+      }
+      if (data.location !== undefined) {
+        fields.push("location = ?");
+        values.push(data.location || "");
+      }
+      if (data.observations !== undefined) {
+        fields.push("observations = ?");
+        values.push(data.observations || "");
+      }
+      if (data.template_id !== undefined) {
+        fields.push("template_id = ?");
+        values.push(data.template_id || "");
+      }
+      if (data.status !== undefined) {
+        fields.push("status = ?");
+        values.push(data.status || "");
+      }
+      if (data.progress !== undefined) {
+        fields.push("progress = ?");
+        values.push(data.progress ?? 0);
+      }
+      if (data.checklist_data !== undefined) {
+        fields.push("checklist_data = ?");
+        values.push(data.checklist_data || "");
+      }
+      
+      if (fields.length === 0) {
+        console.warn("ServiceRepository.update - No fields to update");
+        return;
+      }
+      
+      // Always update updated_at
+      fields.push("updated_at = CURRENT_TIMESTAMP");
+      
+      // Add id as the last parameter for WHERE clause
+      values.push(id);
+      
+      const sql = `UPDATE service SET ${fields.join(", ")} WHERE id = ?`;
+      console.log("ServiceRepository.update - SQL:", sql);
+      console.log("ServiceRepository.update - Values:", values);
+      
+      const result = await db.run(sql, values);
+      
+      console.log("Service updated successfully, rows affected:", result?.changes);
+      return result;
+    } catch (error) {
+      console.error("Error in update:", error);
+      throw error;
+    }
   },
 
   async delete(id) {
-    return await db.run(`DELETE FROM service WHERE id = ?`, [id]);
+    try {
+      console.log("ServiceRepository.delete called with id:", id);
+      const result = await db.run(`DELETE FROM service WHERE id = ?`, [id]);
+      console.log("Service deleted successfully, rows affected:", result?.changes);
+      return result;
+    } catch (error) {
+      console.error("Error in delete:", error);
+      throw error;
+    }
   },
 });

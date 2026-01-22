@@ -77,12 +77,12 @@ export const migrations: Migration[] = [
           client_name TEXT NOT NULL,
           service_type TEXT NOT NULL,
           service_date TEXT NOT NULL,
-          location TEXT DEFAULT '',
-          observations TEXT DEFAULT '',
+          location TEXT,
+          observations TEXT,
           template_id TEXT,
           status TEXT DEFAULT 'in-progress',
           progress INTEGER DEFAULT 0,
-          checklist_data TEXT DEFAULT '',
+          checklist_data TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
@@ -92,19 +92,25 @@ export const migrations: Migration[] = [
   {
     version: 7,
     up: async (db) => {
-      // Verify service table exists, recreate if needed
+      // Drop and recreate service table to ensure clean schema
+      try {
+        await db.exec(`DROP TABLE IF EXISTS service;`);
+      } catch (e) {
+        console.log("Drop table failed (might not exist):", e);
+      }
+      
       await db.exec(`
-        CREATE TABLE IF NOT EXISTS service (
+        CREATE TABLE service (
           id TEXT PRIMARY KEY,
           client_name TEXT NOT NULL,
           service_type TEXT NOT NULL,
           service_date TEXT NOT NULL,
-          location TEXT DEFAULT '',
-          observations TEXT DEFAULT '',
+          location TEXT,
+          observations TEXT,
           template_id TEXT,
           status TEXT DEFAULT 'in-progress',
           progress INTEGER DEFAULT 0,
-          checklist_data TEXT DEFAULT '',
+          checklist_data TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
