@@ -19,7 +19,11 @@ export function ReportsView({
   return (
     <Container>
       {/* Header */}
-      <Header title="Relatórios" subtitle="Serviços concluídos" onBackHandler={onBack} />
+      <Header
+        title="Relatórios"
+        subtitle="Serviços concluídos"
+        onBackHandler={onBack}
+      />
 
       {/* Content */}
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>

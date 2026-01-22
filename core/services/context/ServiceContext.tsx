@@ -1,16 +1,24 @@
-import { Service } from "@/types";
-import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import {
-  createServiceRepository,
-  ServiceRepository,
-} from "@/core/services/repository/serviceRepository";
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
+import {
+    createServiceRepository,
+    ServiceRepository,
+} from "@/core/services/repository/serviceRepository";
+import { Service } from "@/types";
 import { randomUUID } from "expo-crypto";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
 interface ServiceContextData {
   services: Service[];
-  addService: (data: Omit<Service, "id" | "created_at" | "updated_at">) => Promise<void>;
+  addService: (
+    data: Omit<Service, "id" | "created_at" | "updated_at">,
+  ) => Promise<void>;
   updateService: (id: string, data: Partial<Service>) => Promise<void>;
   deleteService: (id: string) => Promise<void>;
   getServiceById: (id: string) => Service | undefined;
@@ -52,7 +60,9 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     setServices(servicesRes ?? []);
   };
 
-  const addService = async (data: Omit<Service, "id" | "created_at" | "updated_at">) => {
+  const addService = async (
+    data: Omit<Service, "id" | "created_at" | "updated_at">,
+  ) => {
     try {
       if (!serviceRepositoryRef.current) {
         throw new Error("Service repository not initialized");
@@ -94,7 +104,14 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ServiceContext.Provider
-      value={{ services, addService, updateService, deleteService, getServiceById, loading }}
+      value={{
+        services,
+        addService,
+        updateService,
+        deleteService,
+        getServiceById,
+        loading,
+      }}
     >
       {children}
     </ServiceContext.Provider>

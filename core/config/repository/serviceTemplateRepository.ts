@@ -21,7 +21,7 @@ export const createServiceTemplateRepository = (
       `INSERT OR REPLACE INTO service_template (
     name, service_type, items
   ) VALUES (?, ?, ?)`,
-      [data.name || "", data.service_type || "", data.items || ""]
+      [data.name || "", data.service_type || "", data.items || ""],
     );
   },
   async edit(data: Partial<ServiceTemplate>) {
@@ -31,7 +31,12 @@ export const createServiceTemplateRepository = (
           items = ?,
           service_type = ?
           WHERE id = ?`,
-      [data.name || "", data.items || "", data.service_type || "", data.id || ""]
+      [
+        data.name || "",
+        data.items || "",
+        data.service_type || "",
+        data.id || "",
+      ],
     );
   },
   async delete(id) {

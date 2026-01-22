@@ -1,7 +1,7 @@
-import { useServices } from '@/core/services/context/ServiceContext';
-import { useConfig } from '@/context/ConfigContext';
-import { ChecklistItem } from '@/types';
-import { useEffect, useState, useRef } from 'react';
+import { useConfig } from "@/context/ConfigContext";
+import { useServices } from "@/core/services/context/ServiceContext";
+import { ChecklistItem } from "@/types";
+import { useEffect, useRef, useState } from "react";
 
 export function useServiceChecklistViewModel(serviceId: string) {
   const { getServiceById, updateService } = useServices();
@@ -28,7 +28,7 @@ export function useServiceChecklistViewModel(serviceId: string) {
         checklistLoadedRef.current = true;
         return;
       } catch (e) {
-        console.error('Error parsing checklist_data:', e);
+        console.error("Error parsing checklist_data:", e);
         // fall through to template build
       }
     }
@@ -37,7 +37,9 @@ export function useServiceChecklistViewModel(serviceId: string) {
     let built: ChecklistItem[] = [];
     if (service.template_id && templates.length > 0) {
       const tmpl = templates.find(
-        (t) => `${t.id}` === `${service.template_id}` || t.name === service.template_id,
+        (t) =>
+          `${t.id}` === `${service.template_id}` ||
+          t.name === service.template_id,
       );
       if (tmpl?.items) {
         built = tmpl.items.map((title, idx) => ({
@@ -46,9 +48,15 @@ export function useServiceChecklistViewModel(serviceId: string) {
           completed: false,
         }));
       }
-      console.log('Building checklist from template:', { template: tmpl?.name, items: built });
+      console.log("Building checklist from template:", {
+        template: tmpl?.name,
+        items: built,
+      });
     } else {
-      console.log('No template found for:', { template_id: service.template_id, templates_available: templates.length });
+      console.log("No template found for:", {
+        template_id: service.template_id,
+        templates_available: templates.length,
+      });
     }
 
     if (built.length > 0) {
@@ -59,12 +67,12 @@ export function useServiceChecklistViewModel(serviceId: string) {
       if (!service.checklist_data) {
         updateService(serviceId, {
           checklist_data: JSON.stringify(built),
-        }).catch(err => console.error('Error saving checklist:', err));
+        }).catch((err) => console.error("Error saving checklist:", err));
       }
     }
   }, [service?.id, service?.template_id, templates, serviceId]);
 
-  const completedItems = checklist.filter(i => i.completed).length;
+  const completedItems = checklist.filter((i) => i.completed).length;
   const totalItems = checklist.length;
 
   const hasAnyCompleted = completedItems > 0;
@@ -73,10 +81,8 @@ export function useServiceChecklistViewModel(serviceId: string) {
   async function toggleItem(itemId: string) {
     if (!service) return;
 
-    const updatedChecklist = checklist.map(item =>
-      item.id === itemId
-        ? { ...item, completed: !item.completed }
-        : item
+    const updatedChecklist = checklist.map((item) =>
+      item.id === itemId ? { ...item, completed: !item.completed } : item,
     );
 
     setChecklist(updatedChecklist);
@@ -95,8 +101,8 @@ export function useServiceChecklistViewModel(serviceId: string) {
   async function updateNote(itemId: string, note: string) {
     if (!service) return;
 
-    const updatedChecklist = checklist.map(item =>
-      item.id === itemId ? { ...item, note } : item
+    const updatedChecklist = checklist.map((item) =>
+      item.id === itemId ? { ...item, note } : item,
     );
 
     setChecklist(updatedChecklist);
@@ -114,8 +120,8 @@ export function useServiceChecklistViewModel(serviceId: string) {
   async function updatePhotos(itemId: string, photos: string[]) {
     if (!service) return;
 
-    const updatedChecklist = checklist.map(item =>
-      item.id === itemId ? { ...item, photos } : item
+    const updatedChecklist = checklist.map((item) =>
+      item.id === itemId ? { ...item, photos } : item,
     );
 
     setChecklist(updatedChecklist);
@@ -131,12 +137,12 @@ export function useServiceChecklistViewModel(serviceId: string) {
   }
 
   async function markInProgress() {
-    await updateService(serviceId, { status: 'in-progress' });
+    await updateService(serviceId, { status: "in-progress" });
   }
 
   async function completeService() {
     if (!allCompleted) return false;
-    await updateService(serviceId, { status: 'completed' });
+    await updateService(serviceId, { status: "completed" });
     return true;
   }
 

@@ -6,9 +6,7 @@ import { useCallback } from "react";
 export default function Reports() {
   const { services } = useServices();
 
-    const completedServices = services.filter(
-    (s) => s.status === 'completed'
-  );
+  const completedServices = services.filter((s) => s.status === "completed");
 
   const navigationToServiceReport = useCallback(
     (serviceId: string) => {
@@ -17,7 +15,7 @@ export default function Reports() {
         params: { id: serviceId },
       });
     },
-    [router]
+    [router],
   );
   return (
     <ReportsView

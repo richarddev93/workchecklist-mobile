@@ -16,7 +16,7 @@ export const useServiceViewModel = () => {
   const [editingService, setEditingService] = useState<string | null>(null);
 
   const handleAddService = async (
-    data: Omit<Service, "id" | "created_at" | "updated_at">
+    data: Omit<Service, "id" | "created_at" | "updated_at">,
   ) => {
     try {
       await addService(data);
@@ -38,10 +38,7 @@ export const useServiceViewModel = () => {
     }
   };
 
-  const handleUpdateService = async (
-    id: string,
-    data: Partial<Service>
-  ) => {
+  const handleUpdateService = async (id: string, data: Partial<Service>) => {
     try {
       await updateService(id, data);
       Toast.show({

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { FlatList, ScrollView, View, ActivityIndicator } from "react-native";
+import { ActivityIndicator, FlatList, ScrollView, View } from "react-native";
 
 interface ServiceListViewProps {
   services: any[];
@@ -40,13 +40,18 @@ export function ServiceListView({
         params: { id: serviceId },
       });
     },
-    [router]
+    [router],
   );
 
   if (loading) {
     return (
       <Container>
-        <Header title="Serviços" subtitle="Acompanhe todos os serviços" onBackHandler={onBackHandler} noBorder />
+        <Header
+          title="Serviços"
+          subtitle="Acompanhe todos os serviços"
+          onBackHandler={onBackHandler}
+          noBorder
+        />
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#2563eb" />
         </View>
@@ -56,7 +61,12 @@ export function ServiceListView({
 
   return (
     <Container>
-      <Header title="Serviços" subtitle="Acompanhe todos os serviços" onBackHandler={onBackHandler} noBorder />
+      <Header
+        title="Serviços"
+        subtitle="Acompanhe todos os serviços"
+        onBackHandler={onBackHandler}
+        noBorder
+      />
       <View className="flex pb-4 bg-white border-b border-gray-200">
         <ScrollView
           horizontal
@@ -80,13 +90,13 @@ export function ServiceListView({
                       "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
                       tab === t.value
                         ? "!bg-primary !border-tab-icon-selected"
-                        : "bg-gray-100"
+                        : "bg-gray-100",
                     )}
                   >
                     <Text
                       className={cn(
                         "text-md",
-                        isSelected ? "!text-white" : "text-text"
+                        isSelected ? "!text-white" : "text-text",
                       )}
                     >
                       {t.label}
@@ -100,7 +110,9 @@ export function ServiceListView({
       </View>
       {filteredServices.length === 0 ? (
         <View className="flex-1 justify-center items-center">
-          <Text className="text-gray-500 text-lg">Nenhum serviço encontrado</Text>
+          <Text className="text-gray-500 text-lg">
+            Nenhum serviço encontrado
+          </Text>
         </View>
       ) : (
         <FlatList

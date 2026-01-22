@@ -17,7 +17,10 @@ interface ServiceChecklistProps {
   onBack: () => void;
 }
 
-export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProps) {
+export function ServiceChecklistView({
+  serviceId,
+  onBack,
+}: ServiceChecklistProps) {
   const {
     service,
     checklist,
@@ -73,19 +76,25 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
   const normalizedStatus = (service.status as ServiceStatus) || "pending";
   const statusStyle = statusStyles[normalizedStatus] ?? statusStyles.pending;
 
-  const displayClientName = (service as any).client_name ?? service.clientName ?? "Serviço sem nome";
-  const displayServiceType = (service as any).service_type ?? service.serviceType ?? "Tipo não definido";
+  const displayClientName =
+    (service as any).client_name ?? service.clientName ?? "Serviço sem nome";
+  const displayServiceType =
+    (service as any).service_type ?? service.serviceType ?? "Tipo não definido";
   const displayDate = (service as any).service_date ?? service.date ?? "";
   const displayAddress = (service as any).location ?? service.address ?? "";
-  const displayStatusLabel = normalizedStatus === "in-progress"
-    ? "Em andamento"
-    : normalizedStatus === "completed"
-      ? "Concluído"
-      : "Pendente";
+  const displayStatusLabel =
+    normalizedStatus === "in-progress"
+      ? "Em andamento"
+      : normalizedStatus === "completed"
+        ? "Concluído"
+        : "Pendente";
 
   async function handleToggle(itemId: string) {
     if (!isInProgress) {
-      Alert.alert("Inicie o serviço", "Para concluir itens, primeiro inicie o serviço.");
+      Alert.alert(
+        "Inicie o serviço",
+        "Para concluir itens, primeiro inicie o serviço.",
+      );
       return;
     }
 
@@ -100,7 +109,10 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
     const success = await completeService();
 
     if (!success) {
-      Alert.alert("Checklist incompleto", "Complete todos os itens antes de finalizar o serviço.");
+      Alert.alert(
+        "Checklist incompleto",
+        "Complete todos os itens antes de finalizar o serviço.",
+      );
       return;
     }
 
@@ -153,14 +165,22 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
                 <CardTitle className="text-xl font-bold">
                   {displayClientName}
                 </CardTitle>
-                <Text className="text-muted text-base">{displayServiceType}</Text>
+                <Text className="text-muted text-base">
+                  {displayServiceType}
+                </Text>
               </View>
 
               <View
-                style={{ backgroundColor: statusStyle.bg, borderColor: statusStyle.border }}
+                style={{
+                  backgroundColor: statusStyle.bg,
+                  borderColor: statusStyle.border,
+                }}
                 className={cn("px-3 py-1 rounded-full border")}
               >
-                <Text style={{ color: statusStyle.text }} className={cn("text-xs font-medium")}>
+                <Text
+                  style={{ color: statusStyle.text }}
+                  className={cn("text-xs font-medium")}
+                >
                   {displayStatusLabel}
                 </Text>
               </View>
@@ -173,7 +193,9 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
                   <Text className="text-base font-medium">
                     {(() => {
                       try {
-                        return new Date(displayDate).toLocaleDateString("pt-BR");
+                        return new Date(displayDate).toLocaleDateString(
+                          "pt-BR",
+                        );
                       } catch {
                         return displayDate;
                       }
@@ -185,7 +207,9 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
               {displayAddress ? (
                 <View>
                   <Text className="text-muted text-xs">Local</Text>
-                  <Text className="text-base font-medium">{displayAddress}</Text>
+                  <Text className="text-base font-medium">
+                    {displayAddress}
+                  </Text>
                 </View>
               ) : null}
             </CardContent>
@@ -193,7 +217,9 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
 
           <Card>
             <CardContent className="gap-4">
-              <Text className="font-semibold text-lg">Progresso do Checklist</Text>
+              <Text className="font-semibold text-lg">
+                Progresso do Checklist
+              </Text>
 
               <View className="flex-row justify-between items-center">
                 <Text className="text-muted text-sm">Itens concluídos</Text>
@@ -207,10 +233,15 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
           </Card>
         </View>
 
-        <ScrollView className="flex-1 px-4 py-4" showsVerticalScrollIndicator={false}>
+        <ScrollView
+          className="flex-1 px-4 py-4"
+          showsVerticalScrollIndicator={false}
+        >
           {checklist.length === 0 ? (
             <View className="flex-1 justify-center">
-              <Text className="text-center text-gray-500 py-12">Carregando checklist...</Text>
+              <Text className="text-center text-gray-500 py-12">
+                Carregando checklist...
+              </Text>
             </View>
           ) : (
             checklist.map((item) => (
@@ -248,7 +279,9 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
               onPress={handleComplete}
               className={`rounded-lg py-3 items-center ${allCompleted ? "bg-emerald-500" : "bg-gray-100"}`}
             >
-              <Text className={`font-medium ${allCompleted ? "text-white" : "text-gray-400"}`}>
+              <Text
+                className={`font-medium ${allCompleted ? "text-white" : "text-gray-400"}`}
+              >
                 Finalizar serviço
               </Text>
             </TouchableOpacity>
@@ -258,4 +291,3 @@ export function ServiceChecklistView({ serviceId, onBack }: ServiceChecklistProp
     </Container>
   );
 }
-

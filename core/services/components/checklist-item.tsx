@@ -44,7 +44,9 @@ export function ChecklistItemComponent({
         <MaterialIcons
           name={item.completed ? "check-circle" : "radio-button-unchecked"}
           size={26}
-          color={disabledToggle ? "#d1d5db" : item.completed ? "#10b981" : "#9ca3af"}
+          color={
+            disabledToggle ? "#d1d5db" : item.completed ? "#10b981" : "#9ca3af"
+          }
         />
 
         <Text

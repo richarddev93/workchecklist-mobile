@@ -4,19 +4,19 @@ import { Header } from "@/components/ui/header";
 import { Text } from "@/components/ui/text";
 import { useConfigViewModel } from "@/core/config/viewmodels/useConfigVM";
 import { useServiceViewModel } from "@/core/services/viewmodels/useServiceVM";
+import { Service } from "@/types";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Toast } from "toastify-react-native";
-import { Service } from "@/types";
 
 export function NewServiceView() {
   const router = useRouter();
@@ -85,8 +85,8 @@ export function NewServiceView() {
 
     try {
       const templateData = templates.find((t) => t.name === formData.template);
-      
-      console.log('Creating service - Selected template:', {
+
+      console.log("Creating service - Selected template:", {
         templateName: formData.template,
         templateData,
         allTemplates: templates,
@@ -126,10 +126,7 @@ export function NewServiceView() {
 
   return (
     <Container>
-      <Header
-        title="Novo serviço"
-        onBackHandler={() => router.back()}
-      />
+      <Header title="Novo serviço" onBackHandler={() => router.back()} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -160,10 +157,16 @@ export function NewServiceView() {
               Tipo de serviço <Text className="text-red-500">*</Text>
             </Text>
             <TouchableOpacity
-              onPress={() => setShowServiceTypeDropdown(!showServiceTypeDropdown)}
+              onPress={() =>
+                setShowServiceTypeDropdown(!showServiceTypeDropdown)
+              }
               className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white"
             >
-              <Text className={formData.serviceType ? "text-gray-900" : "text-gray-400"}>
+              <Text
+                className={
+                  formData.serviceType ? "text-gray-900" : "text-gray-400"
+                }
+              >
                 {formData.serviceType || "Selecione o tipo de serviço"}
               </Text>
             </TouchableOpacity>
@@ -242,7 +245,11 @@ export function NewServiceView() {
               onPress={() => setShowTemplateDropdown(!showTemplateDropdown)}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white"
             >
-              <Text className={formData.template ? "text-gray-900" : "text-gray-400"}>
+              <Text
+                className={
+                  formData.template ? "text-gray-900" : "text-gray-400"
+                }
+              >
                 {formData.template || "Selecione um template"}
               </Text>
             </TouchableOpacity>
@@ -267,7 +274,7 @@ export function NewServiceView() {
           </View>
         </ScrollView>
 
-          {/* Botão fixo no footer */}
+        {/* Botão fixo no footer */}
         <View className="absolute bottom-0 left-0 right-0 bg-surface border-t border-gray-200 px-4 py-4">
           <Button
             onPress={handleCreateService}

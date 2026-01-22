@@ -3,7 +3,6 @@ import {
   createCompanyRepository,
 } from "@/core/config/repository/companyRepository";
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
-import { randomUUID } from "expo-crypto";
 import React, {
   createContext,
   ReactNode,
@@ -38,8 +37,16 @@ export interface ServiceType {
 }
 
 const defaultServiceTypes: ServiceType[] = [
-  { id: "type-1", name: "Manutenção preventiva", slug: "manutencao-preventiva" },
-  { id: "type-2", name: "Manutenção de área verde", slug: "manutencao-area-verde" },
+  {
+    id: "type-1",
+    name: "Manutenção preventiva",
+    slug: "manutencao-preventiva",
+  },
+  {
+    id: "type-2",
+    name: "Manutenção de área verde",
+    slug: "manutencao-area-verde",
+  },
   { id: "type-3", name: "Elétrica", slug: "eletrica" },
   { id: "type-4", name: "Hidráulica", slug: "hidraulica" },
   { id: "type-5", name: "Suporte técnico", slug: "suporte-tecnico" },

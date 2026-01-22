@@ -1,5 +1,5 @@
-import { ServiceListView } from "@/core/services/views/ServiceList.view";
 import { useServiceViewModel } from "@/core/services/viewmodels/useServiceVM";
+import { ServiceListView } from "@/core/services/views/ServiceList.view";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo } from "react";
 
@@ -15,11 +15,11 @@ export default function Services() {
   const formattedServices = useMemo(() => {
     return (services || []).map((service) => {
       const statusLabels: Record<string, string> = {
-        "pending": "Pendente",
+        pending: "Pendente",
         "in-progress": "Em andamento",
-        "completed": "Concluído",
+        completed: "Concluído",
       };
-      
+
       return {
         id: service.id,
         clientName: service.client_name,
@@ -37,8 +37,8 @@ export default function Services() {
   }, [services]);
 
   return (
-    <ServiceListView 
-      services={formattedServices} 
+    <ServiceListView
+      services={formattedServices}
       onBackHandler={backToHome}
       loading={loading}
     />
