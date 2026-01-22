@@ -14,7 +14,6 @@ export function ReportsView({
   onNavigate,
   onBack,
 }: ReportsProps) {
-
   return (
     <View className="flex-1 bg-background pb-20">
       {/* Header */}
@@ -47,11 +46,8 @@ export function ReportsView({
             <TouchableOpacity
               key={service.id}
               onPress={() => {
-                console.log('Navegando detalhes do report')
-                onNavigate(service.id)
-              }
-
-              }
+                onNavigate(service.id);
+              }}
               className="bg-white rounded-lg p-4 mb-3 border border-gray-200"
               activeOpacity={0.8}
             >

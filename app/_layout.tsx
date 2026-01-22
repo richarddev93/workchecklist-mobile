@@ -32,7 +32,6 @@ export default function RootLayout() {
     startDatabase(() => mounted);
 
     return () => {
-      console.log("desmontando o componente");
       mounted = false;
     };
   }, []);

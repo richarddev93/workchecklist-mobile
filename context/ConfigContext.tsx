@@ -14,15 +14,20 @@ import React, {
 } from "react";
 
 import {
+  createServiceTemplateRepository,
+  ServiceTemplateRepository,
+} from "@/core/config/repository/serviceTemplateRepository";
+import {
   createServiceTypeRepository,
   ServiceTypeRepository,
 } from "@/core/config/repository/serviceTypeRepository";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
-import { CompanyInfo } from "@/types";
+import { CompanyInfo, ServiceTemplate } from "@/types";
 
 export interface Template {
   id: string;
   name: string;
+  service_type: string;
   items: string[];
 }
 
@@ -32,6 +37,10 @@ export interface ServiceType {
   slug?: string;
 }
 
+type ServiceTemplateWithStringItems = Omit<ServiceTemplate, "items"> & {
+  items: string[];
+};
+
 interface ConfigContextData {
   // Company
   companyInfo: CompanyInfo;
@@ -39,8 +48,8 @@ interface ConfigContextData {
 
   // Templates
   templates: Template[];
-  addTemplate: (data: Omit<Template, "id">) => void;
-  updateTemplate: (id: string, data: Partial<Template>) => void;
+  addTemplate: (data: Omit<ServiceTemplate, "id">) => void;
+  updateTemplate: (id: string, data: Partial<ServiceTemplate>) => void;
   deleteTemplate: (id: string) => void;
 
   // Service Types
@@ -57,6 +66,9 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   const [db, setDb] = useState<DatabaseAdapter | null>(null);
   const repositoryRef = useRef<CompanyRepository | null>(null);
   const serviceTypeRepositoryRef = useRef<ServiceTypeRepository | null>(null);
+  const serviceTemplateRepositoryRef = useRef<ServiceTemplateRepository | null>(
+    null,
+  );
 
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: "WorkChecklist",
@@ -71,10 +83,11 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
     { id: randomUUID(), name: "Reparo" },
   ]);
 
-  const [templates, setTemplates] = useState<Template[]>([
+  const [templates, setTemplates] = useState<ServiceTemplateWithStringItems[]>([
     {
       id: randomUUID(),
       name: "Manutenção Preventiva",
+      service_type: "Manutenção",
       items: [
         "Verificação inicial do equipamento",
         "Teste de funcionamento",
@@ -93,8 +106,12 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
       repositoryRef.current = createCompanyRepository(dbInstance);
       serviceTypeRepositoryRef.current =
         createServiceTypeRepository(dbInstance);
+      serviceTemplateRepositoryRef.current =
+        createServiceTemplateRepository(dbInstance);
       const company = await repositoryRef.current?.getCompany();
       getAllServiceType();
+
+      getAllServiceTemplate();
 
       if (mounted) {
         setDb(dbInstance);
@@ -119,18 +136,34 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
     setCompanyInfo((prev) => ({ ...prev, ...data }));
   };
 
-  const addTemplate = (data: Omit<Template, "id">) => {
-    setTemplates((prev) => [...prev, { id: randomUUID(), ...data }]);
+  const getAllServiceTemplate = async () => {
+    const serviceTemplatesRes =
+      await serviceTemplateRepositoryRef.current?.getAll();
+
+    const converteditems = serviceTemplatesRes?.map((tmp) => ({
+      ...tmp,
+      items: tmp.items ? JSON.parse(tmp.items) : [],
+    }));
+    console.log("GET ALL Template", converteditems);
+    setTemplates(converteditems ?? []);
   };
 
-  const updateTemplate = (id: string, data: Partial<Template>) => {
-    setTemplates((prev) =>
-      prev.map((tpl) => (tpl.id === id ? { ...tpl, ...data } : tpl))
-    );
+  const addTemplate = async (data: Omit<ServiceTemplate, "id">) => {
+    console.log(data);
+    await serviceTemplateRepositoryRef.current?.save(data);
+    getAllServiceTemplate();
   };
 
-  const deleteTemplate = (id: string) => {
-    setTemplates((prev) => prev.filter((tpl) => tpl.id !== id));
+  const updateTemplate = async (id: string, data: Partial<ServiceTemplate>) => {
+    const res = await serviceTypeRepositoryRef.current?.edit(data);
+    getAllServiceTemplate();
+    return res;
+  };
+
+  const deleteTemplate = async (id: string) => {
+    const serviceTypeRes =
+      await serviceTemplateRepositoryRef.current?.delete(id);
+    getAllServiceTemplate();
   };
 
   const addServiceType = async (data: Omit<ServiceType, "id">) => {
@@ -140,14 +173,12 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 
   const updateServiceType = async (data: Partial<ServiceType>) => {
     const res = await serviceTypeRepositoryRef.current?.edit(data);
-    console.log(res)
     getAllServiceType();
-    return res
+    return res;
   };
 
   const getAllServiceType = async () => {
     const serviceTypesRes = await serviceTypeRepositoryRef.current?.getAll();
-    console.log(serviceTypesRes);
     setServiceTypes(serviceTypesRes ?? []);
   };
 

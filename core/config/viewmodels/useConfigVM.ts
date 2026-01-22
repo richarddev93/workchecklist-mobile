@@ -5,21 +5,10 @@ import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { Toast } from "toastify-react-native";
 
-// const INITIAL_TEMPLATES_TEMPLATE: TemplateTemplate[] = [
-//   {
-//     id: "1",
-//     name: "Manutenção Preventiva",
-//     items: ["Verificar níveis de óleo", "Apertar conexões", "Limpeza geral"],
-//   },
-//   {
-//     id: "2",
-//     name: "Instalação",
-//     items: ["Conferir equipamentos", "Fixação no local", "Teste final"],
-//   },
-// ];
 export const useConfigViewModel = () => {
   const {
     templates,
+    addTemplate,
     serviceTypes,
     companyInfo,
     deleteTemplate,
@@ -40,9 +29,11 @@ export const useConfigViewModel = () => {
 
   const [newTemplate, setNewTemplate] = useState<{
     name: string;
+    service_type: string;
     items: string[];
   }>({
     name: "",
+    service_type: "",
     items: [""],
   });
 
@@ -58,8 +49,6 @@ export const useConfigViewModel = () => {
   };
 
   const handleDeleteServiceType = (id: string) => {
-    // setServiceTypes((prev) => prev.filter((item) => item.id !== id));
-    console.log("deletando", id, editingType)
     try {
       deleteServiceType(id);
       if (editingType === id) {
@@ -131,17 +120,25 @@ export const useConfigViewModel = () => {
   const handleAddTemplate = () => {
     if (!newTemplate.name.trim()) return;
 
-    // setTemplatesTemplate((prev) => [
-    //   ...prev,
-    //   {
-    //     id: String(Date.now()),
-    //     name: newTemplate.name.trim(),
-    //     items: newTemplate.items.filter(Boolean),
-    //   },
-    // ]);
+    try {
+      addTemplate({
+        ...newTemplate,
+        items:
+          newTemplate.items.length > 0
+            ? JSON.stringify(newTemplate.items, null, 2)
+            : "[]",
+      });
 
-    setNewTemplate({ name: "", items: [""] });
-    setShowNewTemplate(false);
+      setShowNewTemplate(false);
+      setNewTemplate({
+        name: "",
+        service_type: "",
+        items: [""],
+      });
+    } catch (error) {
+      console.error("Error", error);
+      ShowError("Erro ao salvar o template! Tente Novamente");
+    }
   };
 
   const handleUpdateTemplate = (id: string, name: string, items: string[]) => {
@@ -152,11 +149,21 @@ export const useConfigViewModel = () => {
   };
 
   const handleDeleteTemplate = (id: string) => {
-    // setTemplatesTemplate((prev) => prev.filter((t) => t.id !== id));
-
-    if (editingTemplate === id) {
-      setEditingTemplate(null);
+    try {
+      deleteTemplate(id);
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  const ShowError = (message = "Erro desconhecido") => {
+    Toast.show({
+      type: "error",
+      text1: message,
+      position: "top",
+      visibilityTime: 4000,
+      autoHide: true,
+    });
   };
 
   const templatesHandle = {
