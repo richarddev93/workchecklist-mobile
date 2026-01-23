@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system/legacy";
 import React from "react";
 import {
     Alert,
     Image,
     ScrollView,
+    Share,
     Text,
     TouchableOpacity,
     View,
@@ -51,10 +53,111 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
     Alert.alert("Download", "Funcionalidade será implementada");
   };
 
+  const generateReportText = (): string => {
+    const lines: string[] = [];
+    
+    // Header
+    lines.push("═".repeat(60));
+    lines.push("RELATÓRIO DE SERVIÇO".padStart(35));
+    lines.push("═".repeat(60));
+    lines.push("");
+    
+    // Empresa
+    lines.push("INFORMAÇÕES DA EMPRESA");
+    lines.push("─".repeat(60));
+    lines.push(`Nome: ${companyInfo.name}`);
+    if (companyInfo.address) {
+      lines.push(`Endereço: ${companyInfo.address}`);
+    }
+    if (companyInfo.phone) {
+      lines.push(`Telefone: ${companyInfo.phone}`);
+    }
+    if (companyInfo.email) {
+      lines.push(`Email: ${companyInfo.email}`);
+    }
+    lines.push("");
+    
+    // Info do Relatório
+    lines.push("INFORMAÇÕES DO RELATÓRIO");
+    lines.push("─".repeat(60));
+    lines.push(`Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}`);
+    lines.push(`Nº do Serviço: #${service.id}`);
+    lines.push("");
+    
+    // Cliente
+    lines.push("DADOS DO CLIENTE");
+    lines.push("─".repeat(60));
+    lines.push(`Nome: ${service.clientName}`);
+    lines.push(`Tipo de Serviço: ${service.serviceType}`);
+    lines.push(`Data do Serviço: ${new Date(service.date).toLocaleDateString("pt-BR")}`);
+    lines.push(`Local: ${service.address}`);
+    lines.push("");
+    
+    // Checklist
+    lines.push("CHECKLIST EXECUTADO");
+    lines.push("─".repeat(60));
+    service.checklist.forEach((item, index) => {
+      const status = item.completed ? "[✓]" : "[✗]";
+      lines.push(`${status} ${item.title}`);
+      
+      if (item.note) {
+        lines.push(`    Obs: ${item.note}`);
+      }
+      if (item.photos && item.photos.length > 0) {
+        lines.push(`    Fotos: ${item.photos.length} foto(s) anexada(s)`);
+      }
+    });
+    lines.push("");
+    
+    // Resumo
+    lines.push("RESUMO");
+    lines.push("─".repeat(60));
+    const completedCount = service.checklist.filter((i) => i.completed).length;
+    lines.push(`Status: Concluído`);
+    lines.push(`Itens Concluídos: ${completedCount}/${service.checklist.length}`);
+    lines.push("");
+    
+    // Footer
+    lines.push("═".repeat(60));
+    lines.push("Relatório gerado por WorkCheckList".padStart(38));
+    lines.push("═".repeat(60));
+    
+    return lines.join("\n");
+  };
+
+  const onDownloadReport = async () => {
+    try {
+      const reportText = generateReportText();
+      const fileName = `relatorio_${service.clientName.replace(/\s+/g, "_")}_${new Date().getTime()}.txt`;
+      const filePath = `${FileSystem.documentDirectory}${fileName}`;
+      
+      await FileSystem.writeAsStringAsync(filePath, reportText);
+      
+      Alert.alert("✓ Sucesso", `Relatório salvo como: ${fileName}`);
+    } catch (error) {
+      Alert.alert("✗ Erro", "Não foi possível salvar o relatório");
+      console.error(error);
+    }
+  };
+
+  const onShareReport = async () => {
+    try {
+      const reportText = generateReportText();
+      
+      await Share.share({
+        message: reportText,
+        title: `Relatório - ${service.clientName}`,
+      });
+    } catch (error) {
+      Alert.alert("✗ Erro", "Não foi possível compartilhar o relatório");
+      console.error(error);
+    }
+  };
+
   return (
     <View className="flex-1 bg-background">
       {/* HEADER */}
-      <View className="bg-white border-b border-gray-200 px-4 py-4">
+      <View className="bg-white border-b border-gray-200 px-4 py-4 pt-6">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
             <TouchableOpacity onPress={onBack}>
@@ -66,20 +169,20 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
           </View>
 
           <View className="flex-row gap-2">
-            <TouchableOpacity onPress={handleDownload} className="p-2">
+            <TouchableOpacity onPress={onDownloadReport} className="p-2">
               <Ionicons name="download-outline" size={22} color="#374151" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleShare} className="p-2">
+            <TouchableOpacity onPress={onShareReport} className="p-2">
               <Ionicons name="share-social-outline" size={22} color="#374151" />
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      <ScrollView className="flex-1 p-4 space-y-4">
+      <ScrollView className="flex-1 px-4 pt-4 pb-40">
         {/* EMPRESA */}
-        <View className="bg-white rounded-lg p-4 border border-gray-200">
-          <View className="flex-row gap-4 pb-4 border-b border-gray-200">
+        <View className="bg-white rounded-lg p-5 border border-gray-200 mb-6">
+          <View className="flex-row gap-4 pb-5 border-b border-gray-200">
             {companyInfo.logo && (
               <Image
                 source={{ uri: companyInfo.logo }}
@@ -106,7 +209,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
             </View>
           </View>
 
-          <View className="pt-4 space-y-2">
+          <View className="pt-5 space-y-3">
             <Text className="text-center font-semibold text-gray-900">
               Relatório de Serviço
             </Text>
@@ -126,12 +229,12 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
         </View>
 
         {/* CLIENTE */}
-        <View className="bg-white rounded-lg p-4 border border-gray-200">
-          <Text className="text-gray-900 font-semibold mb-3">
+        <View className="bg-white rounded-lg p-5 border border-gray-200 mb-6">
+          <Text className="text-gray-900 font-semibold mb-4">
             Dados do cliente
           </Text>
 
-          <View className="space-y-2">
+          <View className="space-y-3">
             <View>
               <Text className="text-gray-600">Nome</Text>
               <Text className="text-gray-900">{service.clientName}</Text>
@@ -159,8 +262,8 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
         </View>
 
         {/* CHECKLIST */}
-        <View className="bg-white rounded-lg p-4 border border-gray-200">
-          <Text className="text-gray-900 font-semibold mb-3">
+        <View className="bg-white rounded-lg p-5 border border-gray-200 mb-6">
+          <Text className="text-gray-900 font-semibold mb-4">
             Checklist executado
           </Text>
 
@@ -171,7 +274,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
             return (
               <View
                 key={item.id}
-                className="border-b border-gray-100 pb-4 mb-4 last:border-0 last:mb-0"
+                className="border-b border-gray-100 pb-5 mb-5 last:border-0 last:mb-0 last:pb-0"
               >
                 <View className="flex-row gap-3">
                   <Ionicons
@@ -240,15 +343,15 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
         )*/}
 
         {/* RESUMO */}
-        <View className="bg-white rounded-lg p-4 border border-gray-200">
-          <Text className="text-gray-900 font-semibold mb-2">Resumo</Text>
+        <View className="bg-white rounded-lg p-5 border border-gray-200 mb-6">
+          <Text className="text-gray-900 font-semibold mb-4">Resumo</Text>
 
-          <View className="flex-row justify-between">
+          <View className="flex-row justify-between mb-3">
             <Text className="text-gray-600">Status</Text>
             <Text className="text-emerald-600 font-medium">Concluído</Text>
           </View>
 
-          <View className="flex-row justify-between mt-1">
+          <View className="flex-row justify-between">
             <Text className="text-gray-600">Itens concluídos</Text>
             <Text className="text-gray-900">
               {service.checklist.filter((i) => i.completed).length}/
@@ -258,8 +361,8 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
         </View>
 
         {/* FOOTER EMPRESA */}
-        <View className="bg-white rounded-lg p-4 border border-gray-200">
-          <View className="border-t border-gray-200 pt-4 items-center">
+        <View className="bg-white rounded-lg p-5 border border-gray-200 mb-6">
+          <View className="border-t border-gray-200 pt-5 pb-2 items-center">
             <Text className="text-gray-900 font-medium">
               {companyInfo.name}
             </Text>
@@ -279,6 +382,18 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
               </Text>
             )}
           </View>
+        </View>
+
+        {/* BRANDING FOOTER */}
+        <View className="items-center py-8">
+          <Image
+            source={require("@/assets/images/icon.png")}
+            className="w-12 h-12 mb-3"
+            resizeMode="contain"
+          />
+          <Text className="text-gray-500 text-sm font-medium">
+            Relatório por WorkCheckList
+          </Text>
         </View>
       </ScrollView>
     </View>
