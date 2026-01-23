@@ -1,9 +1,13 @@
+import { FeedbackModal } from "@/components/feedback-modal";
 import { useServices } from "@/core/services/context/ServiceContext";
 import { DashboardServiceView } from "@/core/services/views/DashboardService.view";
+import { useFeedbackModal } from "@/hooks/useFeedbackModal";
 import { useMemo } from "react";
 
 export default function HomeScreen() {
   const { services } = useServices();
+  const { showFeedbackModal, setShowFeedbackModal, submitFeedback } =
+    useFeedbackModal();
 
   const servicesData = useMemo(() => {
     const total = services?.length || 0;
@@ -20,5 +24,23 @@ export default function HomeScreen() {
     };
   }, [services]);
 
-  return <DashboardServiceView services={servicesData} />;
+  const handleFeedbackClose = () => {
+    setShowFeedbackModal(false);
+  };
+
+  const handleFeedbackSubmit = async (feedback: string | null) => {
+    await submitFeedback(feedback);
+    setShowFeedbackModal(false);
+  };
+
+  return (
+    <>
+      <DashboardServiceView services={servicesData} />
+      <FeedbackModal
+        visible={showFeedbackModal}
+        onClose={handleFeedbackClose}
+        onSubmit={handleFeedbackSubmit}
+      />
+    </>
+  );
 }

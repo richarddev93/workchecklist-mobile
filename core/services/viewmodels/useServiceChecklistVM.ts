@@ -1,10 +1,12 @@
 import { useConfig } from "@/context/ConfigContext";
 import { useServices } from "@/core/services/context/ServiceContext";
+import { useFeedbackModal } from "@/hooks/useFeedbackModal";
 import { analyticsEvents } from "@/lib/analytics";
 import { ChecklistItem } from "@/types";
 import { useEffect, useRef, useState } from "react";
 
 export function useServiceChecklistViewModel(serviceId: string) {
+  const { incrementCompletedServices } = useFeedbackModal();
   const { getServiceById, updateService } = useServices();
   const { templates } = useConfig();
 
@@ -292,6 +294,10 @@ export function useServiceChecklistViewModel(serviceId: string) {
         totalItems,
         checkedItems: completedItems,
       });
+
+      // Trigger feedback modal check (will show after N completed services)
+      await incrementCompletedServices();
+
       return true;
     } catch (error) {
       console.error("completeService - Error:", error);

@@ -1,5 +1,5 @@
-import { getRemoteConfig, RemoteConfig } from 'firebase/remote-config';
-import { firebaseApp } from './firebase';
+import { getRemoteConfig, RemoteConfig } from "firebase/remote-config";
+import { firebaseApp } from "./firebase";
 
 // Type-safe remote config schema
 export interface RemoteConfigSchema {
@@ -39,7 +39,7 @@ async function getRemoteConfigSafe(): Promise<RemoteConfig | null> {
         remoteConfigInstance = rc;
         return rc;
       } catch (err) {
-        console.warn('[remoteConfig] Failed to initialize', err);
+        console.warn("[remoteConfig] Failed to initialize", err);
         return null;
       }
     })();
@@ -62,10 +62,10 @@ export async function getRemoteConfigValue<K extends keyof RemoteConfigSchema>(
     const defaultVal = DEFAULT_CONFIG[key];
     const stringVal = value.asString();
 
-    if (typeof defaultVal === 'boolean') {
-      return stringVal.toLowerCase() === 'true' as RemoteConfigSchema[K];
+    if (typeof defaultVal === "boolean") {
+      return stringVal.toLowerCase() === ("true" as RemoteConfigSchema[K]);
     }
-    if (typeof defaultVal === 'number') {
+    if (typeof defaultVal === "number") {
       return Number(stringVal) as RemoteConfigSchema[K];
     }
     return stringVal as RemoteConfigSchema[K];
@@ -78,12 +78,12 @@ export async function getRemoteConfigValue<K extends keyof RemoteConfigSchema>(
 // Get all config at once
 export async function getAllRemoteConfig(): Promise<RemoteConfigSchema> {
   const keys: (keyof RemoteConfigSchema)[] = [
-    'free_template_limit',
-    'show_premium_badge',
-    'feedback_enabled',
-    'feedback_trigger_services',
-    'app_update_warning_enabled',
-    'copy_empty_state_enabled',
+    "free_template_limit",
+    "show_premium_badge",
+    "feedback_enabled",
+    "feedback_trigger_services",
+    "app_update_warning_enabled",
+    "copy_empty_state_enabled",
   ];
 
   const config: Partial<RemoteConfigSchema> = {};
