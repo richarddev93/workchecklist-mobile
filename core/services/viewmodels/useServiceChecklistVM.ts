@@ -1,5 +1,6 @@
 import { useConfig } from "@/context/ConfigContext";
 import { useServices } from "@/core/services/context/ServiceContext";
+import { analyticsEvents } from "@/lib/analytics";
 import { ChecklistItem } from "@/types";
 import { useEffect, useRef, useState } from "react";
 
@@ -257,6 +258,17 @@ export function useServiceChecklistViewModel(serviceId: string) {
     try {
       await updateService(serviceId, { status: "in-progress" });
       console.log("markInProgress - status updated successfully");
+
+      const template = templates.find(
+        (t) =>
+          `${t.id}` === `${service?.template_id}` ||
+          t.name === service?.template_id,
+      );
+
+      analyticsEvents.checklistStarted({
+        templateId: service?.template_id ?? "unknown",
+        isDefault: template?.name?.toLowerCase().includes("default") ?? false,
+      });
     } catch (error) {
       console.error("markInProgress - Error:", error);
       throw error;
@@ -275,6 +287,11 @@ export function useServiceChecklistViewModel(serviceId: string) {
     try {
       await updateService(serviceId, { status: "completed" });
       console.log("completeService - status updated successfully");
+
+      analyticsEvents.checklistCompleted({
+        totalItems,
+        checkedItems: completedItems,
+      });
       return true;
     } catch (error) {
       console.error("completeService - Error:", error);

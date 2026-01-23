@@ -2,16 +2,17 @@ import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system/legacy";
 import React from "react";
 import {
-    Alert,
-    Image,
-    ScrollView,
-    Share,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  Share,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { useConfig } from "@/context/ConfigContext";
+import { analyticsEvents } from "@/lib/analytics";
 import { useServices } from "../context/ServiceContext";
 
 interface ServiceReportProps {
@@ -152,7 +153,15 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
         message: reportText,
         title: `Relatório - ${service.clientName}`,
       });
+
+      analyticsEvents.reportShared({ channel: "text" });
     } catch (error) {
+      const isOffline =
+        typeof globalThis !== "undefined" &&
+        (globalThis as any).navigator?.onLine === false;
+      if (isOffline) {
+        analyticsEvents.offlineUsed({ screen: "service_report_share" });
+      }
       Alert.alert("✗ Erro", "Não foi possível compartilhar o relatório");
       console.error(error);
     }

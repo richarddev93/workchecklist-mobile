@@ -1,4 +1,5 @@
 import { useServices } from "@/core/services/context/ServiceContext";
+import { analyticsEvents } from "@/lib/analytics";
 import { Service } from "@/types";
 import { useState } from "react";
 import { Toast } from "toastify-react-native";
@@ -20,6 +21,12 @@ export const useServiceViewModel = () => {
   ) => {
     try {
       await addService(data);
+
+      analyticsEvents.serviceCreated({
+        serviceType: data.service_type,
+        hasTemplate: Boolean(data.template_id),
+      });
+
       Toast.show({
         type: "success",
         text1: "Serviço criado com sucesso!",
@@ -28,6 +35,12 @@ export const useServiceViewModel = () => {
       });
     } catch (error) {
       console.error("Error adding service:", error);
+      const isOffline =
+        typeof globalThis !== "undefined" &&
+        (globalThis as any).navigator?.onLine === false;
+      if (isOffline) {
+        analyticsEvents.offlineUsed({ screen: "new_service" });
+      }
       Toast.show({
         type: "error",
         text1: "Erro ao criar serviço",
