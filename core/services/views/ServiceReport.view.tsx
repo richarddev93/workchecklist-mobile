@@ -55,13 +55,13 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
 
   const generateReportText = (): string => {
     const lines: string[] = [];
-    
+
     // Header
     lines.push("═".repeat(60));
     lines.push("RELATÓRIO DE SERVIÇO".padStart(35));
     lines.push("═".repeat(60));
     lines.push("");
-    
+
     // Empresa
     lines.push("INFORMAÇÕES DA EMPRESA");
     lines.push("─".repeat(60));
@@ -76,30 +76,32 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
       lines.push(`Email: ${companyInfo.email}`);
     }
     lines.push("");
-    
+
     // Info do Relatório
     lines.push("INFORMAÇÕES DO RELATÓRIO");
     lines.push("─".repeat(60));
     lines.push(`Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}`);
     lines.push(`Nº do Serviço: #${service.id}`);
     lines.push("");
-    
+
     // Cliente
     lines.push("DADOS DO CLIENTE");
     lines.push("─".repeat(60));
     lines.push(`Nome: ${service.clientName}`);
     lines.push(`Tipo de Serviço: ${service.serviceType}`);
-    lines.push(`Data do Serviço: ${new Date(service.date).toLocaleDateString("pt-BR")}`);
+    lines.push(
+      `Data do Serviço: ${new Date(service.date).toLocaleDateString("pt-BR")}`,
+    );
     lines.push(`Local: ${service.address}`);
     lines.push("");
-    
+
     // Checklist
     lines.push("CHECKLIST EXECUTADO");
     lines.push("─".repeat(60));
     service.checklist.forEach((item, index) => {
       const status = item.completed ? "[✓]" : "[✗]";
       lines.push(`${status} ${item.title}`);
-      
+
       if (item.note) {
         lines.push(`    Obs: ${item.note}`);
       }
@@ -108,20 +110,22 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
       }
     });
     lines.push("");
-    
+
     // Resumo
     lines.push("RESUMO");
     lines.push("─".repeat(60));
     const completedCount = service.checklist.filter((i) => i.completed).length;
     lines.push(`Status: Concluído`);
-    lines.push(`Itens Concluídos: ${completedCount}/${service.checklist.length}`);
+    lines.push(
+      `Itens Concluídos: ${completedCount}/${service.checklist.length}`,
+    );
     lines.push("");
-    
+
     // Footer
     lines.push("═".repeat(60));
     lines.push("Relatório gerado por WorkCheckList".padStart(38));
     lines.push("═".repeat(60));
-    
+
     return lines.join("\n");
   };
 
@@ -130,9 +134,9 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
       const reportText = generateReportText();
       const fileName = `relatorio_${service.clientName.replace(/\s+/g, "_")}_${new Date().getTime()}.txt`;
       const filePath = `${FileSystem.documentDirectory}${fileName}`;
-      
+
       await FileSystem.writeAsStringAsync(filePath, reportText);
-      
+
       Alert.alert("✓ Sucesso", `Relatório salvo como: ${fileName}`);
     } catch (error) {
       Alert.alert("✗ Erro", "Não foi possível salvar o relatório");
@@ -143,7 +147,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
   const onShareReport = async () => {
     try {
       const reportText = generateReportText();
-      
+
       await Share.share({
         message: reportText,
         title: `Relatório - ${service.clientName}`,
