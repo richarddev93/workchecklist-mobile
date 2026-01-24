@@ -1,7 +1,4 @@
-import {
-  getAnalytics,
-  logEvent,
-} from "@react-native-firebase/analytics";
+import { getAnalytics, logEvent } from "@react-native-firebase/analytics";
 
 let analyticsInstance: ReturnType<typeof getAnalytics> | null = null;
 
@@ -17,6 +14,10 @@ async function trackEvent(event: string, params?: Record<string, any>) {
     return;
   }
   try {
+    console.log(
+      `[analytics] 📊 Event: ${event}`,
+      params ? `with ${Object.keys(params).length} params` : "",
+    );
     await logEvent(analyticsInstance, event, params);
   } catch (err) {
     console.warn(`[analytics] failed to log ${event}`, err);
