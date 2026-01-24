@@ -64,9 +64,9 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
   const getAllServices = async () => {
     try {
-      console.log("Getting all services...");
+      // console.log("Getting all services...");
       const servicesRes = await serviceRepositoryRef.current?.getAll();
-      console.log("Services retrieved:", servicesRes);
+      // console.log("Services retrieved:", servicesRes);
       setServices(servicesRes ?? []);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -87,25 +87,25 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
       await getAllServices();
     } catch (error) {
       const sqlError = error as Error;
-      console.log(" [SQL ERROR] Error adding service:");
-      console.log("  Message:", sqlError.message);
-      console.log("  Stack:", sqlError.stack);
-      console.log("  Data:", JSON.stringify(data, null, 2));
-      console.log("  Cause:", sqlError.cause);
+      // console.log(" [SQL ERROR] Error adding service:");
+      // console.log("  Message:", sqlError.message);
+      // console.log("  Stack:", sqlError.stack);
+      // console.log("  Data:", JSON.stringify(data, null, 2));
+      // console.log("  Cause:", sqlError.cause);
       setLastError(sqlError);
       await getAllServices();
-      console.log("Error adding service:", error);
+      console.error("Error adding service:", error);
       throw error;
     }
   };
 
   const updateService = async (id: string, data: Partial<Service>) => {
     try {
-      console.log("ServiceContext.updateService called with id:", id);
+      // console.log("ServiceContext.updateService called with id:", id);
       setLastError(null);
       await serviceRepositoryRef.current?.update(id, data);
       await getAllServices();
-      console.log("ServiceContext.updateService - services refreshed");
+      // console.log("ServiceContext.updateService - services refreshed");
     } catch (error) {
       const sqlError = error as Error;
       console.error("❌ [SQL ERROR] Error updating service:");
@@ -127,13 +127,13 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
   const deleteService = async (id: string) => {
     try {
-      console.log("ServiceContext.deleteService called with id:", id);
+      // console.log("ServiceContext.deleteService called with id:", id);
       await serviceRepositoryRef.current?.delete(id);
-      console.log(
-        "ServiceContext.deleteService - delete successful, refreshing services...",
-      );
+      // console.log(
+      //   "ServiceContext.deleteService - delete successful, refreshing services...",
+      // );
       await getAllServices();
-      console.log("ServiceContext.deleteService - services refreshed");
+      // console.log("ServiceContext.deleteService - services refreshed");
     } catch (error) {
       console.error(
         "ServiceContext.deleteService - Error deleting service:",
@@ -149,13 +149,9 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   };
 
   function getServiceById(id: string) {
-    console.log("getServiceById called with id:", id);
-    console.log(
-      "Available services:",
-      services.map((s) => ({ id: s.id, clientName: s.client_name })),
-    );
+    // console.log("getServiceById called with id:", id);
     const found = services.find((s) => s.id === id);
-    console.log("Service found:", !!found);
+    // console.log("Service found:", !!found);
     return found;
   }
 

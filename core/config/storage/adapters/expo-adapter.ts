@@ -15,7 +15,7 @@ export async function createExpoDbAdapter(): Promise<DatabaseAdapter> {
 
   return {
     exec: (sql) => {
-      console.log("Executing SQL:", sql);
+      // console.log("Executing SQL:", sql);
       return sqlite.execAsync(sql);
     },
     getFirst: (sql) => {
@@ -25,7 +25,7 @@ export async function createExpoDbAdapter(): Promise<DatabaseAdapter> {
     transaction: (fn) => sqlite.withExclusiveTransactionAsync(fn),
     getAll: (srcName) => {
       try {
-        console.log("DB getAll ->", srcName);
+        // console.log("DB getAll ->", srcName);
         if (!srcName) {
           throw new Error("getAll called with empty SQL");
         }
@@ -37,7 +37,7 @@ export async function createExpoDbAdapter(): Promise<DatabaseAdapter> {
     },
     run: (sql, params) => {
       try {
-        console.log("DB run ->", sql, "params:", params);
+        // console.log("DB run ->", sql, "params:", params);
         if (!sql) {
           throw new Error("run called with empty SQL");
         }

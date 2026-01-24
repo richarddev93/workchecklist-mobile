@@ -24,7 +24,7 @@ export const createServiceRepository = (
         `SELECT * FROM service ORDER BY service_date DESC`,
       );
 
-      console.log("ServiceRepository.getAll - Retrieved services:", result);
+      // console.log("ServiceRepository.getAll - Retrieved services:", result);
 
       return result;
     } catch (error) {
@@ -51,7 +51,7 @@ export const createServiceRepository = (
         data.checklist_data ? String(data.checklist_data) : "",
       ];
 
-      console.log("Insert parameters:", params);
+      // console.log("Insert parameters:", params);
 
       await db.run(
         `INSERT INTO service (id, client_name, service_type, service_date, location, observations, template_id, status, progress, checklist_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
