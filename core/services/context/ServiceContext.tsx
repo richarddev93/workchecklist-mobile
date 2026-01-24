@@ -1,4 +1,5 @@
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
+import { initDatabase } from "@/core/config/storage/database-config";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
 import {
   createServiceRepository,
@@ -23,6 +24,8 @@ interface ServiceContextData {
   deleteService: (id: string) => Promise<void>;
   getServiceById: (id: string) => Service | undefined;
   loading: boolean;
+  lastError: Error | null;
+  clearError: () => void;
 }
 
 const ServiceContext = createContext<ServiceContextData | undefined>(undefined);
@@ -33,12 +36,16 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastError, setLastError] = useState<Error | null>(null);
+
+  const clearError = () => setLastError(null);
 
   useEffect(() => {
     let mounted = true;
 
     const init = async () => {
       const dbInstance = await createExpoDbAdapter();
+      await initDatabase(dbInstance);
       serviceRepositoryRef.current = createServiceRepository(dbInstance);
 
       if (mounted) {
@@ -75,35 +82,39 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Service repository not initialized");
       }
       const id = randomUUID();
-      console.log("Adding service with data:", { id, ...data });
+      setLastError(null);
       await serviceRepositoryRef.current.save(data, id);
-      console.log("Service saved successfully");
       await getAllServices();
     } catch (error) {
-      console.error("Error adding service:", error);
+      const sqlError = error as Error;
+      console.log(" [SQL ERROR] Error adding service:");
+      console.log("  Message:", sqlError.message);
+      console.log("  Stack:", sqlError.stack);
+      console.log("  Data:", JSON.stringify(data, null, 2));
+      console.log("  Cause:", sqlError.cause);
+      setLastError(sqlError);
+      await getAllServices();
+      console.log("Error adding service:", error);
       throw error;
     }
   };
 
   const updateService = async (id: string, data: Partial<Service>) => {
     try {
-      console.log(
-        "ServiceContext.updateService called with id:",
-        id,
-        "data:",
-        data,
-      );
+      console.log("ServiceContext.updateService called with id:", id);
+      setLastError(null);
       await serviceRepositoryRef.current?.update(id, data);
-      console.log(
-        "ServiceContext.updateService - update successful, refreshing services...",
-      );
       await getAllServices();
       console.log("ServiceContext.updateService - services refreshed");
     } catch (error) {
-      console.error(
-        "ServiceContext.updateService - Error updating service:",
-        error,
-      );
+      const sqlError = error as Error;
+      console.error("❌ [SQL ERROR] Error updating service:");
+      console.error("  Message:", sqlError.message);
+      console.error("  Stack:", sqlError.stack);
+      console.error("  ID:", id);
+      console.error("  Data:", JSON.stringify(data, null, 2));
+      console.error("  Cause:", sqlError.cause);
+      setLastError(sqlError);
       console.error("ServiceContext.updateService - Error details:", {
         id,
         data,
@@ -151,6 +162,8 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   return (
     <ServiceContext.Provider
       value={{
+        lastError,
+        clearError,
         services,
         addService,
         updateService,

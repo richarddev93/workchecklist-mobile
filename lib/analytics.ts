@@ -1,42 +1,23 @@
 import {
-    Analytics,
-    getAnalytics,
-    isSupported,
-    logEvent,
-} from "firebase/analytics";
-import { firebaseApp } from "./firebase";
+  getAnalytics,
+  logEvent,
+} from "@react-native-firebase/analytics";
 
-// Lazy singleton with platform support guard (web-only). On native, events are silently skipped.
-let analyticsInstance: Analytics | null = null;
-let analyticsReady: Promise<Analytics | null> | null = null;
+let analyticsInstance: ReturnType<typeof getAnalytics> | null = null;
 
-async function getAnalyticsSafe(): Promise<Analytics | null> {
-  if (analyticsInstance) return analyticsInstance;
-  if (!analyticsReady) {
-    analyticsReady = (async () => {
-      try {
-        const supported = await isSupported();
-        if (!supported) return null;
-        analyticsInstance = getAnalytics(firebaseApp);
-        return analyticsInstance;
-      } catch (err) {
-        console.warn("[analytics] not supported or failed to init", err);
-        return null;
-      }
-    })();
-  }
-  return analyticsReady;
+try {
+  analyticsInstance = getAnalytics();
+} catch (err) {
+  console.warn("[analytics] Native module not available", err);
 }
 
 async function trackEvent(event: string, params?: Record<string, any>) {
-  const instance = await getAnalyticsSafe();
-  if (!instance) {
-    console.log(`[analytics] skipped (not supported): ${event}`);
+  if (!analyticsInstance) {
+    console.log(`[analytics] skipped (no native module): ${event}`);
     return;
   }
   try {
-    logEvent(instance, event, params);
-    console.log(`[analytics] ✓ ${event}`, params);
+    await logEvent(analyticsInstance, event, params);
   } catch (err) {
     console.warn(`[analytics] failed to log ${event}`, err);
   }

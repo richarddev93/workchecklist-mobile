@@ -19,29 +19,39 @@ export const createServiceRepository = (
   db: DatabaseAdapter,
 ): ServiceRepository => ({
   async getAll() {
-    return await db.getAll<Service>(
-      `SELECT * FROM service ORDER BY service_date DESC`,
-    );
+    try {
+      const result = await db.getAll<Service>(
+        `SELECT * FROM service ORDER BY service_date DESC`,
+      );
+
+      console.log("ServiceRepository.getAll - Retrieved services:", result);
+
+      return result;
+    } catch (error) {
+      console.error(
+        "ServiceRepository.getAll - Error retrieving services:",
+        error,
+      );
+      return null;
+    }
   },
 
   async save(data, id) {
     try {
-      // console.log("ServiceRepository.save called with id:", id, "data:", data);
-
       const params = [
         id || "",
         data.client_name?.trim() || "",
         data.service_type?.trim() || "",
         data.service_date?.trim() || "",
         data.location?.trim() || "",
-        data.observations?.trim() ? String(data.observations.trim()) : null,
-        data.template_id ? String(data.template_id) : null,
+        data.observations?.trim() ? String(data.observations.trim()) : "",
+        data.template_id ? String(data.template_id) : "",
         data.status || "in-progress",
-        Number(data.progress ?? 0),
-        data.checklist_data ? String(data.checklist_data) : null,
+        String(data.progress ?? 0),
+        data.checklist_data ? String(data.checklist_data) : "",
       ];
 
-      // console.log("Insert parameters:", params);
+      console.log("Insert parameters:", params);
 
       await db.run(
         `INSERT INTO service (id, client_name, service_type, service_date, location, observations, template_id, status, progress, checklist_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

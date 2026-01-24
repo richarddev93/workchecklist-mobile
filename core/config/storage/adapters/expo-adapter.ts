@@ -1,8 +1,17 @@
 import * as SQLite from "expo-sqlite";
 import { DatabaseAdapter } from "../database.interface";
 
+let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+
+async function getDb(): Promise<SQLite.SQLiteDatabase> {
+  if (!dbPromise) {
+    dbPromise = SQLite.openDatabaseAsync("workchecklist-db");
+  }
+  return dbPromise;
+}
+
 export async function createExpoDbAdapter(): Promise<DatabaseAdapter> {
-  const sqlite = await SQLite.openDatabaseAsync("workchecklist-db");
+  const sqlite = await getDb();
 
   return {
     exec: (sql) => {
@@ -15,26 +24,23 @@ export async function createExpoDbAdapter(): Promise<DatabaseAdapter> {
     },
     transaction: (fn) => sqlite.withExclusiveTransactionAsync(fn),
     getAll: (srcName) => {
-      // console.log("Getting all with SQL:", srcName);
-      return sqlite.getAllAsync(srcName);
+      try {
+        console.log("DB getAll ->", srcName);
+        if (!srcName) {
+          throw new Error("getAll called with empty SQL");
+        }
+        return sqlite.getAllAsync(srcName);
+      } catch (error) {
+        console.error("Expo Adapter - getAllAsync failed:", error);
+        throw error;
+      }
     },
     run: (sql, params) => {
-      // console.log("Expo Adapter - Running SQL:", sql);
-      // console.log("Expo Adapter - Params count:", params?.length);
-      // console.log(
-      //   "Expo Adapter - Params types:",
-      //   params?.map((p) => typeof p),
-      // );
-      // console.log(
-      //   "Expo Adapter - Params values preview:",
-      //   params?.map((p, i) =>
-      //     typeof p === "string" && p.length > 100
-      //       ? `[${i}]: string(${p.length} chars)`
-      //       : `[${i}]: ${JSON.stringify(p)}`,
-      //   ),
-      // );
-
       try {
+        console.log("DB run ->", sql, "params:", params);
+        if (!sql) {
+          throw new Error("run called with empty SQL");
+        }
         return sqlite.runAsync(sql, params);
       } catch (error) {
         console.error("Expo Adapter - runAsync failed:", error);

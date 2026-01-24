@@ -1,7 +1,5 @@
-import { getRemoteConfig, RemoteConfig } from "firebase/remote-config";
-import { firebaseApp } from "./firebase";
+import remoteConfig from "@react-native-firebase/remote-config";
 
-// Type-safe remote config schema
 export interface RemoteConfigSchema {
   free_template_limit: number;
   show_premium_badge: boolean;
@@ -9,9 +7,9 @@ export interface RemoteConfigSchema {
   feedback_trigger_services: number;
   app_update_warning_enabled: boolean;
   copy_empty_state_enabled: boolean;
+  [key: string]: string | number | boolean;
 }
 
-// Default values (fallback if remote config fails or not initialized)
 const DEFAULT_CONFIG: RemoteConfigSchema = {
   free_template_limit: 1,
   show_premium_badge: false,
@@ -21,81 +19,68 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
   copy_empty_state_enabled: true,
 };
 
-let remoteConfigInstance: RemoteConfig | null = null;
-let remoteConfigReady: Promise<RemoteConfig | null> | null = null;
+export async function initRemoteConfig(): Promise<void> {
+  try {
+    await remoteConfig().setConfigSettings({
+      minimumFetchIntervalMillis: 30000,
+    });
 
-async function getRemoteConfigSafe(): Promise<RemoteConfig | null> {
-  if (remoteConfigInstance) return remoteConfigInstance;
-  if (!remoteConfigReady) {
-    remoteConfigReady = (async () => {
-      try {
-        const rc = getRemoteConfig(firebaseApp);
-        // Set cache duration (in milliseconds). 0 = always fetch fresh (dev), production use higher values
-        rc.settings.minimumFetchIntervalMillis = 60000; // 1 minute (adjust for production)
-        rc.settings.fetchTimeoutMillis = 5000; // 5 second timeout
+    await remoteConfig().setDefaults(DEFAULT_CONFIG);
 
-        // Fetch and activate remote config
-        await rc.fetch();
-        rc.activate();
-        remoteConfigInstance = rc;
-        console.log("[remoteConfig] ✓ initialized");
-        return rc;
-      } catch (err) {
-        console.warn("[remoteConfig] Failed to initialize", err);
-        return null;
-      }
-    })();
+    const fetchedRemotely = await remoteConfig().fetchAndActivate();
+
+    if (fetchedRemotely) {
+      console.log("[remoteConfig] ✓ Configs retrieved from backend");
+    } else {
+      console.log("[remoteConfig] ✓ Using local configs");
+    }
+  } catch (err) {
+    console.warn("[remoteConfig] Failed to initialize", err);
   }
-  return remoteConfigReady;
 }
 
-// Get individual config value with fallback to defaults
-export async function getRemoteConfigValue<K extends keyof RemoteConfigSchema>(
+export function getRemoteConfigValue<K extends keyof RemoteConfigSchema>(
   key: K,
-): Promise<RemoteConfigSchema[K]> {
-  const rc = await getRemoteConfigSafe();
-  if (!rc) return DEFAULT_CONFIG[key];
-
+): RemoteConfigSchema[K] {
   try {
-    const value = rc.getValue(key);
-    if (!value.asString()) return DEFAULT_CONFIG[key];
-
-    // Parse based on type (Firebase returns strings)
+    const value = remoteConfig().getValue(key as string);
     const defaultVal = DEFAULT_CONFIG[key];
-    const stringVal = value.asString();
 
     if (typeof defaultVal === "boolean") {
-      return stringVal.toLowerCase() === ("true" as RemoteConfigSchema[K]);
+      return value.asBoolean() as RemoteConfigSchema[K];
     }
     if (typeof defaultVal === "number") {
-      return Number(stringVal) as RemoteConfigSchema[K];
+      return value.asNumber() as RemoteConfigSchema[K];
     }
-    return stringVal as RemoteConfigSchema[K];
+    return value.asString() as RemoteConfigSchema[K];
   } catch (err) {
     console.warn(`[remoteConfig] Failed to get ${key}`, err);
     return DEFAULT_CONFIG[key];
   }
 }
 
-// Get all config at once
-export async function getAllRemoteConfig(): Promise<RemoteConfigSchema> {
-  const keys: (keyof RemoteConfigSchema)[] = [
-    "free_template_limit",
-    "show_premium_badge",
-    "feedback_enabled",
-    "feedback_trigger_services",
-    "app_update_warning_enabled",
-    "copy_empty_state_enabled",
-  ];
+export function getAllRemoteConfig(): RemoteConfigSchema {
+  try {
+    const parameters = remoteConfig().getAll();
+    const config: Partial<RemoteConfigSchema> = {};
 
-  const config: Partial<RemoteConfigSchema> = {};
-  for (const key of keys) {
-    config[key] = await getRemoteConfigValue(key);
+    Object.entries(parameters).forEach(([key, entry]) => {
+      if (key in DEFAULT_CONFIG) {
+        const defaultVal = DEFAULT_CONFIG[key as keyof RemoteConfigSchema];
+
+        if (typeof defaultVal === "boolean") {
+          config[key as keyof RemoteConfigSchema] = entry.asBoolean() as any;
+        } else if (typeof defaultVal === "number") {
+          config[key as keyof RemoteConfigSchema] = entry.asNumber() as any;
+        } else {
+          config[key as keyof RemoteConfigSchema] = entry.asString() as any;
+        }
+      }
+    });
+
+    return { ...DEFAULT_CONFIG, ...config } as RemoteConfigSchema;
+  } catch (err) {
+    console.warn("[remoteConfig] Failed to get all configs", err);
+    return DEFAULT_CONFIG;
   }
-  return config as RemoteConfigSchema;
-}
-
-// Initialize on app start (optional, but recommended)
-export async function initRemoteConfig(): Promise<void> {
-  await getRemoteConfigSafe();
 }

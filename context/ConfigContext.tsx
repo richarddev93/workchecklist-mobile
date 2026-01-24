@@ -274,7 +274,6 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
       ...tmp,
       items: tmp.items ? JSON.parse(tmp.items) : [],
     }));
-    console.log("GET ALL Template", converteditems);
     setTemplates(converteditems ?? []);
   };
 

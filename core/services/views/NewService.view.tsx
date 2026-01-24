@@ -104,12 +104,6 @@ export function NewServiceView() {
     try {
       const templateData = templates.find((t) => t.name === formData.template);
 
-      console.log("Creating service - Selected template:", {
-        templateName: formData.template,
-        templateData,
-        allTemplates: templates,
-      });
-
       const serviceData: Omit<Service, "id" | "created_at" | "updated_at"> = {
         client_name: formData.clientName.trim(),
         service_type: formData.serviceType,
