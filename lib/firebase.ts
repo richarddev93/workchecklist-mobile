@@ -1,4 +1,5 @@
 // Firebase setup for Expo (web & native)
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { FirebaseApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -27,3 +28,21 @@ export const firebaseApp = app;
 export const firebaseAuth = getAuth(app);
 export const firebaseDb = getFirestore(app);
 export const firebaseStorage = getStorage(app);
+
+// Initialize analytics (web only, safe for native)
+let analyticsInitialized = false;
+async function initAnalytics() {
+  if (analyticsInitialized) return;
+  try {
+    const supported = await isSupported();
+    if (supported) {
+      getAnalytics(app);
+      analyticsInitialized = true;
+      console.log("[firebase] Analytics initialized");
+    }
+  } catch (err) {
+    console.warn("[firebase] Analytics not available", err);
+  }
+}
+
+initAnalytics();

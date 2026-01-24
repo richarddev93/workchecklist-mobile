@@ -5,6 +5,7 @@ import { Text } from "@/components/ui/text";
 import { useConfigViewModel } from "@/core/config/viewmodels/useConfigVM";
 import { useServiceViewModel } from "@/core/services/viewmodels/useServiceVM";
 import { Service } from "@/types";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -34,10 +35,27 @@ export function NewServiceView() {
 
   const [showServiceTypeDropdown, setShowServiceTypeDropdown] = useState(false);
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+    }
+
+    if (selectedDate) {
+      // Converter para formato ISO (YYYY-MM-DD) para o banco de dados
+      const isoDate = selectedDate.toISOString().split("T")[0];
+      // Exibir em formato legível (DD/MM/YYYY) para o usuário
+      const displayDate = selectedDate.toLocaleDateString("pt-BR");
+
+      // Armazenar a data ISO para envio, mas exibir formatado
+      handleInputChange("serviceDate", isoDate);
+    }
   };
 
   const handleCreateService = async () => {
@@ -106,10 +124,8 @@ export function NewServiceView() {
       console.log("Creating service with data:", serviceData);
       await addService(serviceData);
 
-      // Navegar de volta para a lista de serviços
-      setTimeout(() => {
-        router.navigate("/services");
-      }, 500);
+      // Navegar somente após sucesso confirmado
+      router.navigate("/services");
     } catch (error) {
       console.error("Error creating service:", error);
       Toast.show({
@@ -119,6 +135,7 @@ export function NewServiceView() {
         position: "top",
         visibilityTime: 3000,
       });
+      // Não navega em caso de erro – permanece no formulário
     } finally {
       setLoading(false);
     }
@@ -172,20 +189,22 @@ export function NewServiceView() {
             </TouchableOpacity>
 
             {showServiceTypeDropdown && (
-              <View className="absolute z-10 w-full mt-12 bg-white border border-gray-300 rounded-lg shadow-lg">
-                {serviceTypes.map((type) => (
-                  <TouchableOpacity
-                    key={type.id}
-                    onPress={() => {
-                      handleInputChange("serviceType", type.name);
-                      setShowServiceTypeDropdown(false);
-                      Keyboard.dismiss();
-                    }}
-                    className="px-4 py-3 border-b border-gray-100"
-                  >
-                    <Text className="text-gray-900">{type.name}</Text>
-                  </TouchableOpacity>
-                ))}
+              <View className="absolute z-50 w-full mt-2 max-h-48 bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden">
+                <ScrollView nestedScrollEnabled>
+                  {serviceTypes.map((type) => (
+                    <TouchableOpacity
+                      key={type.id}
+                      onPress={() => {
+                        handleInputChange("serviceType", type.name);
+                        setShowServiceTypeDropdown(false);
+                        Keyboard.dismiss();
+                      }}
+                      className="px-4 py-3 border-b border-gray-100"
+                    >
+                      <Text className="text-gray-900">{type.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             )}
           </View>
@@ -195,13 +214,44 @@ export function NewServiceView() {
             <Text className="text-sm font-semibold text-gray-900 mb-2">
               Data do serviço <Text className="text-red-500">*</Text>
             </Text>
-            <TextInput
-              placeholder="MM/DD/YYYY"
-              placeholderTextColor="#d1d5db"
-              value={formData.serviceDate}
-              onChangeText={(text) => handleInputChange("serviceDate", text)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white text-gray-900"
-            />
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white justify-center"
+            >
+              <Text
+                className={
+                  formData.serviceDate ? "text-gray-900" : "text-gray-400"
+                }
+              >
+                {formData.serviceDate
+                  ? new Date(formData.serviceDate).toLocaleDateString("pt-BR")
+                  : "Selecione a data"}
+              </Text>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={
+                  formData.serviceDate
+                    ? new Date(formData.serviceDate)
+                    : new Date()
+                }
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={handleDateChange}
+              />
+            )}
+
+            {Platform.OS === "ios" && showDatePicker && (
+              <View className="flex-row justify-end gap-2 mt-2">
+                <TouchableOpacity
+                  onPress={() => setShowDatePicker(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  <Text className="text-gray-900 font-medium">Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
 
           {/* Local */}
@@ -255,20 +305,22 @@ export function NewServiceView() {
             </TouchableOpacity>
 
             {showTemplateDropdown && (
-              <View className="absolute z-10 w-full mt-12 bg-white border border-gray-300 rounded-lg shadow-lg">
-                {templates.map((template) => (
-                  <TouchableOpacity
-                    key={template.id}
-                    onPress={() => {
-                      handleInputChange("template", template.name);
-                      setShowTemplateDropdown(false);
-                      Keyboard.dismiss();
-                    }}
-                    className="px-4 py-3 border-b border-gray-100"
-                  >
-                    <Text className="text-gray-900">{template.name}</Text>
-                  </TouchableOpacity>
-                ))}
+              <View className="absolute z-50 w-full mt-2 max-h-48 bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden">
+                <ScrollView nestedScrollEnabled>
+                  {templates.map((template) => (
+                    <TouchableOpacity
+                      key={template.id}
+                      onPress={() => {
+                        handleInputChange("template", template.name);
+                        setShowTemplateDropdown(false);
+                        Keyboard.dismiss();
+                      }}
+                      className="px-4 py-3 border-b border-gray-100"
+                    >
+                      <Text className="text-gray-900">{template.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             )}
           </View>

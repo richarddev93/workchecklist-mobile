@@ -35,8 +35,10 @@ async function getRemoteConfigSafe(): Promise<RemoteConfig | null> {
         rc.settings.fetchTimeoutMillis = 5000; // 5 second timeout
 
         // Fetch and activate remote config
-        await rc.fetchAndActivate();
+        await rc.fetch();
+        rc.activate();
         remoteConfigInstance = rc;
+        console.log("[remoteConfig] ✓ initialized");
         return rc;
       } catch (err) {
         console.warn("[remoteConfig] Failed to initialize", err);
