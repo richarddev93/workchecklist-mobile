@@ -1,6 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import {
+    Image,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 
 interface ChecklistItemComponentProps {
   item: {
@@ -25,8 +33,64 @@ export function ChecklistItemComponent({
 }: ChecklistItemComponentProps) {
   const [note, setNote] = useState(item.note ?? "");
   const [showNoteInput, setShowNoteInput] = useState(false);
-  const hasPhotos = (item.photos?.length ?? 0) > 0;
+  const [photos, setPhotos] = useState<string[]>(item.photos ?? []);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const hasPhotos = photos.length > 0;
   const hasNote = note.trim().length > 0;
+
+  const pickImage = async (source: "camera" | "gallery") => {
+    try {
+      let result;
+
+      if (source === "camera") {
+        const cameraPermission =
+          await ImagePicker.requestCameraPermissionsAsync();
+        if (!cameraPermission.granted) {
+          alert("Permissão de câmera necessária");
+          return;
+        }
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          aspect: [4, 3],
+          quality: 0.8,
+        });
+      } else {
+        const libraryPermission =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!libraryPermission.granted) {
+          alert("Permissão de galeria necessária");
+          return;
+        }
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsMultiple: true,
+          aspect: [4, 3],
+          quality: 0.8,
+        });
+      }
+
+      if (!result.canceled) {
+        const newPhotos = [
+          ...photos,
+          ...(Array.isArray(result.assets)
+            ? result.assets.map((asset) => asset.uri)
+            : [result.assets[0].uri]),
+        ];
+        setPhotos(newPhotos);
+        onPhotosChange(newPhotos);
+        setShowPhotoOptions(false);
+      }
+    } catch (error) {
+      console.error("Erro ao selecionar foto:", error);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    const newPhotos = photos.filter((_, i) => i !== index);
+    setPhotos(newPhotos);
+    onPhotosChange(newPhotos);
+  };
 
   return (
     <View
@@ -122,7 +186,7 @@ export function ChecklistItemComponent({
                 </View>
               )}
 
-              {/* Links de ação */}
+              {/* Links de ação - Items não completos */}
               <View className="flex-row gap-3 items-center">
                 {!hasNote && (
                   <Pressable onPress={() => setShowNoteInput(true)}>
@@ -135,9 +199,7 @@ export function ChecklistItemComponent({
                 {!hasNote && <View className="w-px h-5 bg-gray-300" />}
 
                 <Pressable
-                  onPress={() => {
-                    onPhotosChange([...(item.photos ?? [])]);
-                  }}
+                  onPress={() => setShowPhotoOptions(!showPhotoOptions)}
                   className="flex-row items-center gap-1"
                 >
                   <MaterialIcons
@@ -148,10 +210,78 @@ export function ChecklistItemComponent({
                   <Text
                     className={hasPhotos ? "text-green-800" : "text-blue-600"}
                   >
-                    {hasPhotos ? `${item.photos.length}` : ""} Fotos
+                    {hasPhotos ? `${photos.length}` : ""} Fotos
                   </Text>
                 </Pressable>
               </View>
+
+              {/* Photo Options */}
+              {showPhotoOptions && (
+                <View className="bg-gray-50 rounded-lg p-3 gap-2 border border-gray-200">
+                  <Pressable
+                    onPress={() => pickImage("camera")}
+                    className="flex-row items-center gap-2 p-3 bg-white rounded-lg border border-gray-200"
+                  >
+                    <MaterialIcons
+                      name="camera-alt"
+                      size={20}
+                      color="#2563eb"
+                    />
+                    <Text className="text-blue-600 font-medium">
+                      Tirar foto
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => pickImage("gallery")}
+                    className="flex-row items-center gap-2 p-3 bg-white rounded-lg border border-gray-200"
+                  >
+                    <MaterialIcons
+                      name="image-search"
+                      size={20}
+                      color="#2563eb"
+                    />
+                    <Text className="text-blue-600 font-medium">
+                      Selecionar da galeria
+                    </Text>
+                  </Pressable>
+                </View>
+              )}
+
+              {/* Photo Grid - Items não completos */}
+              {hasPhotos && (
+                <View className="gap-2">
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    className="gap-2"
+                    contentContainerStyle={{ gap: 8, paddingRight: 8 }}
+                  >
+                    {photos.map((photoUri, index) => (
+                      <View key={index} className="relative">
+                        <Image
+                          source={{ uri: photoUri }}
+                          className="w-20 h-20 rounded-lg bg-gray-200"
+                        />
+                        <Pressable
+                          onPress={() => removePhoto(index)}
+                          className="absolute top-0.5 right-0.5 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
+                        >
+                          <MaterialIcons name="close" size={16} color="white" />
+                        </Pressable>
+                      </View>
+                    ))}
+
+                    {/* Add Photo Button */}
+                    <Pressable
+                      onPress={() => setShowPhotoOptions(true)}
+                      className="w-20 h-20 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 items-center justify-center"
+                    >
+                      <MaterialIcons name="add" size={28} color="#9ca3af" />
+                    </Pressable>
+                  </ScrollView>
+                </View>
+              )}
             </>
           )}
         </View>
@@ -217,7 +347,7 @@ export function ChecklistItemComponent({
                 </View>
               )}
 
-              {/* Links de ação */}
+              {/* Links de ação - Items completos */}
               <View className="flex-row gap-3 items-center">
                 {!hasNote && (
                   <Pressable onPress={() => setShowNoteInput(true)}>
@@ -230,9 +360,7 @@ export function ChecklistItemComponent({
                 {!hasNote && <View className="w-px h-5 bg-gray-300" />}
 
                 <Pressable
-                  onPress={() => {
-                    onPhotosChange([...(item.photos ?? [])]);
-                  }}
+                  onPress={() => setShowPhotoOptions(!showPhotoOptions)}
                   className="flex-row items-center gap-1"
                 >
                   <MaterialIcons
@@ -243,10 +371,78 @@ export function ChecklistItemComponent({
                   <Text
                     className={hasPhotos ? "text-green-800" : "text-blue-600"}
                   >
-                    {hasPhotos ? `${item.photos.length}` : ""} Fotos
+                    {hasPhotos ? `${photos.length}` : ""} Fotos
                   </Text>
                 </Pressable>
               </View>
+
+              {/* Photo Options - Items completos */}
+              {showPhotoOptions && (
+                <View className="bg-green-50 rounded-lg p-3 gap-2 border border-green-200">
+                  <Pressable
+                    onPress={() => pickImage("camera")}
+                    className="flex-row items-center gap-2 p-3 bg-white rounded-lg border border-green-200"
+                  >
+                    <MaterialIcons
+                      name="camera-alt"
+                      size={20}
+                      color="#10b981"
+                    />
+                    <Text className="text-green-700 font-medium">
+                      Tirar foto
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => pickImage("gallery")}
+                    className="flex-row items-center gap-2 p-3 bg-white rounded-lg border border-green-200"
+                  >
+                    <MaterialIcons
+                      name="image-search"
+                      size={20}
+                      color="#10b981"
+                    />
+                    <Text className="text-green-700 font-medium">
+                      Selecionar da galeria
+                    </Text>
+                  </Pressable>
+                </View>
+              )}
+
+              {/* Photo Grid - Items completos */}
+              {hasPhotos && (
+                <View className="gap-2">
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    className="gap-2"
+                    contentContainerStyle={{ gap: 8, paddingRight: 8 }}
+                  >
+                    {photos.map((photoUri, index) => (
+                      <View key={index} className="relative">
+                        <Image
+                          source={{ uri: photoUri }}
+                          className="w-20 h-20 rounded-lg bg-gray-200"
+                        />
+                        <Pressable
+                          onPress={() => removePhoto(index)}
+                          className="absolute top-0.5 right-0.5 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
+                        >
+                          <MaterialIcons name="close" size={16} color="white" />
+                        </Pressable>
+                      </View>
+                    ))}
+
+                    {/* Add Photo Button */}
+                    <Pressable
+                      onPress={() => setShowPhotoOptions(true)}
+                      className="w-20 h-20 rounded-lg bg-green-100 border-2 border-dashed border-green-300 items-center justify-center"
+                    >
+                      <MaterialIcons name="add" size={28} color="#10b981" />
+                    </Pressable>
+                  </ScrollView>
+                </View>
+              )}
             </>
           )}
         </View>
