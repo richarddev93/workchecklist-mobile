@@ -10,6 +10,8 @@ import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter
 import { initDatabase } from "@/core/config/storage/database-config";
 import { ServiceProvider } from "@/core/services/context/ServiceContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { OnboardingCarousel } from "@/components/onboarding-carousel";
 import { useEffect, useState } from "react";
 import ToastManager from "toastify-react-native";
 
@@ -20,6 +22,7 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme() ?? "light";
   const [ready, setReady] = useState(false);
+  const { showOnboarding, loading: onboardingLoading, completeOnboarding } = useOnboarding();
   //caso seja necessario criar o thema dark
   // adicionar no view className={colorScheme !== "dark" ? "dark flex-1" : "flex-1"}
   const startDatabase = async (isMounted: () => boolean) => {
@@ -43,8 +46,15 @@ export default function RootLayout() {
     };
   }, []);
 
-  if (!ready) {
-    return null; // Return null until database is ready
+  if (!ready || onboardingLoading) {
+    return null; // Return null until database and onboarding status are ready
+  }
+
+  // Show onboarding carousel if it's the first time
+  if (showOnboarding) {
+    return (
+      <OnboardingCarousel onComplete={completeOnboarding} />
+    );
   }
 
   return (
@@ -56,6 +66,7 @@ export default function RootLayout() {
               screenOptions={{
                 headerShown: false,
               }}
+              initialRouteName="(tabs)"
             >
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
