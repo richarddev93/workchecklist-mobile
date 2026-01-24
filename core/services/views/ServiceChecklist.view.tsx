@@ -161,16 +161,17 @@ export function ServiceChecklistView({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
         >
-          {/* Header Card */}
+          {/* Unified Info & Progress Card */}
           <View className="px-4 pt-4 pb-3">
             <View className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <View className="p-5">
-                <View className="flex-row items-start justify-between mb-4">
+              {/* Service Info Section */}
+              <View className="p-4 border-b border-gray-100">
+                <View className="flex-row items-start justify-between mb-3">
                   <View className="flex-1 pr-3">
-                    <Text className="text-2xl font-bold text-gray-900 mb-1">
+                    <Text className="text-xl font-bold text-gray-900">
                       {displayClientName}
                     </Text>
-                    <Text className="text-base text-gray-600">
+                    <Text className="text-sm text-gray-600">
                       {displayServiceType}
                     </Text>
                   </View>
@@ -180,24 +181,24 @@ export function ServiceChecklistView({
                       backgroundColor: statusStyle.bg,
                       borderColor: statusStyle.border,
                     }}
-                    className="px-4 py-2 rounded-full border-2"
+                    className="px-3 py-1.5 rounded-full border-2"
                   >
                     <Text
                       style={{ color: statusStyle.text }}
-                      className="text-sm font-semibold"
+                      className="text-xs font-semibold"
                     >
                       {displayStatusLabel}
                     </Text>
                   </View>
                 </View>
 
-                <View className="flex-row gap-6">
+                <View className="flex-row gap-4">
                   {displayDate ? (
                     <View className="flex-1">
-                      <Text className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">
+                      <Text className="text-xs font-medium text-gray-500 mb-0.5 uppercase tracking-wide">
                         Data
                       </Text>
-                      <Text className="text-base font-semibold text-gray-900">
+                      <Text className="text-sm font-semibold text-gray-900">
                         {(() => {
                           try {
                             return new Date(displayDate).toLocaleDateString(
@@ -213,36 +214,30 @@ export function ServiceChecklistView({
 
                   {displayAddress ? (
                     <View className="flex-1">
-                      <Text className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">
+                      <Text className="text-xs font-medium text-gray-500 mb-0.5 uppercase tracking-wide">
                         Local
                       </Text>
-                      <Text className="text-base font-semibold text-gray-900">
+                      <Text className="text-sm font-semibold text-gray-900">
                         {displayAddress}
                       </Text>
                     </View>
                   ) : null}
                 </View>
               </View>
-            </View>
-          </View>
 
-          {/* Progress Card */}
-          <View className="px-4 pb-3">
-            <View className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <Text className="text-lg font-bold text-gray-900 mb-4">
-                Progresso do Checklist
-              </Text>
+              {/* Progress Section */}
+              <View className="p-4">
+                <View className="flex-row justify-between items-center mb-2">
+                  <Text className="text-sm font-semibold text-gray-900">
+                    Progresso
+                  </Text>
+                  <Text className="text-lg font-bold text-blue-600">
+                    {completedItems}/{totalItems}
+                  </Text>
+                </View>
 
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-sm font-medium text-gray-600">
-                  Itens concluídos
-                </Text>
-                <Text className="text-2xl font-bold text-blue-600">
-                  {completedItems}/{totalItems}
-                </Text>
+                <Progress value={progress} className="h-2" />
               </View>
-
-              <Progress value={progress} className="h-3" />
             </View>
           </View>
 
