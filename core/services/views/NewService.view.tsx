@@ -9,13 +9,13 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Toast } from "toastify-react-native";
 
@@ -162,6 +162,45 @@ export function NewServiceView() {
             />
           </View>
 
+          {/* Template de checklist */}
+          <View className="mb-4">
+            <Text className="text-sm font-semibold text-gray-900 mb-2">
+              Template de checklist <Text className="text-red-500">*</Text>
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowTemplateDropdown(!showTemplateDropdown)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white"
+            >
+              <Text
+                className={
+                  formData.template ? "text-gray-900" : "text-gray-400"
+                }
+              >
+                {formData.template || "Selecione um template"}
+              </Text>
+            </TouchableOpacity>
+
+            {showTemplateDropdown && (
+              <View className="absolute z-50 w-full mt-2 max-h-48 bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden">
+                <ScrollView nestedScrollEnabled>
+                  {templates.map((template) => (
+                    <TouchableOpacity
+                      key={template.id}
+                      onPress={() => {
+                        handleInputChange("template", template.name);
+                        setShowTemplateDropdown(false);
+                        Keyboard.dismiss();
+                      }}
+                      className="px-4 py-3 border-b border-gray-100"
+                    >
+                      <Text className="text-gray-900">{template.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
+
           {/* Tipo de serviço */}
           <View className="mb-4">
             <Text className="text-sm font-semibold text-gray-900 mb-2">
@@ -278,45 +317,6 @@ export function NewServiceView() {
               textAlignVertical="top"
               style={{ minHeight: 150 }}
             />
-          </View>
-
-          {/* Template de checklist */}
-          <View className="mb-6">
-            <Text className="text-sm font-semibold text-gray-900 mb-2">
-              Template de checklist <Text className="text-red-500">*</Text>
-            </Text>
-            <TouchableOpacity
-              onPress={() => setShowTemplateDropdown(!showTemplateDropdown)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white"
-            >
-              <Text
-                className={
-                  formData.template ? "text-gray-900" : "text-gray-400"
-                }
-              >
-                {formData.template || "Selecione um template"}
-              </Text>
-            </TouchableOpacity>
-
-            {showTemplateDropdown && (
-              <View className="absolute z-50 w-full mt-2 max-h-48 bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden">
-                <ScrollView nestedScrollEnabled>
-                  {templates.map((template) => (
-                    <TouchableOpacity
-                      key={template.id}
-                      onPress={() => {
-                        handleInputChange("template", template.name);
-                        setShowTemplateDropdown(false);
-                        Keyboard.dismiss();
-                      }}
-                      className="px-4 py-3 border-b border-gray-100"
-                    >
-                      <Text className="text-gray-900">{template.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
           </View>
         </ScrollView>
 
