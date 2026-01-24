@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import Container from "@/components/container";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/ui/header";
 import { Progress } from "@/components/ui/progress";
 import { Colors } from "@/constants/theme";
-import { cn } from "@/lib/utils";
 import { ServiceStatus } from "@/types";
 import { ChecklistItemComponent } from "../components/checklist-item";
 import { useServiceChecklistViewModel } from "../viewmodels/useServiceChecklistVM";
@@ -148,7 +146,7 @@ export function ServiceChecklistView({
 
   return (
     <Container>
-      <View className="flex-1 bg-background px-4">
+      <View className="flex-1 bg-gray-50">
         <Header
           title="Checklist do Serviço"
           subtitle="Gerencie os itens do checklist"
@@ -158,106 +156,123 @@ export function ServiceChecklistView({
           actionLabel="Excluir serviço"
         />
 
-        <View className="bg-white border-b border-gray-200 px-4 py-4 gap-4">
-          <Card>
-            <CardHeader className="flex-row items-start justify-between gap-2">
-              <View className="flex-1 gap-1">
-                <CardTitle className="text-xl font-bold">
-                  {displayClientName}
-                </CardTitle>
-                <Text className="text-muted text-base">
-                  {displayServiceType}
-                </Text>
-              </View>
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
+          {/* Header Card */}
+          <View className="px-4 pt-4 pb-3">
+            <View className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <View className="p-5">
+                <View className="flex-row items-start justify-between mb-4">
+                  <View className="flex-1 pr-3">
+                    <Text className="text-2xl font-bold text-gray-900 mb-1">
+                      {displayClientName}
+                    </Text>
+                    <Text className="text-base text-gray-600">
+                      {displayServiceType}
+                    </Text>
+                  </View>
 
-              <View
-                style={{
-                  backgroundColor: statusStyle.bg,
-                  borderColor: statusStyle.border,
-                }}
-                className={cn("px-3 py-1 rounded-full border")}
-              >
-                <Text
-                  style={{ color: statusStyle.text }}
-                  className={cn("text-xs font-medium")}
-                >
-                  {displayStatusLabel}
-                </Text>
-              </View>
-            </CardHeader>
-
-            <CardContent className="gap-3">
-              {displayDate ? (
-                <View>
-                  <Text className="text-muted text-xs">Data</Text>
-                  <Text className="text-base font-medium">
-                    {(() => {
-                      try {
-                        return new Date(displayDate).toLocaleDateString(
-                          "pt-BR",
-                        );
-                      } catch {
-                        return displayDate;
-                      }
-                    })()}
-                  </Text>
+                  <View
+                    style={{
+                      backgroundColor: statusStyle.bg,
+                      borderColor: statusStyle.border,
+                    }}
+                    className="px-4 py-2 rounded-full border-2"
+                  >
+                    <Text
+                      style={{ color: statusStyle.text }}
+                      className="text-sm font-semibold"
+                    >
+                      {displayStatusLabel}
+                    </Text>
+                  </View>
                 </View>
-              ) : null}
 
-              {displayAddress ? (
-                <View>
-                  <Text className="text-muted text-xs">Local</Text>
-                  <Text className="text-base font-medium">
-                    {displayAddress}
-                  </Text>
+                <View className="flex-row gap-6">
+                  {displayDate ? (
+                    <View className="flex-1">
+                      <Text className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">
+                        Data
+                      </Text>
+                      <Text className="text-base font-semibold text-gray-900">
+                        {(() => {
+                          try {
+                            return new Date(displayDate).toLocaleDateString(
+                              "pt-BR",
+                            );
+                          } catch {
+                            return displayDate;
+                          }
+                        })()}
+                      </Text>
+                    </View>
+                  ) : null}
+
+                  {displayAddress ? (
+                    <View className="flex-1">
+                      <Text className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">
+                        Local
+                      </Text>
+                      <Text className="text-base font-semibold text-gray-900">
+                        {displayAddress}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
-              ) : null}
-            </CardContent>
-          </Card>
+              </View>
+            </View>
+          </View>
 
-          <Card>
-            <CardContent className="gap-4">
-              <Text className="font-semibold text-lg">
+          {/* Progress Card */}
+          <View className="px-4 pb-3">
+            <View className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <Text className="text-lg font-bold text-gray-900 mb-4">
                 Progresso do Checklist
               </Text>
 
-              <View className="flex-row justify-between items-center">
-                <Text className="text-muted text-sm">Itens concluídos</Text>
-                <Text className="text-sm font-bold text-primary">
+              <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-sm font-medium text-gray-600">
+                  Itens concluídos
+                </Text>
+                <Text className="text-2xl font-bold text-blue-600">
                   {completedItems}/{totalItems}
                 </Text>
               </View>
 
-              <Progress value={progress} />
-            </CardContent>
-          </Card>
-        </View>
-
-        <ScrollView
-          className="flex-1 px-4 py-4"
-          showsVerticalScrollIndicator={false}
-        >
-          {checklist.length === 0 ? (
-            <View className="flex-1 justify-center">
-              <Text className="text-center text-gray-500 py-12">
-                Carregando checklist...
-              </Text>
+              <Progress value={progress} className="h-3" />
             </View>
-          ) : (
-            checklist.map((item) => (
-              <ChecklistItemComponent
-                key={item.id}
-                item={item}
-                onToggle={() => handleToggle(item.id)}
-                onNoteChange={(note) => updateNote(item.id, note)}
-                onPhotosChange={(photos) => updatePhotos(item.id, photos)}
-                disabledToggle={!isInProgress}
-              />
-            ))
-          )}
+          </View>
+
+          {/* Checklist Items */}
+          <View className="px-4">
+            {checklist.length === 0 ? (
+              <View className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
+                <Text className="text-center text-gray-400 text-base">
+                  Carregando checklist...
+                </Text>
+              </View>
+            ) : (
+              <View className="gap-3">
+                {checklist.map((item) => (
+                  <ChecklistItemComponent
+                    key={item.id}
+                    item={item}
+                    onToggle={() => handleToggle(item.id)}
+                    onNoteChange={(note) => updateNote(item.id, note)}
+                    onPhotosChange={(photos) => updatePhotos(item.id, photos)}
+                    disabledToggle={!isInProgress}
+                  />
+                ))}
+              </View>
+            )}
+          </View>
         </ScrollView>
 
-        <View className="border-t border-gray-200 bg-white p-4">
+        {/* Fixed Bottom Action Button */}
+        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4 shadow-2xl">
           {normalizedStatus === "pending" && (
             <TouchableOpacity
               onPress={() => {
@@ -267,9 +282,18 @@ export function ServiceChecklistView({
                   Alert.alert("Erro", "Não foi possível iniciar o serviço.");
                 }
               }}
-              className="rounded-lg py-3 items-center bg-orange-500"
+              className="rounded-2xl py-4 items-center bg-orange-500 shadow-lg"
+              style={{
+                shadowColor: "#f97316",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 6,
+              }}
             >
-              <Text className="font-medium text-white">Iniciar serviço</Text>
+              <Text className="font-bold text-white text-lg">
+                Iniciar serviço
+              </Text>
             </TouchableOpacity>
           )}
 
@@ -277,10 +301,25 @@ export function ServiceChecklistView({
             <TouchableOpacity
               disabled={!allCompleted}
               onPress={handleComplete}
-              className={`rounded-lg py-3 items-center ${allCompleted ? "bg-emerald-500" : "bg-gray-100"}`}
+              className={`rounded-2xl py-4 items-center ${
+                allCompleted ? "bg-emerald-500 shadow-lg" : "bg-gray-200"
+              }`}
+              style={
+                allCompleted
+                  ? {
+                      shadowColor: "#10b981",
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 8,
+                      elevation: 6,
+                    }
+                  : {}
+              }
             >
               <Text
-                className={`font-medium ${allCompleted ? "text-white" : "text-gray-400"}`}
+                className={`font-bold text-lg ${
+                  allCompleted ? "text-white" : "text-gray-400"
+                }`}
               >
                 Finalizar serviço
               </Text>
