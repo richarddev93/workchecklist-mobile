@@ -65,7 +65,7 @@ export default function SettingsView() {
     };
   }, []);
 
-  const hideUpgradeCard = keyboardOpen;
+  const hideUpgradeCard = true;
 
   return (
     <Container>

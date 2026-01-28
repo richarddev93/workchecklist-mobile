@@ -75,11 +75,14 @@ export function ServiceChecklistView({
   const statusStyle = statusStyles[normalizedStatus] ?? statusStyles.pending;
 
   const displayClientName =
-    (service as any).client_name ?? service.clientName ?? "Serviço sem nome";
+    (service as any).client_name ?? service.client_name ?? "Serviço sem nome";
   const displayServiceType =
-    (service as any).service_type ?? service.serviceType ?? "Tipo não definido";
-  const displayDate = (service as any).service_date ?? service.date ?? "";
-  const displayAddress = (service as any).location ?? service.address ?? "";
+    (service as any).service_type ??
+    service.service_type ??
+    "Tipo não definido";
+  const displayDate =
+    (service as any).service_date ?? service.service_date ?? "";
+  const displayAddress = (service as any).location ?? service.location ?? "";
   const displayStatusLabel =
     normalizedStatus === "in-progress"
       ? "Em andamento"
