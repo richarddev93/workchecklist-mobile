@@ -5,6 +5,7 @@ import Container from "@/components/container";
 import { Header } from "@/components/ui/header";
 import { Progress } from "@/components/ui/progress";
 import { Colors } from "@/constants/theme";
+import { cn } from "@/lib/utils";
 import { ServiceStatus } from "@/types";
 import { ChecklistItemComponent } from "../components/checklist-item";
 import { useServiceChecklistViewModel } from "../viewmodels/useServiceChecklistVM";
@@ -184,11 +185,11 @@ export function ServiceChecklistView({
                       backgroundColor: statusStyle.bg,
                       borderColor: statusStyle.border,
                     }}
-                    className="px-3 py-1.5 rounded-full border-2"
+                    className={cn("px-3 py-1 rounded-full border")}
                   >
                     <Text
                       style={{ color: statusStyle.text }}
-                      className="text-xs font-semibold"
+                      className={cn("text-xs font-medium")}
                     >
                       {displayStatusLabel}
                     </Text>
@@ -231,15 +232,13 @@ export function ServiceChecklistView({
               {/* Progress Section */}
               <View className="p-4">
                 <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-sm font-semibold text-gray-900">
-                    Progresso
-                  </Text>
-                  <Text className="text-lg font-bold text-blue-600">
+                  <Text className="text-lg text-muted">Progresso</Text>
+                  <Text className="text-lg font-bold text-primary">
                     {completedItems}/{totalItems}
                   </Text>
                 </View>
 
-                <Progress value={progress} className="h-2" />
+                <Progress value={progress} indicatorClassName="bg-primary" />
               </View>
             </View>
           </View>

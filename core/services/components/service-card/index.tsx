@@ -3,12 +3,12 @@ import { cn } from "@/lib/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "../../../../components/ui/card";
 import { Progress } from "../../../../components/ui/progress";
 import { Separator } from "../../../../components/ui/separator";
@@ -37,6 +37,7 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service, firstItem, onPress }: ServiceCardProps) {
+  console.log("Rendering ServiceCard for service ID:", service);
   const statusStyle = {
     "in-progress": {
       bg: Colors.light.warning + "20", // fundo suave

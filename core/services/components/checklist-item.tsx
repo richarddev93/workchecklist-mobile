@@ -2,12 +2,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
-    Image,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 interface ChecklistItemComponentProps {
@@ -64,7 +64,6 @@ export function ChecklistItemComponent({
         }
         result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsMultiple: true,
           aspect: [4, 3],
           quality: 0.8,
         });
@@ -179,7 +178,7 @@ export function ChecklistItemComponent({
                     "
                   />
                   <Pressable onPress={() => setShowNoteInput(true)}>
-                    <Text className="text-blue-600 text-sm">
+                    <Text className="text-primary text-sm">
                       Editar observação
                     </Text>
                   </Pressable>
@@ -190,7 +189,7 @@ export function ChecklistItemComponent({
               <View className="flex-row gap-3 items-center">
                 {!hasNote && (
                   <Pressable onPress={() => setShowNoteInput(true)}>
-                    <Text className="text-blue-600 text-base">
+                    <Text className="text-primary text-base">
                       Adicionar observação
                     </Text>
                   </Pressable>
@@ -208,7 +207,7 @@ export function ChecklistItemComponent({
                     color={hasPhotos ? "#10b981" : "#2563eb"}
                   />
                   <Text
-                    className={hasPhotos ? "text-green-800" : "text-blue-600"}
+                    className={hasPhotos ? "text-green-800" : "text-primary"}
                   >
                     {hasPhotos ? `${photos.length}` : ""} Fotos
                   </Text>
@@ -227,9 +226,7 @@ export function ChecklistItemComponent({
                       size={20}
                       color="#2563eb"
                     />
-                    <Text className="text-blue-600 font-medium">
-                      Tirar foto
-                    </Text>
+                    <Text className="text-primary font-medium">Tirar foto</Text>
                   </Pressable>
 
                   <Pressable
@@ -241,7 +238,7 @@ export function ChecklistItemComponent({
                       size={20}
                       color="#2563eb"
                     />
-                    <Text className="text-blue-600 font-medium">
+                    <Text className="text-primary font-medium">
                       Selecionar da galeria
                     </Text>
                   </Pressable>
@@ -340,7 +337,7 @@ export function ChecklistItemComponent({
                     "
                   />
                   <Pressable onPress={() => setShowNoteInput(true)}>
-                    <Text className="text-blue-600 text-sm">
+                    <Text className="text-primary text-sm">
                       Editar observação
                     </Text>
                   </Pressable>
@@ -351,7 +348,7 @@ export function ChecklistItemComponent({
               <View className="flex-row gap-3 items-center">
                 {!hasNote && (
                   <Pressable onPress={() => setShowNoteInput(true)}>
-                    <Text className="text-blue-600 text-base">
+                    <Text className="text-primary text-base">
                       Adicionar observação
                     </Text>
                   </Pressable>
@@ -369,7 +366,7 @@ export function ChecklistItemComponent({
                     color={hasPhotos ? "#10b981" : "#2563eb"}
                   />
                   <Text
-                    className={hasPhotos ? "text-green-800" : "text-blue-600"}
+                    className={hasPhotos ? "text-green-800" : "text-primary"}
                   >
                     {hasPhotos ? `${photos.length}` : ""} Fotos
                   </Text>
