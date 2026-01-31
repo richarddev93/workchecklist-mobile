@@ -1,17 +1,16 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
 import React, { useRef, useState } from "react";
 import {
-  Animated,
+  Dimensions,
   FlatList,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
   Text,
   View,
-  ViewToken,
-  Dimensions,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { MaterialIcons } from "@expo/vector-icons";
 
 interface OnboardingScreen {
   id: string;
@@ -63,7 +62,7 @@ const screens: OnboardingScreen[] = [
     id: "5",
     title: "Funciona 100% Offline",
     description:
-      "Trabalhe em campo sem preocupações. Todos os dados ficam salvos localmente e sincronizam quando você volta online.",
+      "Trabalhe em campo sem preocupações. Todos os dados ficam salvos localmente.",
     icon: "wifi-off",
     color: "#2563eb",
     buttonColor: "#2563eb",
@@ -102,25 +101,33 @@ export function OnboardingCarousel({ onComplete }: OnboardingCarouselProps) {
   };
 
   const renderScreen = ({ item }: { item: OnboardingScreen }) => (
-    <View style={{ width, height }} className="items-center justify-between px-6 pt-12 pb-24">
-      <Pressable
-        onPress={handleSkip}
-        className="absolute top-6 right-6 z-10"
-      >
+    <View
+      style={{ width, height }}
+      className="items-center justify-between px-6 pt-12 pb-24"
+    >
+      <Pressable onPress={handleSkip} className="absolute top-10 right-6 z-10">
         <Text className="text-gray-400 text-sm">Pular</Text>
       </Pressable>
 
       <View className="flex-1 items-center justify-center gap-8">
-        <View
-          style={{ backgroundColor: item.color + "20" }}
-          className="w-24 h-24 rounded-full items-center justify-center"
-        >
-          <MaterialIcons
-            name={item.icon as any}
-            size={48}
-            color={item.color}
+        {currentIndex === 0 ? (
+          <Image
+            source={require("@/assets/images/Logo-horizontal.png")}
+            className="w-48 h-16 mt-20"
+            resizeMode="contain"
           />
-        </View>
+        ) : (
+          <View
+            style={{ backgroundColor: item.color + "20" }}
+            className="w-24 h-24 rounded-full items-center justify-center"
+          >
+            <MaterialIcons
+              name={item.icon as any}
+              size={48}
+              color={item.color}
+            />
+          </View>
+        )}
 
         <View className="gap-4 items-center">
           <Text className="text-2xl font-bold text-gray-900 text-center">
@@ -169,7 +176,7 @@ export function OnboardingCarousel({ onComplete }: OnboardingCarouselProps) {
         keyExtractor={(item) => item.id}
         horizontal
         pagingEnabled
-        scrollEnabled
+        scrollEnabled={false}
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}

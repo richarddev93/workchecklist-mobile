@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ChevronLeft } from "lucide-react-native";
 import type { ComponentProps } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface HeaderProps {
   title?: string;
@@ -13,6 +13,7 @@ interface HeaderProps {
   onActionPress?: () => void;
   actionLabel?: string;
   subtitle?: string;
+  showLogo?: boolean;
 }
 
 export function Header({
@@ -23,6 +24,7 @@ export function Header({
   onActionPress,
   actionLabel,
   subtitle,
+  showLogo = false,
 }: HeaderProps) {
   return (
     <View
@@ -40,6 +42,15 @@ export function Header({
               strokeWidth={2.5}
             />
           </TouchableOpacity>
+        )}
+
+        {showLogo && !title && (
+          <Image
+            source={require("@/assets/images/Logo-horizontal.png")}
+            className="h-10"
+            resizeMode="contain"
+            style={{ width: 120 }}
+          />
         )}
 
         <View className="flex-1">
