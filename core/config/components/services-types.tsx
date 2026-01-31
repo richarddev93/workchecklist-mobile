@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
-import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
-import { ServiceTypeCard } from './service-type-card';
+import { Ionicons } from "@expo/vector-icons";
+import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { ServiceTypeCard } from "./service-type-card";
 
 type ServiceType = {
   id: string;
@@ -35,12 +35,11 @@ export function ServicesTypes({
   onDelete,
 }: ServicesTypesProps) {
   return (
-    <View className="gap-3">
+    <View className="flex-1 gap-3 px-3 pt-3">
       {/* Header */}
       <View className="flex-row items-center justify-between">
         <Text className="text-gray-500">
-          {serviceTypes.length}{' '}
-          {serviceTypes.length === 1 ? 'tipo' : 'tipos'}
+          {serviceTypes.length} {serviceTypes.length === 1 ? "tipo" : "tipos"}
         </Text>
 
         <Pressable
@@ -66,7 +65,7 @@ export function ServicesTypes({
             <Pressable
               onPress={() => {
                 setShowNewType(false);
-                setNewType('');
+                setNewType("");
               }}
               hitSlop={8}
             >
@@ -87,9 +86,7 @@ export function ServicesTypes({
               onPress={onAdd}
               disabled={!newType.trim()}
               className={`items-center justify-center rounded-lg px-4 ${
-                newType.trim()
-                  ? 'bg-emerald-500'
-                  : 'bg-emerald-300'
+                newType.trim() ? "bg-emerald-500" : "bg-emerald-300"
               }`}
             >
               <Ionicons name="save-outline" size={22} color="#fff" />
@@ -112,7 +109,7 @@ export function ServicesTypes({
               setShowNewType(false); // fecha form novo
               setEditingType(item.id);
             }}
-            onSave={(name:string) => onUpdate(item.id, name)}
+            onSave={(name: string) => onUpdate(item.id, name)}
             onCancel={() => setEditingType(null)}
             onDelete={() => onDelete(item.id)}
           />
