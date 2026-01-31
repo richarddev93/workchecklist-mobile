@@ -67,7 +67,11 @@ export function DashboardServiceView({ services }: any) {
   return (
     <Container>
       <View className="min-h-screen bg-surface pb-20">
-        <Header title="Dashboard" subtitle="Visão geral dos serviços" />
+        <Header
+          title="Dashboard"
+          subtitle="Visão geral dos serviços"
+          showLogo
+        />
         <View className="p-4 gap-2">
           <FirstBlockComponent />
           <CreateServiceButton />

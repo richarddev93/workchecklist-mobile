@@ -78,6 +78,15 @@ export function Header({
           />
         </TouchableOpacity>
       )}
+
+      {!onActionPress && showLogo && title && (
+        <Image
+          source={require("@/assets/images/Logo-horizontal.png")}
+          className="h-10"
+          resizeMode="contain"
+          style={{ width: 120 }}
+        />
+      )}
     </View>
   );
 }
