@@ -20,6 +20,7 @@ export const useServiceViewModel = () => {
     data: Omit<Service, "id" | "created_at" | "updated_at">,
   ) => {
     try {
+      console.log("Adding service with data:", data);
       await addService(data);
 
       analyticsEvents.serviceCreated({

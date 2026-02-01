@@ -111,7 +111,7 @@ export function NewServiceView() {
         location: formData.location.trim(),
         observations: formData.observations.trim(),
         template_id: templateData?.id ? String(templateData.id) : "",
-        status: "in-progress",
+        status: "pending",
         progress: 0,
       };
 
@@ -119,7 +119,7 @@ export function NewServiceView() {
       await addService(serviceData);
 
       // Navegar somente após sucesso confirmado
-      router.navigate("/services");
+      router.push("/services");
     } catch (error) {
       console.error("Error creating service:", error);
       Toast.show({

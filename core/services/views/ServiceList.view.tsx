@@ -4,10 +4,17 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { ServiceCard } from "@/core/services/components/service-card";
 import { cn } from "@/lib/utils";
+import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, FlatList, ScrollView, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  View,
+} from "react-native";
 
 interface ServiceListViewProps {
   services: any[];
@@ -42,6 +49,10 @@ export function ServiceListView({
     },
     [router],
   );
+
+  const openNewServiceForm = () => {
+    router.push("/add-service");
+  };
 
   if (loading) {
     return (
@@ -131,6 +142,22 @@ export function ServiceListView({
           }}
         />
       )}
+      <Pressable
+        onPress={openNewServiceForm}
+        className="absolute bottom-4 right-4 w-14 h-14 rounded-full bg-primary items-center justify-center shadow-lg"
+        style={({ pressed }) => [
+          {
+            opacity: pressed ? 0.8 : 1,
+            elevation: 8,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+          },
+        ]}
+      >
+        <Ionicons name="add" size={28} color="white" />
+      </Pressable>
     </Container>
   );
 }
