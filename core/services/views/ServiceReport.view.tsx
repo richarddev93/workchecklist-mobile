@@ -2,13 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system/legacy";
 import React from "react";
 import {
-    Alert,
-    Image,
-    ScrollView,
-    Share,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  Share,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -48,6 +48,8 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
       : [],
   };
 
+  const friendlyServiceId = String(service.id).slice(-6).toUpperCase();
+
   const handleShare = () => {
     Alert.alert("Compartilhar", "Funcionalidade será implementada");
   };
@@ -84,7 +86,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
     lines.push("INFORMAÇÕES DO RELATÓRIO");
     lines.push("─".repeat(60));
     lines.push(`Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}`);
-    lines.push(`Nº do Serviço: #${service.id}`);
+    lines.push(`Nº do Serviço: #${friendlyServiceId}`);
     lines.push("");
 
     // Cliente
@@ -241,7 +243,7 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
 
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Nº do serviço</Text>
-              <Text className="text-gray-900">#{service.id}</Text>
+              <Text className="text-gray-900">#{friendlyServiceId}</Text>
             </View>
           </View>
         </View>
@@ -252,28 +254,34 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
             Dados do cliente
           </Text>
 
-          <View className="space-y-3">
-            <View>
+          <View className="flex-row flex-wrap gap-y-3">
+            <View className="w-1/2 pr-2">
               <Text className="text-gray-600">Nome</Text>
-              <Text className="text-gray-900">{service.clientName}</Text>
+              <Text className="text-gray-900" numberOfLines={2}>
+                {service.clientName}
+              </Text>
             </View>
 
-            <View>
-              <Text className="text-gray-600">Tipo de serviço</Text>
-              <Text className="text-gray-900">{service.serviceType}</Text>
-            </View>
-
-            <View>
+            <View className="w-1/2 pl-2">
               <Text className="text-gray-600">Data</Text>
               <Text className="text-gray-900">
                 {new Date(service.date).toLocaleDateString("pt-BR")}
               </Text>
             </View>
 
+            <View className="w-1/2 pr-2">
+              <Text className="text-gray-600">Tipo</Text>
+              <Text className="text-gray-900" numberOfLines={2}>
+                {service.serviceType}
+              </Text>
+            </View>
+
             {service.address && (
-              <View>
+              <View className="w-1/2 pl-2">
                 <Text className="text-gray-600">Local</Text>
-                <Text className="text-gray-900">{service.address}</Text>
+                <Text className="text-gray-900" numberOfLines={2}>
+                  {service.address}
+                </Text>
               </View>
             )}
           </View>
@@ -403,10 +411,10 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
         </View>
 
         {/* BRANDING FOOTER */}
-        <View className="items-center py-8">
+        <View className="items-center pt-3 pb-16">
           <Image
-            source={require("@/assets/images/icon.png")}
-            className="w-12 h-12 mb-3"
+            source={require("@/assets/images/Logo-horizontal.png")}
+            className="w-40 h-10 mb-3"
             resizeMode="contain"
           />
           <Text className="text-gray-500 text-sm font-medium">
