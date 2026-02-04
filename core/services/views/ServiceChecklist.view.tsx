@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import Container from "@/components/container";
 import { Header } from "@/components/ui/header";
@@ -118,7 +125,11 @@ export function ServiceChecklistView({
       return;
     }
 
-    onBack();
+    try {
+      onBack();
+    } catch (error) {
+      console.error("Navigation error in handleComplete:", error);
+    }
   }
 
   function handleDelete() {
@@ -294,33 +305,38 @@ export function ServiceChecklistView({
             </TouchableOpacity>
           )}
 
-          {normalizedStatus === "in-progress" && (
-            <TouchableOpacity
-              disabled={!allCompleted}
-              onPress={handleComplete}
-              className={`rounded-2xl py-4 items-center ${
-                allCompleted ? "bg-emerald-500 shadow-lg" : "bg-gray-200"
-              }`}
-              style={
-                allCompleted
-                  ? {
-                      shadowColor: "#10b981",
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 8,
-                      elevation: 6,
-                    }
-                  : {}
-              }
+          {normalizedStatus === "in-progress" && allCompleted && (
+            <Pressable
+              onPress={() => {
+                try {
+                  handleComplete();
+                } catch (error) {
+                  Alert.alert("Erro", "Erro ao finalizar o serviço.");
+                }
+              }}
+              className="rounded-2xl py-4 items-center bg-emerald-500 shadow-lg"
+              style={{
+                shadowColor: "#10b981",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 6,
+              }}
             >
-              <Text
-                className={`font-bold text-lg ${
-                  allCompleted ? "text-white" : "text-gray-400"
-                }`}
-              >
+              <Text className="font-bold text-lg text-white">
                 Finalizar serviço
               </Text>
-            </TouchableOpacity>
+            </Pressable>
+          )}
+          {normalizedStatus === "in-progress" && !allCompleted && (
+            <Pressable
+              disabled
+              className="rounded-2xl py-4 items-center bg-gray-200"
+            >
+              <Text className="font-bold text-lg text-gray-400">
+                Finalizar serviço
+              </Text>
+            </Pressable>
           )}
         </View>
       </View>
