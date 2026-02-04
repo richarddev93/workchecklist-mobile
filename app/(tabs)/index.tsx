@@ -28,8 +28,11 @@ export default function HomeScreen() {
     setShowFeedbackModal(false);
   };
 
-  const handleFeedbackSubmit = async (feedback: string | null) => {
-    await submitFeedback(feedback);
+  const handleFeedbackSubmit = async (
+    liked: boolean,
+    feedback?: string | null,
+  ) => {
+    await submitFeedback(liked, feedback ?? null);
     setShowFeedbackModal(false);
   };
 

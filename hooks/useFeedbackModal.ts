@@ -1,3 +1,4 @@
+import { sendFeedback } from "@/lib/feedback";
 import { getRemoteConfigValue } from "@/lib/remoteConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -18,7 +19,7 @@ export interface UseFeedbackModalResult {
   showFeedbackModal: boolean;
   setShowFeedbackModal: (value: boolean) => void;
   incrementCompletedServices: () => Promise<void>;
-  submitFeedback: (feedback: string | null) => Promise<void>;
+  submitFeedback: (liked: boolean, feedback?: string | null) => Promise<void>;
   reset: () => Promise<void>;
 }
 
@@ -65,18 +66,19 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     }
   }, [completedCount, feedbackEnabled, triggerThreshold]);
 
-  const submitFeedback = useCallback(async (feedback: string | null) => {
-    // Mark as shown so it doesn't show again
-    await AsyncStorage.setItem(FEEDBACK_SHOWN_KEY, "true");
+  const submitFeedback = useCallback(
+    async (liked: boolean, feedback?: string | null) => {
+      // Mark as shown so it doesn't show again
+      await AsyncStorage.setItem(FEEDBACK_SHOWN_KEY, "true");
 
-    // TODO: Call API to save feedback when ready
-    // For now, just log
-    if (feedback) {
-      // console.log("[feedback]", feedback);
-    } else {
-      // console.log("[feedback] User clicked yes, no feedback text");
-    }
-  }, []);
+      await sendFeedback({
+        liked,
+        app_name: "WorkCheckList",
+        message: feedback || undefined,
+      });
+    },
+    [],
+  );
 
   const reset = useCallback(async () => {
     // For testing: reset feedback shown flag

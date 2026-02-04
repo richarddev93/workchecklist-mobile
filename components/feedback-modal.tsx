@@ -1,16 +1,10 @@
 import React, { useState } from "react";
-import {
-    Modal,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from "react-native";
+import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export interface FeedbackModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit?: (feedback: string | null) => void;
+  onSubmit?: (liked: boolean, feedback?: string | null) => void;
 }
 
 export function FeedbackModal({
@@ -23,7 +17,7 @@ export function FeedbackModal({
 
   const handleYes = () => {
     // 👍 Sim → fecha modal
-    if (onSubmit) onSubmit(null);
+    if (onSubmit) onSubmit(true, null);
     handleClose();
   };
 
@@ -34,7 +28,7 @@ export function FeedbackModal({
 
   const handleSubmitFeedback = () => {
     // Enviar feedback (texto opcional)
-    if (onSubmit) onSubmit(feedbackText.trim() || null);
+    if (onSubmit) onSubmit(false, feedbackText.trim() || null);
     handleClose();
   };
 
