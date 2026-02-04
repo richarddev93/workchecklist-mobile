@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useConfig } from "@/context/ConfigContext";
 import { analyticsEvents } from "@/lib/analytics";
@@ -23,6 +24,7 @@ interface ServiceReportProps {
 export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
   const { getServiceById } = useServices();
   const { companyInfo } = useConfig();
+  const insets = useSafeAreaInsets();
 
   const dbService = getServiceById(serviceId);
 
@@ -170,7 +172,10 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
   return (
     <View className="flex-1 bg-background">
       {/* HEADER */}
-      <View className="bg-white border-b border-gray-200 px-4 py-4 pt-6">
+      <View
+        className="bg-white border-b border-gray-200 px-4 py-3"
+        style={{ paddingTop: Math.max(12, insets.top) }}
+      >
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
             <TouchableOpacity onPress={onBack}>
