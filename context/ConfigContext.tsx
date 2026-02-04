@@ -1,24 +1,24 @@
 import {
-  CompanyRepository,
-  createCompanyRepository,
+    CompanyRepository,
+    createCompanyRepository,
 } from "@/core/config/repository/companyRepository";
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
 import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
+    createContext,
+    ReactNode,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
 } from "react";
 
 import {
-  createServiceTemplateRepository,
-  ServiceTemplateRepository,
+    createServiceTemplateRepository,
+    ServiceTemplateRepository,
 } from "@/core/config/repository/serviceTemplateRepository";
 import {
-  createServiceTypeRepository,
-  ServiceTypeRepository,
+    createServiceTypeRepository,
+    ServiceTypeRepository,
 } from "@/core/config/repository/serviceTypeRepository";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
 import { CompanyInfo, ServiceTemplate } from "@/types";
@@ -55,7 +55,7 @@ const defaultServiceTypes: ServiceType[] = [
 const defaultServiceTemplates: ServiceTemplateWithStringItems[] = [
   {
     id: "tmpl-1",
-    name: "Manutenção de Ar-Condicionado (Residencial)",
+    name: "Ar-condicionado",
     service_type: "Manutenção preventiva",
     items: [
       "Desligamento do equipamento",
@@ -71,7 +71,7 @@ const defaultServiceTemplates: ServiceTemplateWithStringItems[] = [
   },
   {
     id: "tmpl-2",
-    name: "Jardinagem / Manutenção de Jardim",
+    name: "Jardinagem",
     service_type: "Manutenção de área verde",
     items: [
       "Corte de grama",
@@ -86,7 +86,7 @@ const defaultServiceTemplates: ServiceTemplateWithStringItems[] = [
   },
   {
     id: "tmpl-3",
-    name: "Instalação Elétrica Residencial",
+    name: "Instalação elétrica",
     service_type: "Elétrica",
     items: [
       "Desligamento da rede elétrica",
@@ -98,37 +98,6 @@ const defaultServiceTemplates: ServiceTemplateWithStringItems[] = [
       "Verificação de segurança",
       "Liberação da rede elétrica",
       "Orientações ao cliente",
-    ],
-  },
-  {
-    id: "tmpl-4",
-    name: "Manutenção Hidráulica Residencial",
-    service_type: "Hidráulica",
-    items: [
-      "Fechamento do registro de água",
-      "Inspeção do local",
-      "Identificação do problema",
-      "Substituição ou reparo necessário",
-      "Vedação adequada",
-      "Teste de vazamentos",
-      "Limpeza do local",
-      "Abertura do registro",
-      "Orientações ao cliente",
-    ],
-  },
-  {
-    id: "tmpl-5",
-    name: "Suporte Técnico / TI Básico",
-    service_type: "Suporte técnico",
-    items: [
-      "Identificação do problema",
-      "Verificação de conexões físicas",
-      "Análise de software / sistema",
-      "Aplicação de correções necessárias",
-      "Teste de funcionamento",
-      "Verificação de performance básica",
-      "Atualizações aplicáveis",
-      "Orientações ao usuário",
     ],
   },
 ];
