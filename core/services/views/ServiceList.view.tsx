@@ -170,10 +170,10 @@ export function ServiceListView({
             </Tabs>
 
             <Select value={sortBy} onValueChange={handleSortChange}>
-              <SelectTrigger className="w-44 border-gray-300">
+              <SelectTrigger className="rounded-full px-4 py-2 h-10 border border-border bg-gray-100">
                 <View className="flex-row items-center gap-2">
                   <Ionicons name="filter" size={16} color="#6b7280" />
-                  <SelectValue placeholder="Ordenar" />
+                  <SelectValue placeholder="Ordenar" className="text-md" />
                 </View>
               </SelectTrigger>
               <SelectContent className="w-56 bg-white">
