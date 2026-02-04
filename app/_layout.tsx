@@ -5,13 +5,16 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import "../global.css";
 
+import { AppUpdateWarning } from "@/components/app-update-warning";
 import { OnboardingCarousel } from "@/components/onboarding-carousel";
 import { ConfigProvider } from "@/context/ConfigContext";
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
 import { initDatabase } from "@/core/config/storage/database-config";
 import { ServiceProvider } from "@/core/services/context/ServiceContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { FeedbackProvider } from "@/hooks/useFeedbackModal";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { getAllRemoteConfig, initRemoteConfig } from "@/lib/remoteConfig";
 import { useEffect, useState } from "react";
 import ToastManager from "toastify-react-native";
 
@@ -50,6 +53,17 @@ export default function RootLayout() {
     };
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      await initRemoteConfig();
+
+      if (__DEV__) {
+        const all = getAllRemoteConfig();
+        console.log("[remoteConfig] Active config", all);
+      }
+    })();
+  }, []);
+
   if (!ready || onboardingLoading) {
     return null; // Return null until database and onboarding status are ready
   }
@@ -63,27 +77,30 @@ export default function RootLayout() {
     <ThemeProvider value={DefaultTheme}>
       <ConfigProvider>
         <ServiceProvider>
-          <View className={"flex-1"}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-              initialRouteName="(tabs)"
-            >
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="modal"
-                options={{ presentation: "modal", title: "Modal" }}
-              />
-              <Stack.Screen
-                name="services/[id]"
-                options={{ headerShown: false }}
-              />
-            </Stack>
+          <FeedbackProvider>
+            <View className={"flex-1"}>
+              <AppUpdateWarning />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+                initialRouteName="(tabs)"
+              >
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="modal"
+                  options={{ presentation: "modal", title: "Modal" }}
+                />
+                <Stack.Screen
+                  name="services/[id]"
+                  options={{ headerShown: false }}
+                />
+              </Stack>
 
-            <PortalHost />
-            <StatusBar style="dark" backgroundColor="#ffffff" />
-          </View>
+              <PortalHost />
+              <StatusBar style="dark" backgroundColor="#ffffff" />
+            </View>
+          </FeedbackProvider>
         </ServiceProvider>
       </ConfigProvider>
       <ToastManager />

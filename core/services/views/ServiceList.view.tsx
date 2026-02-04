@@ -1,4 +1,5 @@
 import Container from "@/components/container";
+import { EmptyState } from "@/components/empty-state";
 import { Header } from "@/components/ui/header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
@@ -9,11 +10,11 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  ScrollView,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Pressable,
+    ScrollView,
+    View,
 } from "react-native";
 
 interface ServiceListViewProps {
@@ -118,11 +119,21 @@ export function ServiceListView({
         </ScrollView>
       </View>
       {filteredServices.length === 0 ? (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-gray-500 text-lg">
-            Nenhum serviço encontrado
-          </Text>
-        </View>
+        <EmptyState
+          message="Nenhum serviço encontrado"
+          description={
+            tab === "all"
+              ? "Comece adicionando um novo serviço"
+              : `Nenhum serviço ${
+                  tab === "pending"
+                    ? "pendente"
+                    : tab === "in-progress"
+                      ? "em andamento"
+                      : "concluído"
+                }`
+          }
+          debugInfo={`Tab: ${tab}, Total services: ${services.length}, Filtered: ${filteredServices.length}`}
+        />
       ) : (
         <FlatList
           className=" px-4 "

@@ -1,8 +1,9 @@
 import { useConfig } from "@/context/ConfigContext";
+import { getRemoteConfigValue } from "@/lib/remoteConfig";
 import { slugify } from "@/lib/utils";
 import { CompanyInfo, ServiceType } from "@/types";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Toast } from "toastify-react-native";
 
 export const useConfigViewModel = () => {
@@ -28,6 +29,7 @@ export const useConfigViewModel = () => {
 
   const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
+  const [freeTemplateLimit, setFreeTemplateLimit] = useState(1);
 
   const [newTemplate, setNewTemplate] = useState<{
     name: string;
@@ -38,6 +40,15 @@ export const useConfigViewModel = () => {
     service_type: "",
     items: [""],
   });
+
+  // Load remote config on mount
+  useEffect(() => {
+    (async () => {
+      const limit = await getRemoteConfigValue("free_template_limit");
+      const normalized = typeof limit === "number" ? Math.max(1, limit) : 1;
+      setFreeTemplateLimit(normalized);
+    })();
+  }, []);
 
   const handleUpdateServiceType = (id: string, name: string) => {
     try {
@@ -187,6 +198,7 @@ export const useConfigViewModel = () => {
     setEditingTemplate,
     newTemplate,
     setNewTemplate,
+    freeTemplateLimit,
   };
 
   return {

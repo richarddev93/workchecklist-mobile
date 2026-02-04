@@ -1,23 +1,25 @@
+import { EmptyState } from "@/components/empty-state";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { ServiceType } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Dispatch, SetStateAction } from "react";
 import {
-  FlatList,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-  View,
+    FlatList,
+    Platform,
+    Pressable,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Toast } from "toastify-react-native";
 import { TemplateCard } from "./template-card";
 
 type Template = {
@@ -43,6 +45,7 @@ type TemplatesProps = {
   onUpdate: (id: string, name: string, items: string[]) => void;
   onDelete: (id: string) => void;
   types: ServiceType[];
+  freeTemplateLimit: number;
 };
 
 export function Templates({
@@ -57,6 +60,7 @@ export function Templates({
   onUpdate,
   onDelete,
   types,
+  freeTemplateLimit,
 }: TemplatesProps) {
   const insets = useSafeAreaInsets();
 
@@ -70,6 +74,25 @@ export function Templates({
     right: 12,
   };
 
+  const handleOpenNewTemplate = () => {
+    const normalizedLimit = Math.max(1, freeTemplateLimit || 0);
+
+    if (templates.length >= normalizedLimit) {
+      Toast.show({
+        type: "info",
+        text1: "Limite atingido",
+        text2: `O limite é de ${normalizedLimit} template(s).`,
+        position: "top",
+        visibilityTime: 4000,
+        autoHide: true,
+      });
+      return;
+    }
+
+    setEditingTemplate(null);
+    setShowNewTemplate(true);
+  };
+
   return (
     <View className="flex-1 gap-3 px-3 pt-3">
       {/* Header */}
@@ -79,10 +102,7 @@ export function Templates({
         </Text>
 
         <Pressable
-          onPress={() => {
-            setEditingTemplate(null);
-            setShowNewTemplate(true);
-          }}
+          onPress={handleOpenNewTemplate}
           className="flex-row items-center gap-2 rounded-lg bg-primary px-4 py-2"
         >
           <Ionicons name="add" size={18} color="#fff" />
@@ -231,28 +251,36 @@ export function Templates({
 
       {/* Templates List */}
       <View className="flex-1">
-        <FlatList
-          data={templates}
-          keyExtractor={(item) => item.id}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
-            gap: 8,
-            paddingBottom: 80,
-          }}
-          renderItem={({ item }) => (
-            <TemplateCard
-              template={item}
-              isEditing={editingTemplate === item.id}
-              onEdit={() => {
-                setShowNewTemplate(false);
-                setEditingTemplate(item.id);
-              }}
-              onSave={(name, items) => onUpdate(item.id, name, items)}
-              onCancel={() => setEditingTemplate(null)}
-              onDelete={() => onDelete(item.id)}
-            />
-          )}
-        />
+        {templates.length === 0 && !showNewTemplate ? (
+          <EmptyState
+            message="Nenhum template cadastrado"
+            description="Crie seu primeiro template para começar"
+            debugInfo={`Templates count: ${templates.length}, Show new: ${showNewTemplate}`}
+          />
+        ) : (
+          <FlatList
+            data={templates}
+            keyExtractor={(item) => item.id}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{
+              gap: 8,
+              paddingBottom: 80,
+            }}
+            renderItem={({ item }) => (
+              <TemplateCard
+                template={item}
+                isEditing={editingTemplate === item.id}
+                onEdit={() => {
+                  setShowNewTemplate(false);
+                  setEditingTemplate(item.id);
+                }}
+                onSave={(name, items) => onUpdate(item.id, name, items)}
+                onCancel={() => setEditingTemplate(null)}
+                onDelete={() => onDelete(item.id)}
+              />
+            )}
+          />
+        )}
       </View>
     </View>
   );

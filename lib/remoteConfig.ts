@@ -11,7 +11,7 @@ export interface RemoteConfigSchema {
 }
 
 const DEFAULT_CONFIG: RemoteConfigSchema = {
-  free_template_limit: 1,
+  free_template_limit: 3,
   show_premium_badge: false,
   feedback_enabled: true,
   feedback_trigger_services: 3,

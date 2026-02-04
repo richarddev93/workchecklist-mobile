@@ -1,6 +1,15 @@
 import { getRemoteConfigValue } from "@/lib/remoteConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import {
+    createContext,
+    createElement,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+    type ReactNode,
+} from "react";
 
 const FEEDBACK_SHOWN_KEY = "feedback_modal_shown";
 const COMPLETED_SERVICES_KEY = "completed_services_count";
@@ -13,7 +22,11 @@ export interface UseFeedbackModalResult {
   reset: () => Promise<void>;
 }
 
-export function useFeedbackModal(): UseFeedbackModalResult {
+const FeedbackContext = createContext<UseFeedbackModalResult | undefined>(
+  undefined,
+);
+
+export function FeedbackProvider({ children }: { children: ReactNode }) {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [completedCount, setCompletedCount] = useState(0);
   const [feedbackEnabled, setFeedbackEnabled] = useState(true);
@@ -73,11 +86,26 @@ export function useFeedbackModal(): UseFeedbackModalResult {
     setShowFeedbackModal(false);
   }, []);
 
-  return {
-    showFeedbackModal,
-    setShowFeedbackModal,
-    incrementCompletedServices,
-    submitFeedback,
-    reset,
-  };
+  const value = useMemo(
+    () => ({
+      showFeedbackModal,
+      setShowFeedbackModal,
+      incrementCompletedServices,
+      submitFeedback,
+      reset,
+    }),
+    [showFeedbackModal, incrementCompletedServices, submitFeedback, reset],
+  );
+
+  return createElement(FeedbackContext.Provider, { value }, children);
+}
+
+export function useFeedbackModal(): UseFeedbackModalResult {
+  const context = useContext(FeedbackContext);
+
+  if (!context) {
+    throw new Error("useFeedbackModal must be used within FeedbackProvider");
+  }
+
+  return context;
 }

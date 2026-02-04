@@ -9,12 +9,12 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TouchableOpacity,
-  View,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { CompanyInfoForm } from "../components/company-info-form";
 import { ReportHeaderPreview } from "../components/report-header-preview";
@@ -132,6 +132,7 @@ export default function SettingsView() {
                 onUpdate={templatesHandle.handleUpdateTemplate}
                 onDelete={templatesHandle.handleDeleteTemplate}
                 types={serviceTypes}
+                freeTemplateLimit={templatesHandle.freeTemplateLimit}
               />
             </View>
           )}
