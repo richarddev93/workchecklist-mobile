@@ -119,7 +119,7 @@ export default function SettingsView() {
           {/* UpgradeCard NÃO rola */}
           {!hideUpgradeCard && (
             <View className="px-2">
-              <UpgradeCard onHandler={() => console.log()} />
+              <UpgradeCard onHandler={() => {}} />
             </View>
           )}
 

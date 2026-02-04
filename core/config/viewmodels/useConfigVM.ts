@@ -55,7 +55,7 @@ export const useConfigViewModel = () => {
       updateServiceType({ id, name, slug: slugify(newType.trim()) });
       setEditingType(null);
     } catch (error) {
-      console.log("Error on type update");
+      // console.log("Error on type update");
     } finally {
       setEditingType(null);
     }
@@ -68,7 +68,7 @@ export const useConfigViewModel = () => {
         setEditingType(null);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -82,14 +82,20 @@ export const useConfigViewModel = () => {
       position: "top",
       visibilityTime: 4000,
       autoHide: true,
-      onPress: () => console.log("Toast pressed"),
-      onShow: () => console.log("Toast shown"),
-      onHide: () => console.log("Toast hidden"),
+      onPress: () => {
+        // console.log("Toast pressed");
+      },
+      onShow: () => {
+        // console.log("Toast shown");
+      },
+      onHide: () => {
+        // console.log("Toast hidden");
+      },
     });
   };
 
   const handleOnEdit = () => {
-    console.log(`handle on Edit`, onEdit);
+    // console.log(`handle on Edit`, onEdit);
     setOnEdit(false);
   };
 
@@ -107,8 +113,8 @@ export const useConfigViewModel = () => {
       setShowNewType(false);
       addServiceType(serviceTypeData);
     } catch (error) {
-      console.log("error");
-      console.log(error);
+      // console.log("error");
+      // console.log(error);
     }
   };
 

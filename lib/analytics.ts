@@ -10,14 +10,14 @@ try {
 
 async function trackEvent(event: string, params?: Record<string, any>) {
   if (!analyticsInstance) {
-    console.log(`[analytics] skipped (no native module): ${event}`);
+    // console.log(`[analytics] skipped (no native module): ${event}`);
     return;
   }
   try {
-    console.log(
+    /* console.log(
       `[analytics] 📊 Event: ${event}`,
       params ? `with ${Object.keys(params).length} params` : "",
-    );
+    ); */
     await logEvent(analyticsInstance, event, params);
   } catch (err) {
     console.warn(`[analytics] failed to log ${event}`, err);

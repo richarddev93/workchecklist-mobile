@@ -85,9 +85,9 @@ export async function initRemoteConfig(): Promise<void> {
     const fetchedRemotely = await remoteConfig().fetchAndActivate();
 
     if (fetchedRemotely) {
-      console.log("[remoteConfig] ✓ Configs retrieved from backend");
+      // console.log("[remoteConfig] ✓ Configs retrieved from backend");
     } else {
-      console.log("[remoteConfig] ✓ Using local configs");
+      // console.log("[remoteConfig] ✓ Using local configs");
     }
   } catch (err) {
     console.warn("[remoteConfig] Failed to initialize", err);

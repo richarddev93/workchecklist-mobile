@@ -96,7 +96,7 @@ export const migrations: Migration[] = [
       try {
         await db.exec(`DROP TABLE IF EXISTS service;`);
       } catch (e) {
-        console.log("Drop table failed (might not exist):", e);
+        // console.log("Drop table failed (might not exist):", e);
       }
 
       await db.exec(`
@@ -120,13 +120,13 @@ export const migrations: Migration[] = [
 ];
 
 export async function runMigrations(db: DatabaseAdapter) {
-  console.log("DB - run migrations");
+  // console.log("DB - run migrations");
   const row = await db.getFirst<{ user_version: number }>(
     "PRAGMA user_version;",
   );
 
   let currentVersion = row?.user_version ?? 0;
-  console.log("DB Version:", currentVersion);
+  // console.log("DB Version:", currentVersion);
 
   for (const migration of migrations) {
     if (migration.version > currentVersion) {

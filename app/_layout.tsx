@@ -35,9 +35,9 @@ export default function RootLayout() {
   const startDatabase = async (isMounted: () => boolean) => {
     try {
       const db = await createExpoDbAdapter();
-      console.log("Database adapter created, initializing...");
+      // console.log("Database adapter created, initializing...");
       await initDatabase(db);
-      console.log("Database initialized");
+      // console.log("Database initialized");
       if (isMounted()) setReady(true);
     } catch (error) {
       console.error("Error initializing database:", error);
@@ -59,7 +59,7 @@ export default function RootLayout() {
 
       if (__DEV__) {
         const all = getAllRemoteConfig();
-        console.log("[remoteConfig] Active config", all);
+        // console.log("[remoteConfig] Active config", all);
       }
     })();
   }, []);

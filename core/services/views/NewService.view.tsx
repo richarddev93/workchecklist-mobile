@@ -9,13 +9,13 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Toast } from "toastify-react-native";
 
@@ -115,7 +115,7 @@ export function NewServiceView() {
         progress: 0,
       };
 
-      console.log("Creating service with data:", serviceData);
+      // console.log("Creating service with data:", serviceData);
       await addService(serviceData);
 
       // Navegar somente após sucesso confirmado

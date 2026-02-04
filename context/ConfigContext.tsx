@@ -269,7 +269,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addTemplate = async (data: Omit<ServiceTemplate, "id">) => {
-    console.log(data);
+    // console.log(data);
     await serviceTemplateRepositoryRef.current?.save(data);
     getAllServiceTemplate();
   };

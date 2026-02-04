@@ -72,9 +72,9 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     // TODO: Call API to save feedback when ready
     // For now, just log
     if (feedback) {
-      console.log("[feedback]", feedback);
+      // console.log("[feedback]", feedback);
     } else {
-      console.log("[feedback] User clicked yes, no feedback text");
+      // console.log("[feedback] User clicked yes, no feedback text");
     }
   }, []);
 
