@@ -21,6 +21,7 @@ import {
   ServiceTypeRepository,
 } from "@/core/config/repository/serviceTypeRepository";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
+import { getRemoteConfigValue } from "@/lib/remoteConfig";
 import { CompanyInfo, ServiceTemplate } from "@/types";
 
 export interface Template {
@@ -209,7 +210,28 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
     // Seed templates if empty
     const templatesDb = await serviceTemplateRepositoryRef.current?.getAll();
     if (!templatesDb || templatesDb.length === 0) {
-      for (const tmpl of defaultServiceTemplates) {
+      let templatesToSeed = defaultServiceTemplates;
+
+      try {
+        const remoteJson = await getRemoteConfigValue(
+          "default_service_templates_json",
+        );
+        if (remoteJson) {
+          const parsed = JSON.parse(remoteJson as string);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            templatesToSeed = parsed.map((tmpl, index) => ({
+              id: `tmpl-remote-${index + 1}`,
+              name: String(tmpl?.name ?? ""),
+              service_type: String(tmpl?.service_type ?? ""),
+              items: Array.isArray(tmpl?.items) ? tmpl.items : [],
+            }));
+          }
+        }
+      } catch (error) {
+        console.warn("[config] Failed to parse remote templates", error);
+      }
+
+      for (const tmpl of templatesToSeed) {
         await serviceTemplateRepositoryRef.current?.save({
           name: tmpl.name,
           service_type: tmpl.service_type,

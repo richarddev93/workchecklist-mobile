@@ -7,6 +7,7 @@ export interface RemoteConfigSchema {
   feedback_trigger_services: number;
   app_update_warning_enabled: boolean;
   copy_empty_state_enabled: boolean;
+  default_service_templates_json: string;
   [key: string]: string | number | boolean;
 }
 
@@ -17,6 +18,56 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
   feedback_trigger_services: 3,
   app_update_warning_enabled: false,
   copy_empty_state_enabled: true,
+  default_service_templates_json: JSON.stringify(
+    [
+      {
+        name: "Ar-condicionado",
+        service_type: "Manutenção preventiva",
+        items: [
+          "Desligamento do equipamento",
+          "Inspeção visual geral",
+          "Limpeza dos filtros",
+          "Higienização da evaporadora",
+          "Verificação de dreno",
+          "Conferência de conexões elétricas",
+          "Teste de funcionamento",
+          "Verificação de ruídos anormais",
+          "Orientações ao cliente",
+        ],
+      },
+      {
+        name: "Jardinagem",
+        service_type: "Manutenção de área verde",
+        items: [
+          "Corte de grama",
+          "Poda de plantas e arbustos",
+          "Remoção de folhas secas",
+          "Limpeza do terreno",
+          "Verificação de pragas visíveis",
+          "Organização do espaço",
+          "Recolhimento de resíduos",
+          "Orientações ao cliente",
+        ],
+      },
+      {
+        name: "Instalação elétrica",
+        service_type: "Elétrica",
+        items: [
+          "Desligamento da rede elétrica",
+          "Verificação do ponto de instalação",
+          "Conferência de cabos e conexões",
+          "Instalação / substituição do componente",
+          "Fixação adequada",
+          "Teste de funcionamento",
+          "Verificação de segurança",
+          "Liberação da rede elétrica",
+          "Orientações ao cliente",
+        ],
+      },
+    ],
+    null,
+    2,
+  ),
 };
 
 export async function initRemoteConfig(): Promise<void> {
