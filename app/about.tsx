@@ -53,8 +53,8 @@ export default function AboutScreen() {
           <Text className="text-gray-700 mb-3">
             Ao utilizar o WorkCheckList, você concorda com os termos descritos
             abaixo. O aplicativo é fornecido para auxiliar na gestão de serviços
-            e checklists, podendo ser atualizado a qualquer momento para melhorar
-            a experiência e a segurança.
+            e checklists, podendo ser atualizado a qualquer momento para
+            melhorar a experiência e a segurança.
           </Text>
 
           <Text className="text-gray-700 mb-3">
@@ -70,8 +70,8 @@ export default function AboutScreen() {
           </Text>
 
           <Text className="text-gray-700 mb-3">
-            3. Uso adequado: É proibido utilizar o app para atividades ilegais ou
-            que violem direitos de terceiros.
+            3. Uso adequado: É proibido utilizar o app para atividades ilegais
+            ou que violem direitos de terceiros.
           </Text>
 
           <Text className="text-gray-700 mb-3">
