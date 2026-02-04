@@ -8,6 +8,8 @@ export interface RemoteConfigSchema {
   app_update_warning_enabled: boolean;
   copy_empty_state_enabled: boolean;
   default_service_templates_json: string;
+  contact_email: string;
+  contact_phone: string;
   [key: string]: string | number | boolean;
 }
 
@@ -18,6 +20,8 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
   feedback_trigger_services: 3,
   app_update_warning_enabled: false,
   copy_empty_state_enabled: true,
+  contact_email: "contato@empresa.com",
+  contact_phone: "(11) 99999-9999",
   default_service_templates_json: JSON.stringify(
     [
       {

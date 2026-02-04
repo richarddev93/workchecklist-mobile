@@ -69,7 +69,13 @@ export default function SettingsView() {
 
   return (
     <Container>
-      <Header title="Configurações" noBorder />
+      <Header
+        title="Configurações"
+        noBorder
+        actionIcon="info-outline"
+        actionLabel="Informações do app"
+        onActionPress={() => navigation.navigate("/about")}
+      />
 
       <View className="flex-1 bg-surface">
         {/* Tabs fixas */}
