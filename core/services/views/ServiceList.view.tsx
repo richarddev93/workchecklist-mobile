@@ -1,6 +1,14 @@
 import Container from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { Header } from "@/components/ui/header";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { ServiceCard } from "@/core/services/components/service-card";
@@ -8,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -24,6 +32,7 @@ interface ServiceListViewProps {
 }
 
 type TabValue = "all" | "pending" | "in-progress" | "completed";
+type SortValue = "date_desc" | "date_asc" | "name_asc";
 
 export function ServiceListView({
   services,
@@ -32,14 +41,56 @@ export function ServiceListView({
 }: ServiceListViewProps) {
   const tabBarHeight = useBottomTabBarHeight();
   const [tab, setTab] = useState<TabValue>("all");
+  const [sortBy, setSortBy] = useState<SortValue>("date_desc");
   const router = useRouter();
 
   const handleTabChange = (value: string) => {
     setTab(value as TabValue);
   };
 
+  const handleSortChange = (option: any) => {
+    const nextValue =
+      typeof option === "string" ? option : (option?.value ?? "date_desc");
+    setSortBy(nextValue as SortValue);
+  };
+
   const filteredServices =
     tab === "all" ? services : services.filter((s) => s.status === tab);
+
+  const parseServiceDate = (value: string | undefined) => {
+    if (!value) return 0;
+
+    // dd/MM/yyyy
+    if (value.includes("/")) {
+      const [day, month, year] = value.split("/").map(Number);
+      if (day && month && year) {
+        return new Date(year, month - 1, day).getTime();
+      }
+    }
+
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const sortedServices = useMemo(() => {
+    const list = [...filteredServices];
+
+    switch (sortBy) {
+      case "date_asc":
+        return list.sort(
+          (a, b) => parseServiceDate(a.date) - parseServiceDate(b.date),
+        );
+      case "name_asc":
+        return list.sort((a, b) =>
+          String(a.clientName || "").localeCompare(String(b.clientName || "")),
+        );
+      case "date_desc":
+      default:
+        return list.sort(
+          (a, b) => parseServiceDate(b.date) - parseServiceDate(a.date),
+        );
+    }
+  }, [filteredServices, sortBy]);
 
   const navigationToServiceDetail = useCallback(
     (serviceId: string) => {
@@ -83,42 +134,66 @@ export function ServiceListView({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 12 }}
         >
-          <Tabs value={tab} onValueChange={handleTabChange}>
-            <TabsList className="flex-row gap-2  bg-transparent">
-              {[
-                { value: "all", label: "Todos" },
-                { value: "pending", label: "Pendentes" },
-                { value: "in-progress", label: "Em andamento" },
-                { value: "completed", label: "Concluídos" },
-              ].map((t) => {
-                const isSelected = tab === t.value;
-                return (
-                  <TabsTrigger
-                    key={t.value}
-                    value={t.value}
-                    className={cn(
-                      "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
-                      tab === t.value
-                        ? "!bg-primary !border-tab-icon-selected"
-                        : "bg-gray-100",
-                    )}
-                  >
-                    <Text
+          <View className="flex-row items-center gap-2">
+            <Tabs value={tab} onValueChange={handleTabChange}>
+              <TabsList className="flex-row gap-2  bg-transparent">
+                {[
+                  { value: "all", label: "Todos" },
+                  { value: "pending", label: "Pendentes" },
+                  { value: "in-progress", label: "Em andamento" },
+                  { value: "completed", label: "Concluídos" },
+                ].map((t) => {
+                  const isSelected = tab === t.value;
+                  return (
+                    <TabsTrigger
+                      key={t.value}
+                      value={t.value}
                       className={cn(
-                        "text-md",
-                        isSelected ? "!text-white" : "text-text",
+                        "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
+                        tab === t.value
+                          ? "!bg-primary !border-tab-icon-selected"
+                          : "bg-gray-100",
                       )}
                     >
-                      {t.label}
-                    </Text>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </Tabs>
+                      <Text
+                        className={cn(
+                          "text-md",
+                          isSelected ? "!text-white" : "text-text",
+                        )}
+                      >
+                        {t.label}
+                      </Text>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
+
+            <Select value={sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-44 border-gray-300">
+                <View className="flex-row items-center gap-2">
+                  <Ionicons name="filter" size={16} color="#6b7280" />
+                  <SelectValue placeholder="Ordenar" />
+                </View>
+              </SelectTrigger>
+              <SelectContent className="w-56 bg-white">
+                <SelectGroup>
+                  <SelectItem label="Mais recentes" value="date_desc">
+                    Mais recentes
+                  </SelectItem>
+                  <SelectItem label="Mais antigas" value="date_asc">
+                    Mais antigas
+                  </SelectItem>
+                  <SelectItem label="Nome do cliente" value="name_asc">
+                    Nome do cliente
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </View>
         </ScrollView>
       </View>
-      {filteredServices.length === 0 ? (
+      {sortedServices.length === 0 ? (
         <EmptyState
           message="Nenhum serviço encontrado"
           description={
@@ -132,12 +207,12 @@ export function ServiceListView({
                       : "concluído"
                 }`
           }
-          debugInfo={`Tab: ${tab}, Total services: ${services.length}, Filtered: ${filteredServices.length}`}
+          debugInfo={`Tab: ${tab}, Total services: ${services.length}, Filtered: ${sortedServices.length}`}
         />
       ) : (
         <FlatList
           className=" px-4 "
-          data={filteredServices}
+          data={sortedServices}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => (

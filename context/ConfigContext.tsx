@@ -1,24 +1,24 @@
 import {
-    CompanyRepository,
-    createCompanyRepository,
+  CompanyRepository,
+  createCompanyRepository,
 } from "@/core/config/repository/companyRepository";
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
 
 import {
-    createServiceTemplateRepository,
-    ServiceTemplateRepository,
+  createServiceTemplateRepository,
+  ServiceTemplateRepository,
 } from "@/core/config/repository/serviceTemplateRepository";
 import {
-    createServiceTypeRepository,
-    ServiceTypeRepository,
+  createServiceTypeRepository,
+  ServiceTypeRepository,
 } from "@/core/config/repository/serviceTypeRepository";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
 import { CompanyInfo, ServiceTemplate } from "@/types";
@@ -147,7 +147,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
     name: "WorkChecklist",
     phone: "(11) 99999-9999",
     email: "contato@empresa.com",
-    address: "São Paulo - SC",
+    address: "São Paulo - SP",
   });
   const [loading, setLoading] = useState(true);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
