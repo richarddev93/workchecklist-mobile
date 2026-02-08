@@ -1,13 +1,14 @@
+import AdMobManager from "@/components/admob/admob-manager";
 import Container from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { Header } from "@/components/ui/header";
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
@@ -18,11 +19,11 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Pressable,
-    ScrollView,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  View,
 } from "react-native";
 
 interface ServiceListViewProps {
@@ -125,132 +126,140 @@ export function ServiceListView({
   }
 
   return (
-    <Container>
-      <Header
-        title="Serviços"
-        subtitle="Acompanhe todos os serviços"
-        noBorder
-      />
-      <View className="flex pb-4 bg-white border-b border-gray-200">
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 12 }}
-        >
-          <View className="flex-row items-center gap-2">
-            <Tabs value={tab} onValueChange={handleTabChange}>
-              <TabsList className="flex-row gap-2  bg-transparent">
-                {[
-                  { value: "all", label: "Todos" },
-                  { value: "pending", label: "Pendentes" },
-                  { value: "in-progress", label: "Em andamento" },
-                  { value: "completed", label: "Concluídos" },
-                ].map((t) => {
-                  const isSelected = tab === t.value;
-                  return (
-                    <TabsTrigger
-                      key={t.value}
-                      value={t.value}
-                      className={cn(
-                        "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
-                        tab === t.value
-                          ? "!bg-primary !border-tab-icon-selected"
-                          : "bg-gray-100",
-                      )}
-                    >
-                      <Text
+    <View className="flex-1">
+      <Container>
+        <Header
+          title="Serviços"
+          subtitle="Acompanhe todos os serviços"
+          noBorder
+        />
+        <View className="flex bg-white border-b border-gray-200">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 12,
+              paddingVertical: 12,
+            }}
+          >
+            <View className="flex-row items-center gap-2">
+              <Tabs value={tab} onValueChange={handleTabChange}>
+                <TabsList className="flex-row gap-2  bg-transparent">
+                  {[
+                    { value: "all", label: "Todos" },
+                    { value: "pending", label: "Pendentes" },
+                    { value: "in-progress", label: "Em andamento" },
+                    { value: "completed", label: "Concluídos" },
+                  ].map((t) => {
+                    const isSelected = tab === t.value;
+                    return (
+                      <TabsTrigger
+                        key={t.value}
+                        value={t.value}
                         className={cn(
-                          "text-md",
-                          isSelected ? "!text-white" : "text-text",
+                          "flex flex-1  rounded-full px-4 py-2 h-10 border border-border",
+                          tab === t.value
+                            ? "!bg-primary !border-tab-icon-selected"
+                            : "bg-gray-100",
                         )}
                       >
-                        {t.label}
-                      </Text>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </Tabs>
+                        <Text
+                          className={cn(
+                            "text-md",
+                            isSelected ? "!text-white" : "text-text",
+                          )}
+                        >
+                          {t.label}
+                        </Text>
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
+              </Tabs>
 
-            <Select value={sortBy} onValueChange={handleSortChange}>
-              <SelectTrigger className="rounded-full px-4 py-2 h-10 border border-border bg-gray-100">
-                <View className="flex-row items-center gap-2">
-                  <Ionicons name="filter" size={16} color="#6b7280" />
-                  <SelectValue placeholder="Ordenar" className="text-md" />
-                </View>
-              </SelectTrigger>
-              <SelectContent className="w-56 bg-white">
-                <SelectGroup>
-                  <SelectItem label="Mais recentes" value="date_desc">
-                    Mais recentes
-                  </SelectItem>
-                  <SelectItem label="Mais antigas" value="date_asc">
-                    Mais antigas
-                  </SelectItem>
-                  <SelectItem label="Nome do cliente" value="name_asc">
-                    Nome do cliente
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </View>
-        </ScrollView>
+              <Select value={sortBy} onValueChange={handleSortChange}>
+                <SelectTrigger className="rounded-full px-4 py-2 h-10 border border-border bg-gray-100">
+                  <View className="flex-row items-center gap-2">
+                    <Ionicons name="filter" size={16} color="#6b7280" />
+                    <SelectValue placeholder="Ordenar" className="text-md" />
+                  </View>
+                </SelectTrigger>
+                <SelectContent className="w-56 bg-white">
+                  <SelectGroup>
+                    <SelectItem label="Mais recentes" value="date_desc">
+                      Mais recentes
+                    </SelectItem>
+                    <SelectItem label="Mais antigas" value="date_asc">
+                      Mais antigas
+                    </SelectItem>
+                    <SelectItem label="Nome do cliente" value="name_asc">
+                      Nome do cliente
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </View>
+          </ScrollView>
+        </View>
+        {sortedServices.length === 0 ? (
+          <EmptyState
+            message={
+              tab === "all" || tab === "pending"
+                ? DEFAULT_EMPTY_STATE_MESSAGE
+                : "Nenhum serviço encontrado"
+            }
+            description={
+              tab === "all" || tab === "pending"
+                ? DEFAULT_EMPTY_STATE_DESCRIPTION
+                : `Nenhum serviço ${
+                    tab === "pending"
+                      ? "pendente"
+                      : tab === "in-progress"
+                        ? "em andamento"
+                        : "concluído"
+                  }`
+            }
+            debugInfo={`Tab: ${tab}, Total services: ${services.length}, Filtered: ${sortedServices.length}`}
+          />
+        ) : (
+          <FlatList
+            className=" px-4 "
+            data={sortedServices}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <ServiceCard
+                service={item}
+                firstItem={index == 0}
+                onPress={() => navigationToServiceDetail(item.id)}
+              />
+            )}
+            contentContainerStyle={{
+              paddingHorizontal: 4,
+              paddingBottom: tabBarHeight + 60,
+            }}
+          />
+        )}
+        <Pressable
+          onPress={openNewServiceForm}
+          className="absolute bottom-4 right-4 w-14 h-14 rounded-full bg-primary items-center justify-center shadow-lg"
+          style={({ pressed }) => [
+            {
+              opacity: pressed ? 0.8 : 1,
+              elevation: 8,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+            },
+          ]}
+        >
+          <Ionicons name="add" size={28} color="white" />
+        </Pressable>
+      </Container>
+      <View className="bg-white justify-center items-center">
+        <AdMobManager />
       </View>
-      {sortedServices.length === 0 ? (
-        <EmptyState
-          message={
-            tab === "all" || tab === "pending"
-              ? DEFAULT_EMPTY_STATE_MESSAGE
-              : "Nenhum serviço encontrado"
-          }
-          description={
-            tab === "all" || tab === "pending"
-              ? DEFAULT_EMPTY_STATE_DESCRIPTION
-              : `Nenhum serviço ${
-                  tab === "pending"
-                    ? "pendente"
-                    : tab === "in-progress"
-                      ? "em andamento"
-                      : "concluído"
-                }`
-          }
-          debugInfo={`Tab: ${tab}, Total services: ${services.length}, Filtered: ${sortedServices.length}`}
-        />
-      ) : (
-        <FlatList
-          className=" px-4 "
-          data={sortedServices}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <ServiceCard
-              service={item}
-              firstItem={index == 0}
-              onPress={() => navigationToServiceDetail(item.id)}
-            />
-          )}
-          contentContainerStyle={{
-            paddingHorizontal: 4,
-            paddingBottom: tabBarHeight + 60,
-          }}
-        />
-      )}
-      <Pressable
-        onPress={openNewServiceForm}
-        className="absolute bottom-4 right-4 w-14 h-14 rounded-full bg-primary items-center justify-center shadow-lg"
-        style={({ pressed }) => [
-          {
-            opacity: pressed ? 0.8 : 1,
-            elevation: 8,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 4,
-          },
-        ]}
-      >
-        <Ionicons name="add" size={28} color="white" />
-      </Pressable>
-    </Container>
+    </View>
   );
 }
