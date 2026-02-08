@@ -1,53 +1,92 @@
-import React, { useEffect } from "react";
+import { getRemoteConfigValue } from "@/lib/remoteConfig";
+import React, { useEffect, useMemo, useState } from "react";
 import { Platform, View, ViewStyle } from "react-native";
 import {
-  AdEventType,
   BannerAd,
   BannerAdSize,
-  InterstitialAd,
   MobileAds,
-  RewardedAd,
-  RewardedAdEventType,
   TestIds,
 } from "react-native-google-mobile-ads";
 
-// Configure Ad Units
-const HOME_BANNER_AD_UNIT_ID = __DEV__
-  ? TestIds.BANNER
-  : Platform.select({
-      ios: "ca-app-pub-xxx/yyy",
-      android: "ca-app-pub-1785031579807096/8245483491",
-    });
+const getBannerAdUnitId = (useTestAds: boolean) =>
+  useTestAds
+    ? TestIds.BANNER
+    : (Platform.select({
+        ios: "ca-app-pub-xxx/yyy",
+        android: "ca-app-pub-1785031579807096/8245483491",
+      }) ?? TestIds.BANNER);
 
-const INTERSTITIAL_AD_UNIT_ID = __DEV__
-  ? TestIds.INTERSTITIAL
-  : Platform.select({
-      ios: "ca-app-pub-xxx/yyy",
-      android: "ca-app-pub-xxx/yyy",
-    });
+// const getInterstitialAdUnitId = (useTestAds: boolean) =>
+//   useTestAds
+//     ? TestIds.INTERSTITIAL
+//     : (Platform.select({
+//         ios: "ca-app-pub-xxx/yyy",
+//         android: "ca-app-pub-xxx/yyy",
+//       }) ?? TestIds.INTERSTITIAL);
 
-const REWARDED_AD_UNIT_ID = __DEV__
-  ? TestIds.REWARDED
-  : Platform.select({
-      ios: "ca-app-pub-xxx/yyy",
-      android: "ca-app-pub-xxx/yyy",
-    });
+// const getRewardedAdUnitId = (useTestAds: boolean) =>
+//   useTestAds
+//     ? TestIds.REWARDED
+//     : (Platform.select({
+//         ios: "ca-app-pub-xxx/yyy",
+//         android: "ca-app-pub-xxx/yyy",
+//       }) ?? TestIds.REWARDED);
 
-const AdMobManager = ({ style }: { style?: ViewStyle }) => {
+const AdMobManager = ({
+  style,
+  unitId,
+}: {
+  style?: ViewStyle;
+  unitId?: string;
+}) => {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [adsEnabled, setAdsEnabled] = useState(true);
+  const [forceTestAds, setForceTestAds] = useState(false);
+
   useEffect(() => {
-    // Initialize MobileAds
+    setAdsEnabled(Boolean(getRemoteConfigValue("ads_enabled")));
+    setForceTestAds(Boolean(getRemoteConfigValue("ads_force_test")));
+  }, []);
+
+  useEffect(() => {
+    if (!adsEnabled) return;
+
     MobileAds()
       .initialize()
       .then((adapterStatuses) => {
-        // Initialization complete
         console.log("AdMob Initialization complete", adapterStatuses);
+        setIsInitialized(true);
+      })
+      .catch((error) => {
+        console.error("AdMob Initialization failed", error);
+        setIsInitialized(false);
       });
-  }, []);
+  }, [adsEnabled]);
+
+  const shouldUseTestAds = useMemo(
+    () => Boolean(__DEV__ || forceTestAds),
+    [forceTestAds],
+  );
+
+  const bannerUnitId = useMemo(
+    () => unitId ?? getBannerAdUnitId(shouldUseTestAds),
+    [shouldUseTestAds, unitId],
+  );
+
+  // const interstitialUnitId = useMemo(
+  //   () => getInterstitialAdUnitId(shouldUseTestAds),
+  //   [shouldUseTestAds],
+  // );
+
+  // const rewardedUnitId = useMemo(
+  //   () => getRewardedAdUnitId(shouldUseTestAds),
+  //   [shouldUseTestAds],
+  // );
 
   // Banner Ad Component
   const BannerAdComponent = () => (
     <BannerAd
-      unitId={HOME_BANNER_AD_UNIT_ID as string}
+      unitId={bannerUnitId as string}
       size={BannerAdSize.BANNER}
       requestOptions={{
         requestNonPersonalizedAdsOnly: true,
@@ -61,49 +100,47 @@ const AdMobManager = ({ style }: { style?: ViewStyle }) => {
     />
   );
 
-  // Interstitial Ad Management
-  const loadInterstitial = () => {
-    const interstitial = InterstitialAd.createForAdRequest(
-      INTERSTITIAL_AD_UNIT_ID as string,
-      {
-        requestNonPersonalizedAdsOnly: true,
-      },
-    );
+  // const loadInterstitial = () => {
+  //   const interstitial = InterstitialAd.createForAdRequest(
+  //     interstitialUnitId as string,
+  //     {
+  //       requestNonPersonalizedAdsOnly: true,
+  //     },
+  //   );
+  //
+  //   interstitial.addAdEventListener(AdEventType.LOADED, () => {
+  //     interstitial.show();
+  //   });
+  //
+  //   interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+  //     interstitial.load();
+  //   });
+  //
+  //   interstitial.load();
+  // };
 
-    interstitial.addAdEventListener(AdEventType.LOADED, () => {
-      interstitial.show();
-    });
+  // const loadRewardedAd = () => {
+  //   const rewarded = RewardedAd.createForAdRequest(
+  //     rewardedUnitId as string,
+  //     {
+  //       requestNonPersonalizedAdsOnly: true,
+  //     },
+  //   );
+  //
+  //   rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
+  //     rewarded.show();
+  //   });
+  //
+  //   rewarded.addAdEventListener(RewardedAdEventType.EARNED_REWARD, (reward) => {
+  //     console.log("User earned reward of ", reward);
+  //   });
+  //
+  //   rewarded.load();
+  // };
 
-    interstitial.addAdEventListener(AdEventType.CLOSED, () => {
-      // Ad closed, load a new one
-      interstitial.load();
-    });
-
-    // Begin loading
-    interstitial.load();
-  };
-
-  // Rewarded Ad Management
-  const loadRewardedAd = () => {
-    const rewarded = RewardedAd.createForAdRequest(
-      REWARDED_AD_UNIT_ID as string,
-      {
-        requestNonPersonalizedAdsOnly: true,
-      },
-    );
-
-    rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
-      rewarded.show();
-    });
-
-    rewarded.addAdEventListener(RewardedAdEventType.EARNED_REWARD, (reward) => {
-      console.log("User earned reward of ", reward);
-      // Handle user reward
-    });
-
-    // Begin loading
-    rewarded.load();
-  };
+  if (!adsEnabled || !isInitialized) {
+    return null;
+  }
 
   return (
     <View style={style}>

@@ -13,6 +13,8 @@ export interface RemoteConfigSchema {
   show_premium_badge: boolean;
   feedback_enabled: boolean;
   feedback_trigger_services: number;
+  ads_enabled: boolean;
+  ads_force_test: boolean;
   app_update_warning_enabled: boolean;
   app_update_target_version: string;
   app_update_url: string;
@@ -30,9 +32,12 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
   show_premium_badge: false,
   feedback_enabled: true,
   feedback_trigger_services: 3,
+  ads_enabled: true,
+  ads_force_test: true,
   app_update_warning_enabled: false,
   app_update_target_version: "",
-  app_update_url: "https://play.google.com/store/apps/details?id=com.yourapp",
+  app_update_url:
+    "https://play.google.com/store/apps/details?id=br.com.workchecklist.app",
   copy_empty_state_enabled: true,
   empty_state_message: "Você não tem nenhum serviço pendente",
   empty_state_description: "Vamos começar um novo",
