@@ -1,4 +1,12 @@
-import remoteConfig from "@react-native-firebase/remote-config";
+import { getApp } from "@react-native-firebase/app";
+import {
+  fetchAndActivate,
+  getAll,
+  getRemoteConfig,
+  getValue,
+  setConfigSettings,
+  setDefaults,
+} from "@react-native-firebase/remote-config";
 
 export interface RemoteConfigSchema {
   free_template_limit: number;
@@ -84,13 +92,15 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
 
 export async function initRemoteConfig(): Promise<void> {
   try {
-    await remoteConfig().setConfigSettings({
+    const rc = getRemoteConfig(getApp());
+
+    await setConfigSettings(rc, {
       minimumFetchIntervalMillis: 30000,
     });
 
-    await remoteConfig().setDefaults(DEFAULT_CONFIG);
+    await setDefaults(rc, DEFAULT_CONFIG);
 
-    const fetchedRemotely = await remoteConfig().fetchAndActivate();
+    const fetchedRemotely = await fetchAndActivate(rc);
 
     if (fetchedRemotely) {
       // console.log("[remoteConfig] ✓ Configs retrieved from backend");
@@ -106,7 +116,8 @@ export function getRemoteConfigValue<K extends keyof RemoteConfigSchema>(
   key: K,
 ): RemoteConfigSchema[K] {
   try {
-    const value = remoteConfig().getValue(key as string);
+    const rc = getRemoteConfig(getApp());
+    const value = getValue(rc, key as string);
     const defaultVal = DEFAULT_CONFIG[key];
 
     if (typeof defaultVal === "boolean") {
@@ -124,7 +135,8 @@ export function getRemoteConfigValue<K extends keyof RemoteConfigSchema>(
 
 export function getAllRemoteConfig(): RemoteConfigSchema {
   try {
-    const parameters = remoteConfig().getAll();
+    const rc = getRemoteConfig(getApp());
+    const parameters = getAll(rc);
     const config: Partial<RemoteConfigSchema> = {};
 
     Object.entries(parameters).forEach(([key, entry]) => {

@@ -143,6 +143,7 @@ export default function RootLayout() {
             </Pressable>
           </View>
         </View>
+        <StatusBar style="dark" backgroundColor="#ffffff" />
       </ThemeProvider>
     );
   }
