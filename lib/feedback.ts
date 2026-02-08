@@ -10,7 +10,11 @@ export type FeedbackPayload = {
   rating?: number;
 };
 
-const FEEDBACK_ENDPOINT = "https://SEU-PROJETO.functions.supabase.co/feedback";
+const FEEDBACK_ENDPOINT =
+  process.env.EXPO_PUBLIC_FEEDBACK_URL ??
+  "https://psznycipgrptvwhkvkbr.supabase.co/functions/v1/feedback";
+const FEEDBACK_API_KEY =
+  process.env.EXPO_PUBLIC_FEEDBACK_API_KEY ?? "melcatlabs-mobile-2026";
 
 export async function sendFeedback(payload: FeedbackPayload): Promise<void> {
   try {
@@ -18,7 +22,7 @@ export async function sendFeedback(payload: FeedbackPayload): Promise<void> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": "melcatlabs-mobile-2026",
+        "x-api-key": FEEDBACK_API_KEY,
         "x-device": Platform.OS,
         "x-app-version": pkg.version ?? "1.0.0",
       },
