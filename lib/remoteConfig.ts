@@ -6,6 +6,8 @@ export interface RemoteConfigSchema {
   feedback_enabled: boolean;
   feedback_trigger_services: number;
   app_update_warning_enabled: boolean;
+  app_update_target_version: string;
+  app_update_url: string;
   copy_empty_state_enabled: boolean;
   empty_state_message: string;
   empty_state_description: string;
@@ -21,6 +23,8 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
   feedback_enabled: true,
   feedback_trigger_services: 3,
   app_update_warning_enabled: false,
+  app_update_target_version: "",
+  app_update_url: "https://play.google.com/store/apps/details?id=com.yourapp",
   copy_empty_state_enabled: true,
   empty_state_message: "Você não tem nenhum serviço pendente",
   empty_state_description: "Vamos começar um novo",

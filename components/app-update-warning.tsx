@@ -2,38 +2,61 @@ import { getRemoteConfigValue } from "@/lib/remoteConfig";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Linking, Pressable, Text, View } from "react-native";
+import pkg from "../package.json";
 
 export function AppUpdateWarning() {
   const [showWarning, setShowWarning] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
+  const [updateUrl, setUpdateUrl] = useState("");
 
   useEffect(() => {
-    (async () => {
-      const enabled = await getRemoteConfigValue("app_update_warning_enabled");
-      setIsEnabled(enabled);
+    const enabled = getRemoteConfigValue("app_update_warning_enabled");
+    const targetVersion = getRemoteConfigValue("app_update_target_version");
+    const url = getRemoteConfigValue("app_update_url");
 
-      if (enabled) {
-        // Check if there's an update available
-        // This is a simple implementation - in production you might want to check version from a backend
-        const hasUpdate = await checkForUpdates();
-        setShowWarning(hasUpdate);
-      }
-    })();
+    setIsEnabled(Boolean(enabled));
+    setUpdateUrl(String(url || ""));
+
+    if (enabled) {
+      const hasUpdate = shouldShowUpdateWarning(
+        String(targetVersion || ""),
+        pkg.version ?? "0.0.0",
+      );
+      setShowWarning(hasUpdate);
+    }
   }, []);
 
-  const checkForUpdates = async (): Promise<boolean> => {
-    // TODO: Implement actual version checking logic
-    // For now, return false
-    // You could check against a backend API or use expo-updates
-    return false;
+  const shouldShowUpdateWarning = (
+    target: string,
+    current: string,
+  ): boolean => {
+    const normalizedTarget = target.trim();
+    if (!normalizedTarget) return false;
+
+    return compareVersions(current, normalizedTarget) === -1;
+  };
+
+  const compareVersions = (current: string, target: string): number => {
+    const currentParts = current.split(".").map((v) => Number(v));
+    const targetParts = target.split(".").map((v) => Number(v));
+    const length = Math.max(currentParts.length, targetParts.length);
+
+    for (let i = 0; i < length; i += 1) {
+      const currentVal = Number.isFinite(currentParts[i]) ? currentParts[i] : 0;
+      const targetVal = Number.isFinite(targetParts[i]) ? targetParts[i] : 0;
+
+      if (currentVal < targetVal) return -1;
+      if (currentVal > targetVal) return 1;
+    }
+
+    return 0;
   };
 
   const handleUpdatePress = () => {
     // Open app store or play store
-    const storeUrl =
-      // Replace with your actual app store URLs
+    const fallbackUrl =
       "https://play.google.com/store/apps/details?id=com.yourapp";
-    Linking.openURL(storeUrl);
+    Linking.openURL(updateUrl || fallbackUrl);
   };
 
   if (!isEnabled || !showWarning) {
