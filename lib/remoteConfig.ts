@@ -7,6 +7,8 @@ export interface RemoteConfigSchema {
   feedback_trigger_services: number;
   app_update_warning_enabled: boolean;
   copy_empty_state_enabled: boolean;
+  empty_state_message: string;
+  empty_state_description: string;
   default_service_templates_json: string;
   contact_email: string;
   contact_phone: string;
@@ -20,6 +22,8 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
   feedback_trigger_services: 3,
   app_update_warning_enabled: false,
   copy_empty_state_enabled: true,
+  empty_state_message: "Você não tem nenhum serviço pendente",
+  empty_state_description: "Vamos começar um novo",
   contact_email: "contato@empresa.com",
   contact_phone: "(11) 99999-9999",
   default_service_templates_json: JSON.stringify(

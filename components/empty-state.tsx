@@ -1,60 +1,60 @@
 import { getRemoteConfigValue } from "@/lib/remoteConfig";
-import * as Clipboard from "expo-clipboard";
 import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
-import { Toast } from "toastify-react-native";
+import { Text, View } from "react-native";
 
 interface EmptyStateProps {
-  message: string;
+  message?: string;
   description?: string;
-  debugInfo?: string;
 }
 
-export function EmptyState({
-  message,
-  description,
-  debugInfo,
-}: EmptyStateProps) {
-  const [copyEnabled, setCopyEnabled] = useState(true);
+const DEFAULT_EMPTY_STATE_MESSAGE = "Você não tem nenhum serviço pendente";
+const DEFAULT_EMPTY_STATE_DESCRIPTION = "Vamos começar um novo";
+
+export function EmptyState({ message, description }: EmptyStateProps) {
+  const [remoteMessage, setRemoteMessage] = useState("");
+  const [remoteDescription, setRemoteDescription] = useState("");
 
   useEffect(() => {
-    (async () => {
-      const enabled = await getRemoteConfigValue("copy_empty_state_enabled");
-      setCopyEnabled(enabled);
-    })();
+    const messageValue = getRemoteConfigValue("empty_state_message");
+    const descriptionValue = getRemoteConfigValue("empty_state_description");
+
+    setRemoteMessage(String(messageValue || ""));
+    setRemoteDescription(String(descriptionValue || ""));
   }, []);
 
-  const handleCopyDebugInfo = async () => {
-    if (!debugInfo || !copyEnabled) return;
+  const normalizedMessage = (message || "").trim();
+  const normalizedDescription = (description || "").trim();
+  const isDefaultMessage =
+    !normalizedMessage || normalizedMessage === DEFAULT_EMPTY_STATE_MESSAGE;
 
-    await Clipboard.setStringAsync(debugInfo);
-    Toast.show({
-      type: "success",
-      text1: "Copiado!",
-      text2: "Informações copiadas para a área de transferência",
-      position: "top",
-      visibilityTime: 2000,
-      autoHide: true,
-    });
-  };
+  const resolvedMessage = (() => {
+    if (!isDefaultMessage) return normalizedMessage;
+
+    const remote = (remoteMessage || "").trim();
+    if (remote && remote !== DEFAULT_EMPTY_STATE_MESSAGE) return remote;
+
+    return DEFAULT_EMPTY_STATE_MESSAGE;
+  })();
+
+  const resolvedDescription = (() => {
+    if (normalizedDescription) return normalizedDescription;
+    if (!isDefaultMessage) return undefined;
+
+    const remote = (remoteDescription || "").trim();
+    if (remote && remote !== DEFAULT_EMPTY_STATE_DESCRIPTION) return remote;
+
+    return DEFAULT_EMPTY_STATE_DESCRIPTION;
+  })();
 
   return (
     <View className="flex-1 justify-center items-center px-6">
-      <Text className="text-gray-500 text-lg text-center mb-2">{message}</Text>
-      {description && (
+      <Text className="text-gray-500 text-lg text-center mb-2">
+        {resolvedMessage}
+      </Text>
+      {resolvedDescription && (
         <Text className="text-gray-400 text-sm text-center mb-4">
-          {description}
+          {resolvedDescription}
         </Text>
-      )}
-      {copyEnabled && debugInfo && (
-        <Pressable
-          onPress={handleCopyDebugInfo}
-          className="mt-2 px-4 py-2 bg-gray-100 rounded-lg"
-        >
-          <Text className="text-gray-600 text-xs">
-            Copiar informações de debug
-          </Text>
-        </Pressable>
       )}
     </View>
   );

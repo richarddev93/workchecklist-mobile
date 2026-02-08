@@ -34,6 +34,9 @@ interface ServiceListViewProps {
 type TabValue = "all" | "pending" | "in-progress" | "completed";
 type SortValue = "date_desc" | "date_asc" | "name_asc";
 
+const DEFAULT_EMPTY_STATE_MESSAGE = "Você não tem nenhum serviço pendente";
+const DEFAULT_EMPTY_STATE_DESCRIPTION = "Vamos começar um novo";
+
 export function ServiceListView({
   services,
   onBackHandler,
@@ -195,10 +198,14 @@ export function ServiceListView({
       </View>
       {sortedServices.length === 0 ? (
         <EmptyState
-          message="Nenhum serviço encontrado"
+          message={
+            tab === "all" || tab === "pending"
+              ? DEFAULT_EMPTY_STATE_MESSAGE
+              : "Nenhum serviço encontrado"
+          }
           description={
-            tab === "all"
-              ? "Comece adicionando um novo serviço"
+            tab === "all" || tab === "pending"
+              ? DEFAULT_EMPTY_STATE_DESCRIPTION
               : `Nenhum serviço ${
                   tab === "pending"
                     ? "pendente"
