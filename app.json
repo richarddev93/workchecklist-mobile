@@ -48,7 +48,14 @@
           "androidGoogleServicesFile": "./google-services.json"
         }
       ],
-      "@react-native-firebase/crashlytics"
+      "@react-native-firebase/crashlytics",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1785031579807096~6837074181",
+          "iosAppId": "ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

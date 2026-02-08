@@ -1,3 +1,4 @@
+import AdMobManager from "@/components/admob/admob-manager";
 import Container from "@/components/container";
 import StatCard from "@/components/state-card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import {
   Plus,
   Wrench,
 } from "lucide-react-native";
-import { Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { DashboardResume } from "../components/resume-dashboard";
 
 export function DashboardServiceView({ services }: any) {
@@ -65,23 +66,33 @@ export function DashboardServiceView({ services }: any) {
   );
 
   return (
-    <Container>
-      <View className="min-h-screen bg-surface pb-20">
-        <Header
-          title="Dashboard"
-          subtitle="Visão geral dos serviços"
-          showLogo
-        />
-        <View className="p-4 gap-2">
-          <FirstBlockComponent />
-          <CreateServiceButton />
-          <SecondBlockComponent />
-          <DashboardResume
-            currentValue={services.completedServices}
-            totalValue={services.totalServices ?? 0}
+    <View className="flex-1">
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Container>
+          <Header
+            title="Dashboard"
+            subtitle="Visão geral dos serviços"
+            showLogo
           />
-        </View>
+          <View className="p-4 gap-2">
+            <FirstBlockComponent />
+            <CreateServiceButton />
+            <SecondBlockComponent />
+            <DashboardResume
+              currentValue={services.completedServices}
+              totalValue={services.totalServices ?? 0}
+            />
+          </View>
+        </Container>
+      </ScrollView>
+      <View className="justify-center items-center">
+        <AdMobManager />
       </View>
-    </Container>
+    </View>
   );
 }
