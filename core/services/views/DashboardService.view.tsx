@@ -24,7 +24,9 @@ export function DashboardServiceView({ services }: any) {
         value={services.totalServices}
         color={"#2563eb"}
         icon={Wrench}
-        onPress={() => router.navigate("/services")}
+        onPress={() =>
+          router.push({ pathname: "/services", params: { filter: "all" } })
+        }
       />
 
       <StatCard
@@ -32,7 +34,12 @@ export function DashboardServiceView({ services }: any) {
         value={services.inProgressServices}
         color="#f59e0b"
         icon={Clock}
-        onPress={() => router.navigate("/services")}
+        onPress={() =>
+          router.push({
+            pathname: "/services",
+            params: { filter: "in-progress" },
+          })
+        }
       />
     </View>
   );
@@ -44,6 +51,12 @@ export function DashboardServiceView({ services }: any) {
         value={services.completedServices}
         icon={CheckCircle}
         color="#10b981"
+        onPress={() =>
+          router.push({
+            pathname: "/services",
+            params: { filter: "completed" },
+          })
+        }
       />
       <StatCard
         title="Relatórios"

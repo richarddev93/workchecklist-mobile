@@ -30,6 +30,7 @@ interface ServiceListViewProps {
   services: any[];
   onBackHandler: () => void;
   loading?: boolean;
+  initialTab?: TabValue;
 }
 
 type TabValue = "all" | "pending" | "in-progress" | "completed";
@@ -42,9 +43,10 @@ export function ServiceListView({
   services,
   onBackHandler,
   loading = false,
+  initialTab = "all",
 }: ServiceListViewProps) {
   const tabBarHeight = useBottomTabBarHeight();
-  const [tab, setTab] = useState<TabValue>("all");
+  const [tab, setTab] = useState<TabValue>(initialTab);
   const [sortBy, setSortBy] = useState<SortValue>("date_desc");
   const router = useRouter();
 

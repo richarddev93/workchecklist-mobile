@@ -1,11 +1,12 @@
 import { useServiceViewModel } from "@/core/services/viewmodels/useServiceVM";
 import { ServiceListView } from "@/core/services/views/ServiceList.view";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo } from "react";
 
 export default function Services() {
   const router = useRouter();
   const { services, loading } = useServiceViewModel();
+  const { filter } = useLocalSearchParams<{ filter?: string }>();
 
   const backToHome = useCallback(() => {
     router.back();
@@ -63,6 +64,7 @@ export default function Services() {
       services={formattedServices}
       onBackHandler={backToHome}
       loading={loading}
+      initialTab={(filter as any) || "all"}
     />
   );
 }
