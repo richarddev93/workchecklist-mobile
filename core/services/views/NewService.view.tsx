@@ -9,13 +9,13 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Toast } from "toastify-react-native";
 
@@ -168,7 +168,10 @@ export function NewServiceView() {
               Template de checklist <Text className="text-red-500">*</Text>
             </Text>
             <TouchableOpacity
-              onPress={() => setShowTemplateDropdown(!showTemplateDropdown)}
+              onPress={() => {
+                setShowTemplateDropdown(!showTemplateDropdown);
+                if (!showTemplateDropdown) setShowServiceTypeDropdown(false);
+              }}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white"
             >
               <Text
@@ -207,9 +210,10 @@ export function NewServiceView() {
               Tipo de serviço <Text className="text-red-500">*</Text>
             </Text>
             <TouchableOpacity
-              onPress={() =>
-                setShowServiceTypeDropdown(!showServiceTypeDropdown)
-              }
+              onPress={() => {
+                setShowServiceTypeDropdown(!showServiceTypeDropdown);
+                if (!showServiceTypeDropdown) setShowTemplateDropdown(false);
+              }}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white"
             >
               <Text
