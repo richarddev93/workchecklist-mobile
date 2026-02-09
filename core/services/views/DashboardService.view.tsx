@@ -1,10 +1,17 @@
+import AdMobManager from "@/components/admob/admob-manager";
 import Container from "@/components/container";
 import StatCard from "@/components/state-card";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
-import { FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import {
+  CheckCircle,
+  Clock,
+  FileText,
+  Plus,
+  Wrench,
+} from "lucide-react-native";
+import { ScrollView, Text, View } from "react-native";
 import { DashboardResume } from "../components/resume-dashboard";
 
 export function DashboardServiceView({ services }: any) {
@@ -16,16 +23,23 @@ export function DashboardServiceView({ services }: any) {
         title="Total de serviços"
         value={services.totalServices}
         color={"#2563eb"}
-        iconName="handyman"
-        onPress={() => router.navigate("/services")}
+        icon={Wrench}
+        onPress={() =>
+          router.push({ pathname: "/services", params: { filter: "all" } })
+        }
       />
 
       <StatCard
         title="Em andamento"
         value={services.inProgressServices}
         color="#f59e0b"
-        iconName="autorenew"
-        onPress={() => router.navigate("/services")}
+        icon={Clock}
+        onPress={() =>
+          router.push({
+            pathname: "/services",
+            params: { filter: "in-progress" },
+          })
+        }
       />
     </View>
   );
@@ -35,13 +49,19 @@ export function DashboardServiceView({ services }: any) {
       <StatCard
         title="Concluídos"
         value={services.completedServices}
-        iconName={"check-circle"}
+        icon={CheckCircle}
         color="#10b981"
+        onPress={() =>
+          router.push({
+            pathname: "/services",
+            params: { filter: "completed" },
+          })
+        }
       />
       <StatCard
         title="Relatórios"
         value={services.completedServices}
-        iconName={"description"}
+        icon={FileText}
         color="#2563eb"
         onPress={() => router.navigate("/reports")}
       />
@@ -50,28 +70,42 @@ export function DashboardServiceView({ services }: any) {
 
   const CreateServiceButton = () => (
     <Button
-      onPress={() => router.navigate("/services")}
-      className="bg-secondary rounded-lg items-center h-16 justify-center"
+      onPress={() => router.navigate("/add-service")}
+      className="bg-primary rounded-lg items-center h-16 justify-center flex-row gap-2"
     >
-      <FontAwesome5 name="plus" size={20} color={"white"} />
-      <Text className="text-xl text-white">Criar um novo serviço</Text>
+      <Plus size={24} color={"white"} strokeWidth={2} />
+      <Text className="text-xl text-white">Criar checklist de serviço</Text>
     </Button>
   );
 
   return (
-    <Container>
-      <View className="min-h-screen bg-surface pb-20">
-        <Header />
-        <View className="p-4 gap-2">
-          <FirstBlockComponent />
-          <CreateServiceButton />
-          <SecondBlockComponent />
-          <DashboardResume
-            currentValue={services.completedServices}
-            totalValue={services.totalServices ?? 0}
+    <View className="flex-1">
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Container>
+          <Header
+            title="Dashboard"
+            subtitle="Visão geral dos serviços"
+            showLogo
           />
-        </View>
+          <View className="p-4 gap-2">
+            <FirstBlockComponent />
+            <CreateServiceButton />
+            <SecondBlockComponent />
+            <DashboardResume
+              currentValue={services.completedServices}
+              totalValue={services.totalServices ?? 0}
+            />
+          </View>
+        </Container>
+      </ScrollView>
+      <View className="justify-center items-center">
+        <AdMobManager />
       </View>
-    </Container>
+    </View>
   );
 }

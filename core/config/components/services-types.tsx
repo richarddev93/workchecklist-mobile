@@ -1,6 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
-import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
-import { ServiceTypeCard } from './service-type-card';
+import { Ionicons } from "@expo/vector-icons";
+import {
+    Alert,
+    FlatList,
+    Pressable,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
+import { ServiceTypeCard } from "./service-type-card";
 
 type ServiceType = {
   id: string;
@@ -34,13 +41,31 @@ export function ServicesTypes({
   onUpdate,
   onDelete,
 }: ServicesTypesProps) {
+  const handleDeleteServiceType = (typeId: string, typeName: string) => {
+    Alert.alert(
+      "Excluir tipo de serviço",
+      `Tem certeza que deseja excluir o tipo "${typeName}"?`,
+      [
+        {
+          text: "Cancelar",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
+          onPress: () => onDelete(typeId),
+          style: "destructive",
+        },
+      ],
+    );
+  };
+
   return (
-    <View className="gap-3">
+    <View className="flex-1 gap-3 px-3 pt-3">
       {/* Header */}
       <View className="flex-row items-center justify-between">
         <Text className="text-gray-500">
-          {serviceTypes.length}{' '}
-          {serviceTypes.length === 1 ? 'tipo' : 'tipos'}
+          {serviceTypes.length} {serviceTypes.length === 1 ? "tipo" : "tipos"}
         </Text>
 
         <Pressable
@@ -66,7 +91,7 @@ export function ServicesTypes({
             <Pressable
               onPress={() => {
                 setShowNewType(false);
-                setNewType('');
+                setNewType("");
               }}
               hitSlop={8}
             >
@@ -87,9 +112,7 @@ export function ServicesTypes({
               onPress={onAdd}
               disabled={!newType.trim()}
               className={`items-center justify-center rounded-lg px-4 ${
-                newType.trim()
-                  ? 'bg-emerald-500'
-                  : 'bg-emerald-300'
+                newType.trim() ? "bg-emerald-500" : "bg-emerald-300"
               }`}
             >
               <Ionicons name="save-outline" size={22} color="#fff" />
@@ -112,9 +135,9 @@ export function ServicesTypes({
               setShowNewType(false); // fecha form novo
               setEditingType(item.id);
             }}
-            onSave={(name:string) => onUpdate(item.id, name)}
+            onSave={(name: string) => onUpdate(item.id, name)}
             onCancel={() => setEditingType(null)}
-            onDelete={() => onDelete(item.id)}
+            onDelete={() => handleDeleteServiceType(item.id, item.name)}
           />
         )}
       />

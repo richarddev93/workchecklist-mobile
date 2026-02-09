@@ -6,20 +6,22 @@ export interface ChecklistItem {
   photos?: string[];
 }
 
-export type ServiceStatus = 'pending' | 'in-progress' | 'completed';
+export type ServiceStatus = "pending" | "in-progress" | "completed";
 
 export interface Service {
   id: string;
-  clientName: string;
-  serviceType: string;
-  status: ServiceStatus| any;
-  statusLabel?: string;
-  date:string;
-  address: string;
-  progress?:any
-  checklist: ChecklistItem[];
+  client_name: string;
+  service_type: string;
+  service_date: string;
+  location?: string;
+  observations?: string;
+  template_id?: string;
+  status: ServiceStatus;
+  progress?: number;
+  checklist_data?: string;
+  created_at?: string;
+  updated_at?: string;
 }
-
 
 export interface CompanyInfo {
   name: string;
@@ -34,11 +36,17 @@ export interface ChecklistTemplate {
   name: string;
   items: string[];
 }
+export interface ServiceTemplate {
+  id: string;
+  name: string;
+  service_type: string;
+  items: string;
+}
 
 export interface ServiceType {
   id: string;
   name: string;
-  slug?:string;
+  slug?: string;
 }
 
 export interface ConfigContextData {
@@ -48,14 +56,20 @@ export interface ConfigContextData {
 
   // Templates
   templates: ChecklistTemplate[];
-  addTemplate: (data: Omit<ChecklistTemplate, 'id'>) => void;
-  updateTemplate: (id: string, data: Partial<Omit<ChecklistTemplate, 'id'>>) => void;
+  addTemplate: (data: Omit<ChecklistTemplate, "id">) => void;
+  updateTemplate: (
+    id: string,
+    data: Partial<Omit<ChecklistTemplate, "id">>,
+  ) => void;
   deleteTemplate: (id: string) => void;
 
   // Service Types
   serviceTypes: ServiceType[];
-  addServiceType: (data: Omit<ServiceType, 'id'>) => void;
-  updateServiceType: (id: string, data: Partial<Omit<ServiceType, 'id'>>) => void;
+  addServiceType: (data: Omit<ServiceType, "id">) => void;
+  updateServiceType: (
+    id: string,
+    data: Partial<Omit<ServiceType, "id">>,
+  ) => void;
   deleteServiceType: (id: string) => void;
 }
 
@@ -66,4 +80,3 @@ export type TemplateTemplate = {
   name: string;
   items: string[];
 };
-

@@ -1,140 +1,172 @@
+import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
+import { initDatabase } from "@/core/config/storage/database-config";
+import { DatabaseAdapter } from "@/core/config/storage/database.interface";
+import {
+  createServiceRepository,
+  ServiceRepository,
+} from "@/core/services/repository/serviceRepository";
 import { Service } from "@/types";
-import React, { createContext, useContext, useState } from "react";
+import { randomUUID } from "expo-crypto";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 interface ServiceContextData {
   services: Service[];
+  addService: (
+    data: Omit<Service, "id" | "created_at" | "updated_at">,
+  ) => Promise<void>;
+  updateService: (id: string, data: Partial<Service>) => Promise<void>;
+  deleteService: (id: string) => Promise<void>;
   getServiceById: (id: string) => Service | undefined;
-  updateService: (id: string, partial: Partial<Service>) => void;
+  loading: boolean;
+  lastError: Error | null;
+  clearError: () => void;
 }
 
-const ServiceContext = createContext<ServiceContextData>(
-  {} as ServiceContextData
-);
+const ServiceContext = createContext<ServiceContextData | undefined>(undefined);
 
 export function ServiceProvider({ children }: { children: React.ReactNode }) {
-  const servicesData: Service[] = [
-    {
-      id: "1",
-      clientName: "João Silva",
-      serviceType: "Manutenção preventiva",
-      status: "in-progress",
-      date: "2024-12-23",
-      address: "Rua das Flores, 123",
-      checklist: [
-        {
-          id: "1-1",
-          title: "Verificar filtros",
-          completed: true,
-        },
-        {
-          id: "1-2",
-          title: "Lubrificar componentes",
-          completed: true,
-        },
-        {
-          id: "1-3",
-          title: "Testar funcionamento",
-          completed: false,
-        },
-        {
-          id: "1-4",
-          title: "Registrar fotos",
-          completed: false,
-        },
-        {
-          id: "1-5",
-          title: "Relatório final",
-          completed: false,
-        },
-      ],
-    },
+  const [db, setDb] = useState<DatabaseAdapter | null>(null);
+  const serviceRepositoryRef = useRef<ServiceRepository | null>(null);
 
-    {
-      id: "2",
-      clientName: "Maria Oliveira",
-      serviceType: "Instalação elétrica",
-      status: "pending",
-      date: "2024-12-22",
-      address: "Av. Paulista, 987",
-      checklist: [
-        {
-          id: "2-1",
-          title: "Desligar energia",
-          completed: false,
-        },
-        {
-          id: "2-2",
-          title: "Instalar disjuntores",
-          completed: false,
-        },
-        {
-          id: "2-3",
-          title: "Passar fiação",
-          completed: false,
-        },
-        {
-          id: "2-4",
-          title: "Testar circuito",
-          completed: false,
-        },
-      ],
-    },
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lastError, setLastError] = useState<Error | null>(null);
 
-    {
-      id: "3",
-      clientName: "Carlos Pereira",
-      serviceType: "Reparo hidráulico",
-      status: "completed",
-      date: "2024-12-21",
-      address: "Rua das Acácias, 45",
-      checklist: [
-        {
-          id: "3-1",
-          title: "Identificar vazamento",
-          completed: true,
-        },
-        {
-          id: "3-2",
-          title: "Trocar tubulação",
-          completed: true,
-        },
-        {
-          id: "3-3",
-          title: "Testar pressão",
-          completed: true,
-        },
-      ],
-    },
+  const clearError = () => setLastError(null);
 
-    {
-      id: "4",
-      clientName: "Ana Souza",
-      serviceType: "Vistoria técnica",
-      status: "in-progress",
-      date: "2024-12-20",
-      address: "Rua Central, 456",
-      checklist: [],
-    },
-  ];
+  useEffect(() => {
+    let mounted = true;
 
-  const [services, setServices] = useState<Service[]>(servicesData);
+    const init = async () => {
+      const dbInstance = await createExpoDbAdapter();
+      await initDatabase(dbInstance);
+      serviceRepositoryRef.current = createServiceRepository(dbInstance);
+
+      if (mounted) {
+        setDb(dbInstance);
+        await getAllServices();
+        setLoading(false);
+      }
+    };
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const getAllServices = async () => {
+    try {
+      // console.log("Getting all services...");
+      const servicesRes = await serviceRepositoryRef.current?.getAll();
+      // console.log("Services retrieved:", servicesRes);
+      setServices(servicesRes ?? []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      setServices([]);
+    }
+  };
+
+  const addService = async (
+    data: Omit<Service, "id" | "created_at" | "updated_at">,
+  ) => {
+    try {
+      if (!serviceRepositoryRef.current) {
+        throw new Error("Service repository not initialized");
+      }
+      const id = randomUUID();
+      setLastError(null);
+      await serviceRepositoryRef.current.save(data, id);
+      await getAllServices();
+    } catch (error) {
+      const sqlError = error as Error;
+      // console.log(" [SQL ERROR] Error adding service:");
+      // console.log("  Message:", sqlError.message);
+      // console.log("  Stack:", sqlError.stack);
+      // console.log("  Data:", JSON.stringify(data, null, 2));
+      // console.log("  Cause:", sqlError.cause);
+      setLastError(sqlError);
+      await getAllServices();
+      console.error("Error adding service:", error);
+      throw error;
+    }
+  };
+
+  const updateService = async (id: string, data: Partial<Service>) => {
+    try {
+      // console.log("ServiceContext.updateService called with id:", id);
+      setLastError(null);
+      await serviceRepositoryRef.current?.update(id, data);
+      await getAllServices();
+      // console.log("ServiceContext.updateService - services refreshed");
+    } catch (error) {
+      const sqlError = error as Error;
+      console.error("❌ [SQL ERROR] Error updating service:");
+      console.error("  Message:", sqlError.message);
+      console.error("  Stack:", sqlError.stack);
+      console.error("  ID:", id);
+      console.error("  Data:", JSON.stringify(data, null, 2));
+      console.error("  Cause:", sqlError.cause);
+      setLastError(sqlError);
+      console.error("ServiceContext.updateService - Error details:", {
+        id,
+        data,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+      });
+      throw error;
+    }
+  };
+
+  const deleteService = async (id: string) => {
+    try {
+      // console.log("ServiceContext.deleteService called with id:", id);
+      await serviceRepositoryRef.current?.delete(id);
+      // console.log(
+      //   "ServiceContext.deleteService - delete successful, refreshing services...",
+      // );
+      await getAllServices();
+      // console.log("ServiceContext.deleteService - services refreshed");
+    } catch (error) {
+      console.error(
+        "ServiceContext.deleteService - Error deleting service:",
+        error,
+      );
+      console.error("ServiceContext.deleteService - Error details:", {
+        id,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+      });
+      throw error;
+    }
+  };
 
   function getServiceById(id: string) {
-    console.log("buscando id", id)
-    return services.find((s) => s.id === id);
-  }
-
-  function updateService(id: string, partial: Partial<Service>) {
-    setServices((prev) =>
-      prev.map((service) =>
-        service.id === id ? { ...service, ...partial } : service
-      )
-    );
+    // console.log("getServiceById called with id:", id);
+    const found = services.find((s) => s.id === id);
+    // console.log("Service found:", !!found);
+    return found;
   }
 
   return (
     <ServiceContext.Provider
-      value={{ services, getServiceById, updateService }}
+      value={{
+        lastError,
+        clearError,
+        services,
+        addService,
+        updateService,
+        deleteService,
+        getServiceById,
+        loading,
+      }}
     >
       {children}
     </ServiceContext.Provider>
@@ -142,5 +174,9 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useServices() {
-  return useContext(ServiceContext);
+  const context = useContext(ServiceContext);
+  if (!context) {
+    throw new Error("useServices must be used within ServiceProvider");
+  }
+  return context;
 }

@@ -8,7 +8,7 @@ interface ServiceContextData {
 }
 
 const ServiceContext = createContext<ServiceContextData>(
-  {} as ServiceContextData
+  {} as ServiceContextData,
 );
 
 export function ServiceProvider({ children }: { children: React.ReactNode }) {
@@ -120,15 +120,14 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [services, setServices] = useState<Service[]>(servicesData);
 
   function getServiceById(id: string) {
-    console.log("buscando id", id)
     return services.find((s) => s.id === id);
   }
 
   function updateService(id: string, partial: Partial<Service>) {
     setServices((prev) =>
       prev.map((service) =>
-        service.id === id ? { ...service, ...partial } : service
-      )
+        service.id === id ? { ...service, ...partial } : service,
+      ),
     );
   }
 

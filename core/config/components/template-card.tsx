@@ -1,9 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Icon } from "@/components/ui/icon";
+import { Colors } from "@/constants/theme";
+import { SquarePen, Trash } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
 
 interface TemplateCardProps {
-  template: { id: string; name: string; items: string[] };
+  template: { id: string; name: string; service_type: string; items: string[] };
   isEditing: boolean;
   onEdit: () => void;
   onSave: (name: string, items: string[]) => void;
@@ -65,19 +67,14 @@ export function TemplateCard({
                   className="items-center justify-center rounded-lg p-2"
                   hitSlop={8}
                 >
-                  <Ionicons name="trash" size={18} color="#ef4444" />
+                  <Icon as={Trash} color={Colors.light.destructive} size={18} />
                 </Pressable>
               )}
             </View>
           ))}
 
-          {/* Add item */}
-          <Pressable
-            onPress={() => setEditItems([...editItems, ''])}
-          >
-            <Text className="text-blue-600 font-medium">
-              + Adicionar item
-            </Text>
+          <Pressable onPress={() => setEditItems([...editItems, ""])}>
+            <Text className="text-primary font-medium">+ Adicionar item</Text>
           </Pressable>
 
           {/* Actions */}
@@ -86,9 +83,7 @@ export function TemplateCard({
               onPress={() => onSave(editName, editItems)}
               disabled={!editName.trim()}
               className={`flex-1 items-center rounded-lg py-2 ${
-                editName.trim()
-                  ? 'bg-emerald-500'
-                  : 'bg-emerald-300'
+                editName.trim() ? "bg-emerald-500" : "bg-emerald-300"
               }`}
             >
               <Text className="font-medium text-white">Salvar</Text>
@@ -98,7 +93,7 @@ export function TemplateCard({
               onPress={onCancel}
               className="flex-1 items-center rounded-lg bg-gray-200 py-2"
             >
-              <Text className="font-medium text-gray-700">
+              <Text className="font-medium text-secondary-foreground">
                 Cancelar
               </Text>
             </Pressable>
@@ -110,19 +105,23 @@ export function TemplateCard({
 
   return (
     <View className="rounded-lg border border-gray-200 bg-white p-4">
-      {/* Header */}
-      <View className="mb-2 flex-row items-start justify-between">
-        <Text className="font-semibold text-gray-900">
-          {template.name}
-        </Text>
+      <View className="mb-3 flex-row items-start justify-between">
+        <View className="flex-1">
+          <Text className="text-md font-semibold text-gray-900">
+            {template.name}
+          </Text>
+          <Text className="text-md text-secondary-foreground">
+            {template.service_type}
+          </Text>
+        </View>
 
         <View className="flex-row gap-2">
           <Pressable onPress={onEdit} className="rounded-lg p-2">
-            <Ionicons name="pencil" size={18} color="#2563eb" />
+            <Icon as={SquarePen} color={Colors.light.primary} size={18} />
           </Pressable>
 
           <Pressable onPress={onDelete} className="rounded-lg p-2">
-            <Ionicons name="trash" size={18} color="#ef4444" />
+            <Icon as={Trash} color={Colors.light.destructive} size={18} />
           </Pressable>
         </View>
       </View>
@@ -130,14 +129,9 @@ export function TemplateCard({
       {/* Items list */}
       <View className="gap-1">
         {template.items.map((item, index) => (
-          <View
-            key={index}
-            className="flex-row items-center gap-2"
-          >
+          <View key={index} className="flex-row items-center gap-2">
             <View className="h-5 w-5 items-center justify-center rounded bg-gray-100">
-              <Text className="text-xs text-gray-600">
-                {index + 1}
-              </Text>
+              <Text className="text-xs text-gray-600">{index + 1}</Text>
             </View>
 
             <Text className="text-gray-600">{item}</Text>

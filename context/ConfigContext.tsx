@@ -3,7 +3,6 @@ import {
   createCompanyRepository,
 } from "@/core/config/repository/companyRepository";
 import { createExpoDbAdapter } from "@/core/config/storage/adapters/expo-adapter";
-import { randomUUID } from "expo-crypto";
 import React, {
   createContext,
   ReactNode,
@@ -14,15 +13,21 @@ import React, {
 } from "react";
 
 import {
+  createServiceTemplateRepository,
+  ServiceTemplateRepository,
+} from "@/core/config/repository/serviceTemplateRepository";
+import {
   createServiceTypeRepository,
   ServiceTypeRepository,
 } from "@/core/config/repository/serviceTypeRepository";
 import { DatabaseAdapter } from "@/core/config/storage/database.interface";
-import { CompanyInfo } from "@/types";
+import { getRemoteConfigValue } from "@/lib/remoteConfig";
+import { CompanyInfo, ServiceTemplate } from "@/types";
 
 export interface Template {
   id: string;
   name: string;
+  service_type: string;
   items: string[];
 }
 
@@ -32,6 +37,76 @@ export interface ServiceType {
   slug?: string;
 }
 
+const defaultServiceTypes: ServiceType[] = [
+  {
+    id: "type-1",
+    name: "Manutenção preventiva",
+    slug: "manutencao-preventiva",
+  },
+  {
+    id: "type-2",
+    name: "Manutenção de área verde",
+    slug: "manutencao-area-verde",
+  },
+  { id: "type-3", name: "Elétrica", slug: "eletrica" },
+  { id: "type-4", name: "Hidráulica", slug: "hidraulica" },
+  { id: "type-5", name: "Suporte técnico", slug: "suporte-tecnico" },
+];
+
+const defaultServiceTemplates: ServiceTemplateWithStringItems[] = [
+  {
+    id: "tmpl-1",
+    name: "Ar-condicionado",
+    service_type: "Manutenção preventiva",
+    items: [
+      "Desligamento do equipamento",
+      "Inspeção visual geral",
+      "Limpeza dos filtros",
+      "Higienização da evaporadora",
+      "Verificação de dreno",
+      "Conferência de conexões elétricas",
+      "Teste de funcionamento",
+      "Verificação de ruídos anormais",
+      "Orientações ao cliente",
+    ],
+  },
+  {
+    id: "tmpl-2",
+    name: "Jardinagem",
+    service_type: "Manutenção de área verde",
+    items: [
+      "Corte de grama",
+      "Poda de plantas e arbustos",
+      "Remoção de folhas secas",
+      "Limpeza do terreno",
+      "Verificação de pragas visíveis",
+      "Organização do espaço",
+      "Recolhimento de resíduos",
+      "Orientações ao cliente",
+    ],
+  },
+  {
+    id: "tmpl-3",
+    name: "Instalação elétrica",
+    service_type: "Elétrica",
+    items: [
+      "Desligamento da rede elétrica",
+      "Verificação do ponto de instalação",
+      "Conferência de cabos e conexões",
+      "Instalação / substituição do componente",
+      "Fixação adequada",
+      "Teste de funcionamento",
+      "Verificação de segurança",
+      "Liberação da rede elétrica",
+      "Orientações ao cliente",
+    ],
+  },
+];
+
+type ServiceTemplateWithStringItems = Omit<ServiceTemplate, "items"> & {
+  items: string[];
+};
+
 interface ConfigContextData {
   // Company
   companyInfo: CompanyInfo;
@@ -39,8 +114,8 @@ interface ConfigContextData {
 
   // Templates
   templates: Template[];
-  addTemplate: (data: Omit<Template, "id">) => void;
-  updateTemplate: (id: string, data: Partial<Template>) => void;
+  addTemplate: (data: Omit<ServiceTemplate, "id">) => void;
+  updateTemplate: (id: string, data: Partial<ServiceTemplate>) => void;
   deleteTemplate: (id: string) => void;
 
   // Service Types
@@ -53,36 +128,35 @@ interface ConfigContextData {
 
 const ConfigContext = createContext<ConfigContextData | undefined>(undefined);
 
+const slugifyLocal = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   const [db, setDb] = useState<DatabaseAdapter | null>(null);
   const repositoryRef = useRef<CompanyRepository | null>(null);
   const serviceTypeRepositoryRef = useRef<ServiceTypeRepository | null>(null);
+  const serviceTemplateRepositoryRef = useRef<ServiceTemplateRepository | null>(
+    null,
+  );
 
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: "WorkChecklist",
     phone: "(11) 99999-9999",
     email: "contato@empresa.com",
-    address: "São Paulo - SC",
+    address: "São Paulo - SP",
   });
   const [loading, setLoading] = useState(true);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
-    { id: randomUUID(), name: "Manutenção preventiva" },
-    { id: randomUUID(), name: "Instalação" },
-    { id: randomUUID(), name: "Reparo" },
+    ...defaultServiceTypes,
   ]);
 
-  const [templates, setTemplates] = useState<Template[]>([
-    {
-      id: randomUUID(),
-      name: "Manutenção Preventiva",
-      items: [
-        "Verificação inicial do equipamento",
-        "Teste de funcionamento",
-        "Limpeza e manutenção",
-        "Verificação de segurança",
-        "Testes finais",
-      ],
-    },
+  const [templates, setTemplates] = useState<ServiceTemplateWithStringItems[]>([
+    ...defaultServiceTemplates,
   ]);
 
   useEffect(() => {
@@ -93,12 +167,18 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
       repositoryRef.current = createCompanyRepository(dbInstance);
       serviceTypeRepositoryRef.current =
         createServiceTypeRepository(dbInstance);
+      serviceTemplateRepositoryRef.current =
+        createServiceTemplateRepository(dbInstance);
       const company = await repositoryRef.current?.getCompany();
-      getAllServiceType();
+
+      // Seed defaults if empty
+      await ensureDefaults();
 
       if (mounted) {
         setDb(dbInstance);
         if (company) setCompanyInfo(company);
+        await getAllServiceType();
+        await getAllServiceTemplate();
         setLoading(false);
       }
     };
@@ -115,22 +195,98 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
     updateCompanyInfo(data);
   };
 
+  const ensureDefaults = async () => {
+    // Seed service types if empty
+    const types = await serviceTypeRepositoryRef.current?.getAll();
+    if (!types || types.length === 0) {
+      for (const t of defaultServiceTypes) {
+        await serviceTypeRepositoryRef.current?.save({
+          name: t.name,
+          slug: slugifyLocal(t.name),
+        });
+      }
+    }
+
+    // Seed templates if empty
+    const templatesDb = await serviceTemplateRepositoryRef.current?.getAll();
+    if (!templatesDb || templatesDb.length === 0) {
+      let templatesToSeed = defaultServiceTemplates;
+
+      try {
+        const remoteJson = await getRemoteConfigValue(
+          "default_service_templates_json",
+        );
+        if (remoteJson) {
+          const parsed = JSON.parse(remoteJson as string);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            templatesToSeed = parsed.map((tmpl, index) => ({
+              id: `tmpl-remote-${index + 1}`,
+              name: String(tmpl?.name ?? ""),
+              service_type: String(tmpl?.service_type ?? ""),
+              items: Array.isArray(tmpl?.items) ? tmpl.items : [],
+            }));
+          }
+        }
+      } catch (error) {
+        console.warn("[config] Failed to parse remote templates", error);
+      }
+
+      for (const tmpl of templatesToSeed) {
+        await serviceTemplateRepositoryRef.current?.save({
+          name: tmpl.name,
+          service_type: tmpl.service_type,
+          items: JSON.stringify(tmpl.items, null, 2),
+        });
+      }
+    }
+  };
+
+  const resetAllData = async () => {
+    if (!db) return;
+
+    await db.exec("DELETE FROM service;");
+    await db.exec("DELETE FROM service_template;");
+    await db.exec("DELETE FROM service_type;");
+
+    await ensureDefaults();
+    await getAllServiceType();
+    await getAllServiceTemplate();
+  };
+
   const updateCompanyInfo = (data: Partial<CompanyInfo>) => {
     setCompanyInfo((prev) => ({ ...prev, ...data }));
   };
 
-  const addTemplate = (data: Omit<Template, "id">) => {
-    setTemplates((prev) => [...prev, { id: randomUUID(), ...data }]);
+  const getAllServiceTemplate = async () => {
+    const serviceTemplatesRes =
+      await serviceTemplateRepositoryRef.current?.getAll();
+
+    const converteditems = serviceTemplatesRes?.map((tmp) => ({
+      ...tmp,
+      items: tmp.items ? JSON.parse(tmp.items) : [],
+    }));
+    setTemplates(converteditems ?? []);
   };
 
-  const updateTemplate = (id: string, data: Partial<Template>) => {
-    setTemplates((prev) =>
-      prev.map((tpl) => (tpl.id === id ? { ...tpl, ...data } : tpl))
-    );
+  const addTemplate = async (data: Omit<ServiceTemplate, "id">) => {
+    // console.log(data);
+    await serviceTemplateRepositoryRef.current?.save(data);
+    getAllServiceTemplate();
   };
 
-  const deleteTemplate = (id: string) => {
-    setTemplates((prev) => prev.filter((tpl) => tpl.id !== id));
+  const updateTemplate = async (id: string, data: Partial<ServiceTemplate>) => {
+    const res = await serviceTemplateRepositoryRef.current?.edit({
+      id,
+      ...data,
+    });
+    getAllServiceTemplate();
+    return res;
+  };
+
+  const deleteTemplate = async (id: string) => {
+    const serviceTypeRes =
+      await serviceTemplateRepositoryRef.current?.delete(id);
+    getAllServiceTemplate();
   };
 
   const addServiceType = async (data: Omit<ServiceType, "id">) => {
@@ -140,14 +296,12 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 
   const updateServiceType = async (data: Partial<ServiceType>) => {
     const res = await serviceTypeRepositoryRef.current?.edit(data);
-    console.log(res)
     getAllServiceType();
-    return res
+    return res;
   };
 
   const getAllServiceType = async () => {
     const serviceTypesRes = await serviceTypeRepositoryRef.current?.getAll();
-    console.log(serviceTypesRes);
     setServiceTypes(serviceTypesRes ?? []);
   };
 
@@ -170,6 +324,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
         updateServiceType,
         deleteServiceType,
         saveCompany,
+        resetAllData,
       }}
     >
       {children}

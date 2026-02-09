@@ -1,27 +1,52 @@
+import { EmptyState } from "@/components/empty-state";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { ServiceType } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Dispatch, SetStateAction } from "react";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import {
+    Alert,
+    FlatList,
+    Platform,
+    Pressable,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Toast } from "toastify-react-native";
 import { TemplateCard } from "./template-card";
 
 type Template = {
   id: string;
   name: string;
+  service_type: string;
   items: string[];
 };
 
 type TemplatesProps = {
   templates: Template[];
   showNewTemplate: boolean;
-  newTemplate: { name: string; items: string[] };
+  newTemplate: { name: string; service_type: string; items: string[] };
   editingTemplate: string | null;
 
   setShowNewTemplate: (value: boolean) => void;
-  setNewTemplate: Dispatch<SetStateAction<{ name: string; items: string[] }>>;
+  setNewTemplate: Dispatch<
+    SetStateAction<{ name: string; service_type: string; items: string[] }>
+  >;
   setEditingTemplate: (value: string | null) => void;
 
   onAdd: () => void;
   onUpdate: (id: string, name: string, items: string[]) => void;
   onDelete: (id: string) => void;
+  types: ServiceType[];
+  freeTemplateLimit: number;
 };
 
 export function Templates({
@@ -35,9 +60,61 @@ export function Templates({
   onAdd,
   onUpdate,
   onDelete,
+  types,
+  freeTemplateLimit,
 }: TemplatesProps) {
+  const insets = useSafeAreaInsets();
+
+  const handleDeleteTemplate = (templateId: string, templateName: string) => {
+    Alert.alert(
+      "Excluir template",
+      `Tem certeza que deseja excluir o template "${templateName}"?`,
+      [
+        {
+          text: "Cancelar",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
+          onPress: () => onDelete(templateId),
+          style: "destructive",
+        },
+      ],
+    );
+  };
+
+  const contentInsets = {
+    top: insets.top,
+    bottom: Platform.select({
+      ios: insets.bottom,
+      android: insets.bottom + 24,
+    }),
+    left: 12,
+    right: 12,
+  };
+
+  const handleOpenNewTemplate = () => {
+    const normalizedLimit = Math.max(1, freeTemplateLimit || 0);
+
+    if (templates.length >= normalizedLimit) {
+      Toast.show({
+        type: "info",
+        text1: "Limite atingido",
+        text2: `O limite é de ${normalizedLimit} template(s).`,
+        position: "top",
+        visibilityTime: 4000,
+        autoHide: true,
+      });
+      return;
+    }
+
+    setEditingTemplate(null);
+    setShowNewTemplate(true);
+  };
+
   return (
-    <View className="gap-3">
+    <View className="flex-1 gap-3 px-3 pt-3">
       {/* Header */}
       <View className="flex-row items-center justify-between">
         <Text className="text-gray-500">
@@ -45,11 +122,8 @@ export function Templates({
         </Text>
 
         <Pressable
-          onPress={() => {
-            setEditingTemplate(null);
-            setShowNewTemplate(true);
-          }}
-          className="flex-row items-center gap-2 rounded-lg bg-blue-600 px-4 py-2"
+          onPress={handleOpenNewTemplate}
+          className="flex-row items-center gap-2 rounded-lg bg-primary px-4 py-2"
         >
           <Ionicons name="add" size={18} color="#fff" />
           <Text className="font-medium text-white">Novo template</Text>
@@ -65,7 +139,11 @@ export function Templates({
             <Pressable
               onPress={() => {
                 setShowNewTemplate(false);
-                setNewTemplate({ name: "", items: [""] });
+                setNewTemplate({
+                  name: "",
+                  service_type: "",
+                  items: [""],
+                });
               }}
               hitSlop={8}
             >
@@ -74,17 +152,13 @@ export function Templates({
           </View>
 
           <View className="gap-3">
-            {/* Template name */}
+            {/* Nome */}
             <View>
               <Text className="mb-1 text-gray-700">Nome do template</Text>
-
               <TextInput
                 value={newTemplate.name}
                 onChangeText={(text) =>
-                  setNewTemplate((prev) => ({
-                    ...prev,
-                    name: text,
-                  }))
+                  setNewTemplate((prev) => ({ ...prev, name: text }))
                 }
                 placeholder="Ex: Manutenção Preventiva"
                 placeholderTextColor="#9ca3af"
@@ -92,7 +166,44 @@ export function Templates({
               />
             </View>
 
-            {/* Items */}
+            {/* Tipo */}
+            <View>
+              <Text className="mb-1 text-gray-700">Tipo de Serviço</Text>
+              <Select
+                onValueChange={(text) =>
+                  setNewTemplate((prev) => ({
+                    ...prev,
+                    service_type: text?.value ?? "",
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full border-gray-300">
+                  <SelectValue
+                    className="text-[#9ca3af]"
+                    placeholder="Selecione o tipo de serviço"
+                  />
+                </SelectTrigger>
+
+                <SelectContent
+                  insets={contentInsets}
+                  className="w-full bg-white"
+                >
+                  <SelectGroup>
+                    {types.map((service_type) => (
+                      <SelectItem
+                        key={service_type.name}
+                        label={service_type.name}
+                        value={service_type.slug ?? service_type.name}
+                      >
+                        {service_type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </View>
+
+            {/* Itens */}
             <View>
               <Text className="mb-1 text-gray-700">Itens do checklist</Text>
 
@@ -101,11 +212,11 @@ export function Templates({
                   <TextInput
                     value={item}
                     onChangeText={(text) => {
-                      const newItems = [...newTemplate.items];
-                      newItems[index] = text;
+                      const items = [...newTemplate.items];
+                      items[index] = text;
                       setNewTemplate((prev) => ({
                         ...prev,
-                        items: newItems,
+                        items,
                       }));
                     }}
                     placeholder={`Item ${index + 1}`}
@@ -115,17 +226,13 @@ export function Templates({
 
                   {newTemplate.items.length > 1 && (
                     <Pressable
-                      onPress={() => {
-                        const newItems = newTemplate.items.filter(
-                          (_, i) => i !== index
-                        );
+                      onPress={() =>
                         setNewTemplate((prev) => ({
                           ...prev,
-                          items: newItems,
-                        }));
-                      }}
+                          items: prev.items.filter((_, i) => i !== index),
+                        }))
+                      }
                       className="items-center justify-center rounded-lg p-2"
-                      hitSlop={8}
                     >
                       <Ionicons name="trash" size={18} color="#ef4444" />
                     </Pressable>
@@ -147,7 +254,7 @@ export function Templates({
               </Pressable>
             </View>
 
-            {/* Save */}
+            {/* Salvar */}
             <Pressable
               onPress={onAdd}
               disabled={!newTemplate.name.trim()}
@@ -163,25 +270,38 @@ export function Templates({
       )}
 
       {/* Templates List */}
-      <FlatList
-        data={templates}
-        keyExtractor={(item) => item.id}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ gap: 8 }}
-        renderItem={({ item }) => (
-          <TemplateCard
-            template={item}
-            isEditing={editingTemplate === item.id}
-            onEdit={() => {
-              setShowNewTemplate(false);
-              setEditingTemplate(item.id);
+      <View className="flex-1">
+        {templates.length === 0 && !showNewTemplate ? (
+          <EmptyState
+            message="Nenhum template cadastrado"
+            description="Crie seu primeiro template para começar"
+            debugInfo={`Templates count: ${templates.length}, Show new: ${showNewTemplate}`}
+          />
+        ) : (
+          <FlatList
+            data={templates}
+            keyExtractor={(item) => item.id}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{
+              gap: 8,
+              paddingBottom: 80,
             }}
-            onSave={(name, items) => onUpdate(item.id, name, items)}
-            onCancel={() => setEditingTemplate(null)}
-            onDelete={() => onDelete(item.id)}
+            renderItem={({ item }) => (
+              <TemplateCard
+                template={item}
+                isEditing={editingTemplate === item.id}
+                onEdit={() => {
+                  setShowNewTemplate(false);
+                  setEditingTemplate(item.id);
+                }}
+                onSave={(name, items) => onUpdate(item.id, name, items)}
+                onCancel={() => setEditingTemplate(null)}
+                onDelete={() => handleDeleteTemplate(item.id, item.name)}
+              />
+            )}
           />
         )}
-      />
+      </View>
     </View>
   );
 }

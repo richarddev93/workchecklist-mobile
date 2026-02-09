@@ -18,16 +18,16 @@ export function ReportHeaderPreview({ companyInfo }: Props) {
       </Text>
 
       <View className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-        <View className="flex-row items-start gap-4">
+        <View className="flex-col gap-4">
           {companyInfo.logo && (
             <Image
               source={{ uri: companyInfo.logo }}
-              className="w-[120px] h-[60px]"
+              className="w-full h-[80px]"
               resizeMode="contain"
             />
           )}
 
-          <View className="flex-1">
+          <View className="flex-1 border-t border-gray-200 pt-4">
             {companyInfo.name && (
               <Text className="font-semibold text-gray-900 mb-1">
                 {companyInfo.name}
@@ -35,22 +35,16 @@ export function ReportHeaderPreview({ companyInfo }: Props) {
             )}
 
             {companyInfo.address && (
-              <Text className="text-gray-600">
-                {companyInfo.address}
-              </Text>
+              <Text className="text-gray-600">{companyInfo.address}</Text>
             )}
 
             <View className="flex-row  mt-1 flex-wrap">
               {companyInfo.phone && (
-                <Text className="text-gray-600">
-                  {companyInfo.phone}
-                </Text>
+                <Text className="text-gray-600">{companyInfo.phone}</Text>
               )}
 
               {companyInfo.email && (
-                <Text className="text-gray-600">
-                  {companyInfo.email}
-                </Text>
+                <Text className="text-gray-600">{companyInfo.email}</Text>
               )}
             </View>
           </View>

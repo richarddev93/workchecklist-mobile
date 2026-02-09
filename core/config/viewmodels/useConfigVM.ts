@@ -1,25 +1,15 @@
 import { useConfig } from "@/context/ConfigContext";
+import { getRemoteConfigValue } from "@/lib/remoteConfig";
 import { slugify } from "@/lib/utils";
 import { CompanyInfo, ServiceType } from "@/types";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Toast } from "toastify-react-native";
 
-// const INITIAL_TEMPLATES_TEMPLATE: TemplateTemplate[] = [
-//   {
-//     id: "1",
-//     name: "Manutenção Preventiva",
-//     items: ["Verificar níveis de óleo", "Apertar conexões", "Limpeza geral"],
-//   },
-//   {
-//     id: "2",
-//     name: "Instalação",
-//     items: ["Conferir equipamentos", "Fixação no local", "Teste final"],
-//   },
-// ];
 export const useConfigViewModel = () => {
   const {
     templates,
+    addTemplate,
     serviceTypes,
     companyInfo,
     deleteTemplate,
@@ -28,6 +18,8 @@ export const useConfigViewModel = () => {
     saveCompany,
     addServiceType,
     updateServiceType,
+    updateTemplate,
+    resetAllData,
   } = useConfig();
 
   const [onEdit, setOnEdit] = useState(true);
@@ -37,36 +29,46 @@ export const useConfigViewModel = () => {
 
   const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
+  const [freeTemplateLimit, setFreeTemplateLimit] = useState(1);
 
   const [newTemplate, setNewTemplate] = useState<{
     name: string;
+    service_type: string;
     items: string[];
   }>({
     name: "",
+    service_type: "",
     items: [""],
   });
+
+  // Load remote config on mount
+  useEffect(() => {
+    (async () => {
+      const limit = await getRemoteConfigValue("free_template_limit");
+      const normalized = typeof limit === "number" ? Math.max(1, limit) : 1;
+      setFreeTemplateLimit(normalized);
+    })();
+  }, []);
 
   const handleUpdateServiceType = (id: string, name: string) => {
     try {
       updateServiceType({ id, name, slug: slugify(newType.trim()) });
       setEditingType(null);
     } catch (error) {
-      console.log("Error on type update");
+      // console.log("Error on type update");
     } finally {
       setEditingType(null);
     }
   };
 
   const handleDeleteServiceType = (id: string) => {
-    // setServiceTypes((prev) => prev.filter((item) => item.id !== id));
-    console.log("deletando", id, editingType)
     try {
       deleteServiceType(id);
       if (editingType === id) {
         setEditingType(null);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -80,14 +82,20 @@ export const useConfigViewModel = () => {
       position: "top",
       visibilityTime: 4000,
       autoHide: true,
-      onPress: () => console.log("Toast pressed"),
-      onShow: () => console.log("Toast shown"),
-      onHide: () => console.log("Toast hidden"),
+      onPress: () => {
+        // console.log("Toast pressed");
+      },
+      onShow: () => {
+        // console.log("Toast shown");
+      },
+      onHide: () => {
+        // console.log("Toast hidden");
+      },
     });
   };
 
   const handleOnEdit = () => {
-    console.log(`handle on Edit`, onEdit);
+    // console.log(`handle on Edit`, onEdit);
     setOnEdit(false);
   };
 
@@ -105,8 +113,8 @@ export const useConfigViewModel = () => {
       setShowNewType(false);
       addServiceType(serviceTypeData);
     } catch (error) {
-      console.log("error");
-      console.log(error);
+      // console.log("error");
+      // console.log(error);
     }
   };
 
@@ -131,32 +139,59 @@ export const useConfigViewModel = () => {
   const handleAddTemplate = () => {
     if (!newTemplate.name.trim()) return;
 
-    // setTemplatesTemplate((prev) => [
-    //   ...prev,
-    //   {
-    //     id: String(Date.now()),
-    //     name: newTemplate.name.trim(),
-    //     items: newTemplate.items.filter(Boolean),
-    //   },
-    // ]);
+    try {
+      addTemplate({
+        ...newTemplate,
+        items:
+          newTemplate.items.length > 0
+            ? JSON.stringify(newTemplate.items, null, 2)
+            : "[]",
+      });
 
-    setNewTemplate({ name: "", items: [""] });
-    setShowNewTemplate(false);
+      setShowNewTemplate(false);
+      setNewTemplate({
+        name: "",
+        service_type: "",
+        items: [""],
+      });
+    } catch (error) {
+      console.error("Error", error);
+      ShowError("Erro ao salvar o template! Tente Novamente");
+    }
   };
 
   const handleUpdateTemplate = (id: string, name: string, items: string[]) => {
-    // setTemplatesTemplate((prev) =>
-    //   prev.map((t) => (t.id === id ? { ...t, name, items } : t))
-    // );
-    setEditingTemplate(null);
+    try {
+      const current = templates.find((t) => t.id === id);
+      updateTemplate(id, {
+        name,
+        items: JSON.stringify(items, null, 2),
+        service_type: current?.service_type ?? "",
+      });
+    } catch (error) {
+      console.error("Error updating template", error);
+      ShowError("Erro ao atualizar o template! Tente Novamente");
+    } finally {
+      setEditingTemplate(null);
+    }
   };
 
   const handleDeleteTemplate = (id: string) => {
-    // setTemplatesTemplate((prev) => prev.filter((t) => t.id !== id));
-
-    if (editingTemplate === id) {
-      setEditingTemplate(null);
+    try {
+      deleteTemplate(id);
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  const ShowError = (message = "Erro desconhecido") => {
+    Toast.show({
+      type: "error",
+      text1: message,
+      position: "top",
+      visibilityTime: 4000,
+      autoHide: true,
+    });
   };
 
   const templatesHandle = {
@@ -169,6 +204,7 @@ export const useConfigViewModel = () => {
     setEditingTemplate,
     newTemplate,
     setNewTemplate,
+    freeTemplateLimit,
   };
 
   return {
@@ -194,5 +230,6 @@ export const useConfigViewModel = () => {
     cleanLogo,
     saveServiceType,
     templatesHandle,
+    resetAllData,
   };
 };
