@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -49,6 +49,10 @@ export function ServiceListView({
   const [tab, setTab] = useState<TabValue>(initialTab);
   const [sortBy, setSortBy] = useState<SortValue>("date_desc");
   const router = useRouter();
+
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
 
   const handleTabChange = (value: string) => {
     setTab(value as TabValue);
