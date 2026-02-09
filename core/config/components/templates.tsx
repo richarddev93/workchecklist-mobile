@@ -11,6 +11,7 @@ import { ServiceType } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Dispatch, SetStateAction } from "react";
 import {
+    Alert,
     FlatList,
     Platform,
     Pressable,
@@ -63,6 +64,25 @@ export function Templates({
   freeTemplateLimit,
 }: TemplatesProps) {
   const insets = useSafeAreaInsets();
+
+  const handleDeleteTemplate = (templateId: string, templateName: string) => {
+    Alert.alert(
+      "Excluir template",
+      `Tem certeza que deseja excluir o template "${templateName}"?`,
+      [
+        {
+          text: "Cancelar",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
+          onPress: () => onDelete(templateId),
+          style: "destructive",
+        },
+      ],
+    );
+  };
 
   const contentInsets = {
     top: insets.top,
@@ -276,7 +296,7 @@ export function Templates({
                 }}
                 onSave={(name, items) => onUpdate(item.id, name, items)}
                 onCancel={() => setEditingTemplate(null)}
-                onDelete={() => onDelete(item.id)}
+                onDelete={() => handleDeleteTemplate(item.id, item.name)}
               />
             )}
           />

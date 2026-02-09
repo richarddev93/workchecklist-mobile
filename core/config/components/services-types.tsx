@@ -1,5 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import {
+    Alert,
+    FlatList,
+    Pressable,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 import { ServiceTypeCard } from "./service-type-card";
 
 type ServiceType = {
@@ -34,6 +41,25 @@ export function ServicesTypes({
   onUpdate,
   onDelete,
 }: ServicesTypesProps) {
+  const handleDeleteServiceType = (typeId: string, typeName: string) => {
+    Alert.alert(
+      "Excluir tipo de serviço",
+      `Tem certeza que deseja excluir o tipo "${typeName}"?`,
+      [
+        {
+          text: "Cancelar",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
+          onPress: () => onDelete(typeId),
+          style: "destructive",
+        },
+      ],
+    );
+  };
+
   return (
     <View className="flex-1 gap-3 px-3 pt-3">
       {/* Header */}
@@ -111,7 +137,7 @@ export function ServicesTypes({
             }}
             onSave={(name: string) => onUpdate(item.id, name)}
             onCancel={() => setEditingType(null)}
-            onDelete={() => onDelete(item.id)}
+            onDelete={() => handleDeleteServiceType(item.id, item.name)}
           />
         )}
       />
