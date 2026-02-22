@@ -4,6 +4,7 @@ import { Header } from "@/components/ui/header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { useConfigViewModel } from "@/core/config/viewmodels/useConfigVM";
+import { getBannerAdUnitId } from "@/lib/ads";
 import { cn } from "@/lib/utils";
 import { SettingsTab } from "@/types";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -216,7 +217,7 @@ export default function SettingsView() {
         </View>
       </Container>
       <View className="bg-white justify-center items-center">
-        <AdMobManager />
+        <AdMobManager unitId={getBannerAdUnitId("config_banner")} />
       </View>
     </View>
   );

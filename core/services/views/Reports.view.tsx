@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Service } from "@/types";
+import { getBannerAdUnitId } from "@/lib/ads";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -196,7 +197,7 @@ export function ReportsView({
         </ScrollView>
       </Container>
       <View className="bg-white justify-center items-center">
-        <AdMobManager />
+        <AdMobManager unitId={getBannerAdUnitId("reports_banner")} />
       </View>
     </View>
   );

@@ -1,4 +1,5 @@
 import { useServices } from "@/core/services/context/ServiceContext";
+import { showInterstitialForKey } from "@/lib/ads";
 import { analyticsEvents } from "@/lib/analytics";
 import { Service } from "@/types";
 import { useState } from "react";
@@ -34,6 +35,8 @@ export const useServiceViewModel = () => {
         position: "top",
         visibilityTime: 3000,
       });
+
+      await showInterstitialForKey("interticial_banner_service_created");
     } catch (error) {
       console.error("Error adding service:", error);
       const isOffline =

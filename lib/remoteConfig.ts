@@ -15,6 +15,14 @@ export interface RemoteConfigSchema {
   feedback_trigger_services: number;
   ads_enabled: boolean;
   ads_force_test: boolean;
+  services_banner: string;
+  reports_banner: string;
+  config_banner: string;
+  home_banner: string;
+  interticial_banner_service_created: string;
+  interticial_banner_to_report_share: string;
+  interticial_banner_to_service_finalize: string;
+  interstitial_interval: number;
   app_update_warning_enabled: boolean;
   app_update_target_version: string;
   app_update_url: string;
@@ -34,6 +42,14 @@ const DEFAULT_CONFIG: RemoteConfigSchema = {
   feedback_trigger_services: 3,
   ads_enabled: true,
   ads_force_test: true,
+  services_banner: "",
+  reports_banner: "",
+  config_banner: "",
+  home_banner: "",
+  interticial_banner_service_created: "",
+  interticial_banner_to_report_share: "",
+  interticial_banner_to_service_finalize: "",
+  interstitial_interval: 3,
   app_update_warning_enabled: false,
   app_update_target_version: "",
   app_update_url:

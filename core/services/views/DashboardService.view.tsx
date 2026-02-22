@@ -3,6 +3,7 @@ import Container from "@/components/container";
 import StatCard from "@/components/state-card";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
+import { getBannerAdUnitId } from "@/lib/ads";
 import { useRouter } from "expo-router";
 import {
   CheckCircle,
@@ -104,7 +105,7 @@ export function DashboardServiceView({ services }: any) {
         </Container>
       </ScrollView>
       <View className="justify-center items-center">
-        <AdMobManager />
+        <AdMobManager unitId={getBannerAdUnitId("home_banner")} />
       </View>
     </View>
   );

@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useConfig } from "@/context/ConfigContext";
+import { showInterstitialForKey } from "@/lib/ads";
 import { analyticsEvents } from "@/lib/analytics";
 import { useServices } from "../context/ServiceContext";
 
@@ -159,6 +160,8 @@ export function ServiceReport({ serviceId, onBack }: ServiceReportProps) {
       });
 
       analyticsEvents.reportShared({ channel: "text" });
+
+      await showInterstitialForKey("interticial_banner_to_report_share");
     } catch (error) {
       const isOffline =
         typeof globalThis !== "undefined" &&

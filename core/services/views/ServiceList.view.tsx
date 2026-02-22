@@ -13,6 +13,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { ServiceCard } from "@/core/services/components/service-card";
+import { getBannerAdUnitId } from "@/lib/ads";
 import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -264,7 +265,7 @@ export function ServiceListView({
         </Pressable>
       </Container>
       <View className="bg-white justify-center items-center">
-        <AdMobManager />
+        <AdMobManager unitId={getBannerAdUnitId("services_banner")} />
       </View>
     </View>
   );

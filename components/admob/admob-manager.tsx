@@ -1,20 +1,13 @@
+import { getFallbackBannerAdUnitId } from "@/lib/ads";
 import { getRemoteConfigValue } from "@/lib/remoteConfig";
 import React, { useEffect, useMemo, useState } from "react";
-import { Platform, View, ViewStyle } from "react-native";
+import { View, ViewStyle } from "react-native";
 import {
   BannerAd,
   BannerAdSize,
   MobileAds,
   TestIds,
 } from "react-native-google-mobile-ads";
-
-const getBannerAdUnitId = (useTestAds: boolean) =>
-  useTestAds
-    ? TestIds.BANNER
-    : (Platform.select({
-        ios: "ca-app-pub-xxx/yyy",
-        android: "ca-app-pub-1785031579807096/8245483491",
-      }) ?? TestIds.BANNER);
 
 // const getInterstitialAdUnitId = (useTestAds: boolean) =>
 //   useTestAds
@@ -68,10 +61,13 @@ const AdMobManager = ({
     [forceTestAds],
   );
 
-  const bannerUnitId = useMemo(
-    () => unitId ?? getBannerAdUnitId(shouldUseTestAds),
-    [shouldUseTestAds, unitId],
-  );
+  const bannerUnitId = useMemo(() => {
+    if (shouldUseTestAds) {
+      return TestIds.BANNER;
+    }
+
+    return unitId ?? getFallbackBannerAdUnitId();
+  }, [shouldUseTestAds, unitId]);
 
   // const interstitialUnitId = useMemo(
   //   () => getInterstitialAdUnitId(shouldUseTestAds),

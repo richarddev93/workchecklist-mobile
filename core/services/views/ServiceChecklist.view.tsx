@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import {
-  Alert,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Pressable,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 import Container from "@/components/container";
 import { Header } from "@/components/ui/header";
 import { Progress } from "@/components/ui/progress";
 import { Colors } from "@/constants/theme";
+import { showInterstitialForKey } from "@/lib/ads";
 import { cn } from "@/lib/utils";
 import { ServiceStatus } from "@/types";
 import { ChecklistItemComponent } from "../components/checklist-item";
@@ -126,6 +127,7 @@ export function ServiceChecklistView({
     }
 
     try {
+      await showInterstitialForKey("interticial_banner_to_service_finalize");
       onBack();
     } catch (error) {
       console.error("Navigation error in handleComplete:", error);
